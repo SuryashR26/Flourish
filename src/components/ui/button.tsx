@@ -1,49 +1,62 @@
-import React, { ButtonHTMLAttributes } from 'react';
+"use client"
 
-type ButtonStyle = 'primary' | 'outline';
-type ButtonSize = 'medium' | 'large';
+import type React from "react"
+import Link from "next/link"
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-    children: React.ReactNode;
-    buttonStyle?: ButtonStyle;
-    buttonSize?: ButtonSize;
-    className?: string;
+const STYLES = ["primary", "outline"] as const
+const SIZES = ["medium", "large"] as const
+
+type ButtonStyle = (typeof STYLES)[number]
+type ButtonSize = (typeof SIZES)[number]
+
+interface ButtonProps {
+    children: React.ReactNode
+    type?: "button" | "submit" | "reset"
+    onClick?: () => void
+    buttonStyle?: ButtonStyle
+    buttonSize?: ButtonSize
+    className?: string
+    href?: string
 }
 
-const styleClasses = {
-    primary:
-        'bg-white text-gray-900 relative overflow-hidden font-semibold text-lg border-2 border-white rounded-[12px] transition-colors duration-250 hover:text-white hover:bg-[#0C121C]',
-    outline:
-        'bg-transparent text-white border-2 border-white rounded-[12px] font-semibold text-lg hover:bg-white hover:text-gray-900 transition-colors duration-250',
-};
-
-const sizeClasses = {
-    medium: 'py-2.5 px-6 text-base',
-    large: 'py-3.5 px-7 text-lg',
-};
-
-export const Button: React.FC<ButtonProps> = ({
+export default function Button({
     children,
-    buttonStyle = 'primary',
-    buttonSize = 'medium',
-    className = '',
-    ...rest
-}) => {
-    const baseClasses = 'cursor-pointer relative z-10';
+    type = "button",
+    onClick,
+    buttonStyle = "primary",
+    buttonSize = "medium",
+    className = "",
+    href,
+}: ButtonProps) {
+    const baseClasses =
+        "relative overflow-hidden z-10 transition-colors duration-300 font-semibold cursor-pointer outline-none border-2 border-white rounded-xl"
+
+    const styleClasses = {
+        primary: "bg-white text-gray-800 border-white",
+        outline: "bg-transparent text-white border-white",
+    }
+
+    const sizeClasses = {
+        medium: "py-2 px-6 text-base",
+        large: "py-4 px-8 text-xl",
+    }
+
+    const hoverClasses =
+        buttonStyle === "primary" ? "hover:bg-gray-800 hover:text-white" : "hover:bg-white hover:text-gray-800"
+
+    const buttonClasses = `${baseClasses} ${styleClasses[buttonStyle]} ${sizeClasses[buttonSize]} ${hoverClasses} ${className}`
+
+    if (href) {
+        return (
+            <Link href={href} className={buttonClasses}>
+                {children}
+            </Link>
+        )
+    }
 
     return (
-        <button
-            className={`${baseClasses} ${styleClasses[buttonStyle]} ${sizeClasses[buttonSize]} ${className}`}
-            {...rest}
-        >
+        <button className={buttonClasses} onClick={onClick} type={type}>
             {children}
-            {/* Background effect similar to ::after using an absolute div */}
-            <span
-                aria-hidden="true"
-                className={`absolute top-[-2px] left-[-120%] w-[calc(100%+8px)] h-[calc(100%+8px)] rounded-[12px] bg-white transition-left duration-250 ease-in-out pointer-events-none ${buttonStyle === 'primary' ? 'bg-[#0C121C] left-[-102%]' : ''
-                    } group-hover:left-[-2px]`}
-                style={{ zIndex: -1 }}
-            />
         </button>
-    );
-};
+    )
+}
