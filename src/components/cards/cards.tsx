@@ -22,6 +22,7 @@ export default function Cards() {
     const lastScrollTime = useRef(Date.now())
     const scrollTimeout = useRef<NodeJS.Timeout | null>(null)
     const dashboardImageRef = useRef<HTMLImageElement>(null)
+    const dashboardImageContainerRef = useRef<HTMLDivElement>(null)
 
     const activeIndexRef = useRef(0)
     const isAnimatingRef = useRef(false)
@@ -283,7 +284,7 @@ export default function Cards() {
     return (
         <>
             {/* Dashboard Image Section */}
-            <div className="w-full min-h-screen flex justify-center items-center py-10 px-5 bg-black relative z-20">
+            <div ref={dashboardImageContainerRef} className="w-full flex justify-center items-center py-10 px-5 bg-black relative z-20">
                 <div className="w-full max-w-6xl mx-0 flex justify-center relative">
                     <Image
                         ref={dashboardImageRef}
@@ -296,48 +297,52 @@ export default function Cards() {
                 </div>
             </div>
 
-            <div className="flex min-h-screen relative p-8 bg-black pb-40">
-                <div className="flex-1 pr-8 bg-black pl-36 pb-8">
-                    {cardData.map((card, index) => (
-                        <div
-                            key={index}
-                            ref={(el) => (textBlocksRef.current[index] = el)}
-                            className="text-block min-h-screen flex flex-col justify-center p-8 mb-16 bg-black transform translate-y-12 transition-transform duration-700 relative z-10"
-                            id={`text-block-${index}`}
-                        >
-                            <h2 className="text-5xl leading-tight mb-6 text-white whitespace-pre-line">{card.title}</h2>
-                            <p className="text-lg leading-relaxed mb-8 text-gray-400 max-w-lg text-left">{card.text}</p>
-                            <a
-                                href="#"
-                                className="text-blue-400 no-underline text-lg inline-flex items-center hover:text-blue-300 transition-colors duration-200 group"
+            <div className="w-full flex justify-center">
+                <div className="flex relative p-8 bg-black pb-40 w-full max-w-6xl">
+                    {/* Text Block Column */}
+                    <div className="flex-1 max-w-2xl pr-8 bg-black pl-8 pb-8">
+                        {cardData.map((card, index) => (
+                            <div
+                                key={index}
+                                ref={el => { textBlocksRef.current[index] = el; }}
+                                className="text-block min-h-screen flex flex-col justify-center p-8 mb-16 bg-black transform translate-y-12 transition-transform duration-700 relative z-10"
+                                id={`text-block-${index}`}
                             >
-                                {card.link}
-                                <span className="ml-2 transition-transform duration-200 group-hover:translate-x-1">→</span>
-                            </a>
-                        </div>
-                    ))}
-                </div>
+                                <h2 className="text-5xl leading-tight mb-6 text-white whitespace-pre-line">{card.title}</h2>
+                                <p className="text-lg leading-relaxed mb-8 text-gray-400 max-w-lg text-left">{card.text}</p>
+                                <a
+                                    href="#"
+                                    className="text-blue-400 no-underline text-lg inline-flex items-center hover:text-blue-300 transition-colors duration-200 group"
+                                >
+                                    {card.link}
+                                    <span className="ml-2 transition-transform duration-200 group-hover:translate-x-1">→</span>
+                                </a>
+                            </div>
+                        ))}
+                    </div>
 
-                <div className="sticky top-1/2 transform -translate-y-1/2 w-[45%] h-[60vh] flex justify-center items-center right-8 mr-8 mt-[50vh]">
-                    <div
-                        className={`flip-card relative w-full h-full perspective-1000 ${isFlipped ? "flipped" : ""
-                            } ${noTransition ? "no-transition" : ""} ${flipDirection}`}
-                    >
-                        <div className="flip-card__front-side absolute top-0 left-0 w-full h-full backface-hidden preserve-3d transition-transform duration-300 ease-out flex items-center justify-center shadow-2xl will-change-transform origin-center transform-gpu rotateX-0 translateZ-0 z-20">
-                            <Image
-                                src={cardData[activeIndex].image || "/placeholder.svg"}
-                                alt={cardData[activeIndex].title}
-                                fill
-                                className="object-cover rounded-[35px] w-[90%] h-[90%]"
-                            />
-                        </div>
-                        <div className="flip-card__back-side absolute top-0 left-0 w-full h-full backface-hidden preserve-3d transition-transform duration-300 ease-out flex items-center justify-center shadow-2xl will-change-transform origin-center transform-gpu rotateX-180 translateZ-0 z-10">
-                            <Image
-                                src={cardData[nextIndex].image || "/placeholder.svg"}
-                                alt={cardData[nextIndex].title}
-                                fill
-                                className="object-cover rounded-[35px] w-[90%] h-[90%]"
-                            />
+                    {/* Card Image Column */}
+                    <div className="sticky -top-1 translate-y-60 transform w-[38vw] h-[52vh] flex justify-center items-center right-8 mr-20">
+                        <div
+                            className={`flip-card relative w-full h-full perspective-1000 ${isFlipped ? "flipped" : ""
+                                } ${noTransition ? "no-transition" : ""} ${flipDirection}`}
+                        >
+                            <div className="flip-card__front-side absolute top-0 left-0 w-full h-full backface-hidden preserve-3d transition-transform duration-300 ease-out flex items-center justify-center shadow-2xl will-change-transform origin-center transform-gpu rotateX-0 translateZ-0 z-20">
+                                <Image
+                                    src={cardData[activeIndex].image || "/placeholder.svg"}
+                                    alt={cardData[activeIndex].title}
+                                    fill
+                                    className="object-cover rounded-[35px] w-[90%] h-[90%]"
+                                />
+                            </div>
+                            <div className="flip-card__back-side absolute top-0 left-0 w-full h-full backface-hidden preserve-3d transition-transform duration-300 ease-out flex items-center justify-center shadow-2xl will-change-transform origin-center transform-gpu rotateX-180 translateZ-0 z-10">
+                                <Image
+                                    src={cardData[nextIndex].image || "/placeholder.svg"}
+                                    alt={cardData[nextIndex].title}
+                                    fill
+                                    className="object-cover rounded-[35px] w-[90%] h-[90%]"
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -396,6 +401,28 @@ export default function Cards() {
           }
         }
       `}</style>
+
+            <style jsx global>{`
+              @media (prefers-reduced-motion: no-preference) {
+                .dashboard-image {
+                  scale: 0.5;
+                  opacity: 1;
+                  animation: dashboard-fade-in linear both;
+                  animation-timeline: view();
+                  animation-range: entry 0% entry 100%;
+                }
+                @keyframes dashboard-fade-in {
+                  from {
+                    scale: 0.85;
+                    opacity: 0.3;
+                  }
+                  to {
+                    scale: 1;
+                    opacity: 1;
+                  }
+                }
+              }
+            `}</style>
         </>
     )
 }

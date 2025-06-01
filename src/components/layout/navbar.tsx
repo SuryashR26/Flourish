@@ -186,13 +186,15 @@ export default function Navbar({ scrollThreshold = 300 }: NavbarProps) {
                             </Link>
                         </li>
                     </ul>
-                    {button && (
-                        <Link href="/signup" className="no-underline">
-                            <Button buttonStyle="outline" buttonSize="medium">
-                                SIGN UP
-                            </Button>
-                        </Link>
-                    )}
+                    <Link href="/signup" className="no-underline hidden md:inline-block">
+                        <Button 
+                            buttonStyle="outline" 
+                            buttonSize="large" 
+                            className="signup-button text-xl font-semibold"
+                        >
+                            SIGN UP
+                        </Button>
+                    </Link>
                 </div>
             </div>
         </nav>
