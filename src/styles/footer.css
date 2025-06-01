@@ -3,6 +3,12 @@
   padding: 2rem 1rem;
   color: white;
   font-family: 'Figtree', sans-serif;
+  margin-top: 4rem;
+  /* Add space above footer */
+  position: relative;
+  /* Ensure proper stacking */
+  width: 100%;
+  bottom: 0;
 }
 
 .footer-container {
@@ -13,6 +19,8 @@
   align-items: flex-start;
   flex-wrap: wrap;
   gap: 2rem;
+  padding-top: 1rem;
+  /* Add padding to top of container */
 }
 
 /* Logo section */
@@ -106,6 +114,10 @@
 
 /* Responsive adjustments for smaller screens */
 @media (max-width: 768px) {
+  .footer {
+    margin-top: 2rem;
+  }
+
   .footer-container {
     flex-direction: column;
     align-items: center;

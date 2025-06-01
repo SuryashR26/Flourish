@@ -1,11 +1,9 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
+import { figtree } from "@/styles/fonts"
 import Navbar from "@/components/layout/navbar"
 import Footer from "@/components/layout/footer"
 import "@/styles/globals.css";
-
-const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "Flourish - Let Your Ideas Flourish",
@@ -19,11 +17,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={figtree.className}>
         <Navbar scrollThreshold={750} />
-        <div id="scroll-wrapper" className="overflow-y-auto overflow-x-hidden max-h-screen">
-          {children}
-        </div>
+        {children}
         <Footer />
       </body>
     </html>

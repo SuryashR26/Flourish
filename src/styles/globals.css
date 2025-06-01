@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -114,15 +113,15 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply outline-ring/50;
   }
 
   body {
     @apply bg-background text-foreground;
+    background: #000 !important;
+    color: var(--foreground);
   }
 }
-
-
 
 * {
   box-sizing: border-box;
@@ -136,66 +135,28 @@
   display: none;
 }
 
-/* Custom animations */
-@keyframes maskReveal {
-  from {
-    clip-path: inset(100% 0 0 0);
-    opacity: 0;
-    transform: translateY(20px);
-  }
-
-  60% {
-    opacity: 1;
-  }
-
-  to {
-    clip-path: inset(0 0 0 0);
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 .flourish-title {
-  display: inline-block;
   opacity: 0;
-  clip-path: inset(100% 0 0 0);
-  transform: translateY(20px);
-  animation: maskReveal 1.3s cubic-bezier(0.95, 0.01, 0.25, 0.4) forwards;
-  will-change: clip-path, opacity, transform;
 }
 
-.btn.flourish-title {
-  animation-delay: 0.1s;
-  animation-duration: 1.3s;
+/* Hide scrollbar for Chrome, Safari and Opera */
+::-webkit-scrollbar {
+  display: none;
 }
 
-/* Dashboard image animations */
-@media (prefers-reduced-motion: no-preference) {
-  .dashboard-image {
-    scale: 0.85;
-    opacity: 0.3;
-    animation: dashboard-fade-in linear forwards;
-    animation-timeline: view();
-    animation-range: entry;
-  }
+/* Hide scrollbar for IE, Edge and Firefox */
+* {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
 
-  @keyframes dashboard-fade-in {
-    to {
-      scale: 1;
-      opacity: 1;
-    }
-  }
-
-  .text-block {
-    opacity: 0;
-    animation: text-fade-in linear forwards;
-    animation-timeline: view();
-    animation-range: entry 400px;
-  }
-
-  @keyframes text-fade-in {
-    to {
-      opacity: 1;
-    }
-  }
+/* Scroll progress bar */
+.scroll-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: #58a6ff;
+  z-index: 10001;
+  transition: width 0.1s ease-out;
 }

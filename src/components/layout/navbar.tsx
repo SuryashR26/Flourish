@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import "@/styles/navbar.css";
-import  Button  from "@/components/ui/button";
+import Button from "@/components/ui/button";
 import { FaFacebookF, FaInstagram, FaLightbulb, FaBars, FaTimes } from "react-icons/fa";
 
 interface NavbarProps {
@@ -79,7 +79,7 @@ const Navbar: React.FC<NavbarProps> = ({ scrollThreshold = 300 }) => {
           Flourish <FaLightbulb />
         </Link>
         <div className="menu-icon" onClick={handleClick}>
-           {click ? <FaTimes /> : <FaBars />}
+          {click ? <FaTimes /> : <FaBars />}
         </div>
         <div
           className={click ? "overlay active" : "overlay"}
@@ -128,11 +128,15 @@ const Navbar: React.FC<NavbarProps> = ({ scrollThreshold = 300 }) => {
               </Link>
             </li>
           </ul>
-          {button && (
-            <Link href="/signup" className="no-decoration">
-              <Button buttonStyle="btn--outline">SIGN UP</Button>
-            </Link>
-          )}
+          <Link href="/signup" className="no-underline hidden md:inline-block">
+            <Button
+              buttonStyle="outline"
+              buttonSize="large"
+              className="signup-button text-xl font-semibold"
+            >
+              SIGN UP
+            </Button>
+          </Link>
         </div>
       </div>
     </nav>
