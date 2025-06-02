@@ -18,10 +18,17 @@
     background-color: #000000;
     z-index: 1000;
     text-decoration: none !important;
-    margin-left: 24px;
+    margin-left: 12px;
+    /* Decreased from 24px */
     display: inline-flex;
     align-items: center;
     gap: 8px;
+}
+
+/* Icon specific spacing */
+.site-logo svg {
+    margin-left: 4px;
+    /* Decreased from default */
 }
 
 .password-field {

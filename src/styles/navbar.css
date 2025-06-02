@@ -1,5 +1,5 @@
 .navbar {
-    position: fixed;
+    position: relative;
     /* fixed to top always */
     top: 0;
     left: 0;
@@ -54,7 +54,8 @@
 .navbar-logo {
     color: #fff;
     justify-self: start;
-    margin-left: 20px;
+    margin-left: 5%;
+    /* Changed from fixed 20px to percentage */
     cursor: pointer;
     text-decoration: none;
     font-size: 2.22rem;
@@ -116,22 +117,22 @@
 .menu-icon {
     display: none;
     color: white;
+    left: 30px;
 }
 
 @media screen and (max-width: 960px) {
-    .NavbarItems {
-        position: absolute;
-    }
-
     .navbar-logo {
-        margin-left: 40px;
+        margin-left: 25px;
+        /* Further reduced margin */
     }
 
     .menu-icon {
         display: block;
         position: absolute;
-        top: 24.5px !important;
-        left: 20px;
+        top: 50%;
+        left: 15px;
+        /* Further reduced distance */
+        transform: translateY(-50%);
         font-size: 2rem;
         cursor: pointer;
         z-index: 10003;

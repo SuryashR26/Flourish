@@ -86,7 +86,7 @@ export default function LoginPage() {
             {/* Site Logo */}
             <Link href="/" className="site-logo">
                 Flourish
-                <FaLightbulb className="ml-2" />
+                <FaLightbulb />
             </Link>
 
             {/* Login Content */}
