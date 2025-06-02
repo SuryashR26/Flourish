@@ -10,71 +10,16 @@ interface CardData {
     image: string
 }
 
+const FLIP_HEIGHT = 180 // px for each flip
+const PAUSE_HEIGHT = 300 // px for pause between flips
+const PAUSE_FIRST_CARD = 2000; // px to pause on the first card
+
 export default function Cards() {
-    const [activeIndex, setActiveIndex] = useState(0)
-    const [nextIndex, setNextIndex] = useState(1)
-    const [isFlipped, setIsFlipped] = useState(false)
-    const [isAnimating, setIsAnimating] = useState(false)
-    const [flipDirection, setFlipDirection] = useState<"forward" | "backward">("forward")
-    const [noTransition, setNoTransition] = useState(false)
-    const [isScrollingFast, setIsScrollingFast] = useState(false)
+    const cardRef = useRef<HTMLDivElement>(null)
+    const cardsSectionRef = useRef<HTMLDivElement>(null)
+    const [stage, setStage] = useState(0) // which flip we're on
+    const [rotation, setRotation] = useState(0)
     const textBlocksRef = useRef<(HTMLDivElement | null)[]>([])
-    const lastScrollTime = useRef(Date.now())
-    const scrollTimeout = useRef<NodeJS.Timeout | null>(null)
-    const dashboardImageRef = useRef<HTMLImageElement>(null)
-    const dashboardImageContainerRef = useRef<HTMLDivElement>(null)
-
-    const activeIndexRef = useRef(0)
-    const isAnimatingRef = useRef(false)
-    const flipDirectionRef = useRef<"forward" | "backward">("forward")
-
-    useEffect(() => {
-        activeIndexRef.current = activeIndex
-        isAnimatingRef.current = isAnimating
-    }, [activeIndex, isAnimating])
-
-    useEffect(() => {
-        flipDirectionRef.current = flipDirection
-    }, [flipDirection])
-
-    useEffect(() => {
-        const handleScroll = () => {
-            const now = Date.now()
-            const timeSinceLastScroll = now - lastScrollTime.current
-            lastScrollTime.current = now
-
-            if (timeSinceLastScroll < 100) {
-                setIsScrollingFast(true)
-                if (scrollTimeout.current) {
-                    clearTimeout(scrollTimeout.current)
-                }
-                scrollTimeout.current = setTimeout(() => {
-                    setIsScrollingFast(false)
-                }, 500)
-            }
-
-            if (window.scrollY <= 5) {
-                const firstIdx = 0
-                setNoTransition(true)
-                setActiveIndex(firstIdx)
-                setNextIndex(firstIdx)
-                setIsFlipped(false)
-                isAnimatingRef.current = false
-                setIsAnimating(false)
-                requestAnimationFrame(() => {
-                    setNoTransition(false)
-                })
-            }
-        }
-
-        window.addEventListener("scroll", handleScroll)
-        return () => {
-            window.removeEventListener("scroll", handleScroll)
-            if (scrollTimeout.current) {
-                clearTimeout(scrollTimeout.current)
-            }
-        }
-    }, [])
 
     const cardData: CardData[] = [
         {
@@ -109,195 +54,56 @@ export default function Cards() {
         },
     ]
 
-    const handleCardChange = (newIndex: number) => {
-        if (isAnimatingRef.current) {
-            return
-        }
-
-        if (isScrollingFast) {
-            setNoTransition(true)
-            setActiveIndex(newIndex)
-            setNextIndex(newIndex)
-            setIsFlipped(false)
-            isAnimatingRef.current = false
-            setIsAnimating(false)
-            requestAnimationFrame(() => {
-                setNoTransition(false)
-            })
-            return
-        }
-
-        isAnimatingRef.current = true
-        setIsAnimating(true)
-        setNoTransition(false)
-        setNextIndex(newIndex)
-        setIsFlipped(true)
-    }
-
-    useEffect(() => {
-        const card = document.querySelector(".flip-card") as HTMLElement
-        const handleTransitionEnd = (e: TransitionEvent) => {
-            if (e.propertyName !== "transform") return
-
-            if (isFlipped) {
-                setActiveIndex(nextIndex)
-                setNoTransition(true)
-
-                requestAnimationFrame(() => {
-                    setIsFlipped(false)
-
-                    requestAnimationFrame(() => {
-                        setNoTransition(false)
-                        isAnimatingRef.current = false
-                        setIsAnimating(false)
-                    })
-                })
-            }
-        }
-
-        card?.addEventListener("transitionend", handleTransitionEnd)
-        return () => card?.removeEventListener("transitionend", handleTransitionEnd)
-    }, [isFlipped, nextIndex])
-
     useEffect(() => {
         const handleScroll = () => {
-            const blockPositions = textBlocksRef.current
-                .map((el, index) => {
-                    if (!el) return { index, top: 0, bottom: 0, height: 0 }
-                    const rect = el.getBoundingClientRect()
-                    return {
-                        index,
-                        top: rect.top,
-                        bottom: rect.bottom,
-                        height: rect.height,
-                    }
-                })
-                .filter((block) => block.height > 0)
-
-            const mostVisibleBlock = blockPositions.reduce((prev, current) => {
-                const prevVisibility = Math.min(prev.bottom, window.innerHeight) - Math.max(prev.top, 0)
-                const currentVisibility = Math.min(current.bottom, window.innerHeight) - Math.max(current.top, 0)
-                return currentVisibility > prevVisibility ? current : prev
-            })
-
-            const updateCardState = (newIndex: number) => {
-                if (newIndex === activeIndexRef.current || isAnimatingRef.current) return
-
-                setNoTransition(true)
-                setActiveIndex(newIndex)
-                setNextIndex(newIndex)
-                setIsFlipped(false)
-                isAnimatingRef.current = false
-                setIsAnimating(false)
-                requestAnimationFrame(() => {
-                    setNoTransition(false)
-                })
+            const scrollY = window.scrollY;
+            console.log(`Scrolled: ${scrollY}px`);
+            if (scrollY < PAUSE_FIRST_CARD) {
+                setStage(0);
+                setRotation(0);
+                console.log(`Card flip stage: 0, rotation: 0 (First card paused)`);
+                return;
             }
+            const totalCards = cardData.length;
+            const localScroll = scrollY - PAUSE_FIRST_CARD;
+            let currentStage = Math.floor(localScroll / (FLIP_HEIGHT + PAUSE_HEIGHT));
+            currentStage = Math.min(currentStage, totalCards - 2);
+            currentStage = Math.max(currentStage, 0);
+            const stageStart = currentStage * (FLIP_HEIGHT + PAUSE_HEIGHT);
+            const stageProgress = (localScroll - stageStart) / FLIP_HEIGHT;
+            const rotation = Math.min(Math.max(stageProgress * 180, 0), 180);
+            setStage(currentStage);
+            setRotation(rotation);
+            console.log(`Card flip stage: ${currentStage}, rotation: ${rotation}`);
+        };
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        handleScroll();
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
 
-            if (window.scrollY <= 5) {
-                updateCardState(0)
-            } else if (window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 5) {
-                updateCardState(blockPositions.length - 1)
-            } else {
-                updateCardState(mostVisibleBlock.index)
-            }
-        }
-
-        let ticking = false
-        const throttledScroll = () => {
-            if (!ticking) {
-                window.requestAnimationFrame(() => {
-                    handleScroll()
-                    ticking = false
-                })
-                ticking = true
-            }
-        }
-
-        window.addEventListener("scroll", throttledScroll)
-        return () => {
-            window.removeEventListener("scroll", throttledScroll)
-        }
-    }, [])
-
-    useEffect(() => {
-        const cardObserver = new IntersectionObserver(
-            (entries) => {
-                entries.forEach((entry) => {
-                    const idx = textBlocksRef.current.indexOf(entry.target as HTMLDivElement)
-                    if (idx === -1) return
-
-                    if (entry.isIntersecting && entry.intersectionRatio >= 0.3) {
-                        if (idx === activeIndexRef.current || isAnimatingRef.current) {
-                            return
-                        }
-
-                        const isScrollingDown = idx > activeIndexRef.current
-
-                        setTimeout(() => {
-                            if (isScrollingDown) {
-                                setFlipDirection("forward")
-                                handleCardChange(idx)
-                            } else {
-                                setFlipDirection("backward")
-                                handleCardChange(idx)
-                            }
-                        }, 50)
-                    }
-                })
-            },
-            {
-                root: null,
-                rootMargin: "-40% 0px -20% 0px",
-                threshold: [0.3, 0.5, 0.7],
-            },
-        )
-
-        const textObserver = new IntersectionObserver(
-            (entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add("visible")
-                    }
-                })
-            },
-            {
-                root: null,
-                rootMargin: "0px",
-                threshold: 0.1,
-            },
-        )
-
-        textBlocksRef.current.forEach((el) => {
-            if (el) {
-                cardObserver.observe(el)
-                textObserver.observe(el)
-            }
-        })
-
-        return () => {
-            cardObserver.disconnect()
-            textObserver.disconnect()
-        }
-    }, [])
+    // Get the current front and back cards based on stage
+    const front = cardData[stage]
+    const back = cardData[stage + 1]
 
     return (
-        <>
+        <div className="min-h-[2000px] relative">
             {/* Dashboard Image Section */}
-            <div ref={dashboardImageContainerRef} className="w-full flex justify-center items-center py-10 px-5 bg-black relative z-20">
+            <div className="w-full flex justify-center items-center py-10 px-5 bg-black relative z-20">
                 <div className="w-full max-w-6xl mx-0 flex justify-center relative">
                     <Image
-                        ref={dashboardImageRef}
                         src="/images/dashboard1.png"
                         alt="IdeaBoard Dashboard"
                         width={1000}
                         height={600}
-                        className="dashboard-image w-[90%] max-w-4xl h-auto rounded-2xl shadow-2xl transform-gpu will-change-transform object-contain transition-transform duration-100 linear backface-hidden"
+                        className="dashboard-image w-[90%] max-w-4xl h-auto rounded-2xl shadow-2xl object-contain"
                     />
                 </div>
             </div>
+            {/* Spacer to move cards further down */}
+            <div className="w-full h-[20rem]" />
 
-            <div className="w-full flex justify-center">
+            {/* Flipping Cards Section */}
+            <div className="w-full flex justify-center" ref={cardsSectionRef}>
                 <div className="flex relative p-8 bg-black pb-40 w-full max-w-6xl">
                     {/* Text Block Column */}
                     <div className="flex-1 max-w-2xl pr-8 bg-black pl-8 pb-8">
@@ -322,25 +128,37 @@ export default function Cards() {
                     </div>
 
                     {/* Card Image Column */}
-                    <div className="sticky -top-1 translate-y-60 transform w-[38vw] h-[52vh] flex justify-center items-center right-8 mr-20">
+                    <div className="sticky top-32 w-[38vw] h-[52vh] flex justify-center items-center right-8 mr-20">
                         <div
-                            className={`flip-card relative w-full h-full perspective-1000 ${isFlipped ? "flipped" : ""
-                                } ${noTransition ? "no-transition" : ""} ${flipDirection}`}
+                            ref={cardRef}
+                            className="relative w-full h-full perspective-1000"
+                            style={{
+                                transformStyle: "preserve-3d",
+                                transform: `rotateX(${rotation}deg)`,
+                                transition: "transform 0s",
+                            }}
                         >
-                            <div className="flip-card__front-side absolute top-0 left-0 w-full h-full backface-hidden preserve-3d transition-transform duration-300 ease-out flex items-center justify-center shadow-2xl will-change-transform origin-center transform-gpu rotateX-0 translateZ-0 z-20">
+                            {/* Front card */}
+                            <div className="absolute w-full h-full rounded-[35px] shadow-2xl backface-hidden overflow-hidden">
                                 <Image
-                                    src={cardData[activeIndex].image || "/placeholder.svg"}
-                                    alt={cardData[activeIndex].title}
+                                    src={front.image}
+                                    alt={front.title}
                                     fill
-                                    className="object-cover rounded-[35px] w-[90%] h-[90%]"
+                                    className="object-cover w-full h-full rounded-[35px]"
                                 />
                             </div>
-                            <div className="flip-card__back-side absolute top-0 left-0 w-full h-full backface-hidden preserve-3d transition-transform duration-300 ease-out flex items-center justify-center shadow-2xl will-change-transform origin-center transform-gpu rotateX-180 translateZ-0 z-10">
+                            {/* Back card */}
+                            <div
+                                className="absolute w-full h-full rounded-[35px] shadow-2xl backface-hidden overflow-hidden"
+                                style={{
+                                    transform: "rotateX(180deg)",
+                                }}
+                            >
                                 <Image
-                                    src={cardData[nextIndex].image || "/placeholder.svg"}
-                                    alt={cardData[nextIndex].title}
+                                    src={back.image}
+                                    alt={back.title}
                                     fill
-                                    className="object-cover rounded-[35px] w-[90%] h-[90%]"
+                                    className="object-cover w-full h-full rounded-[35px]"
                                 />
                             </div>
                         </div>
@@ -348,81 +166,28 @@ export default function Cards() {
                 </div>
             </div>
 
-            <style jsx>{`
-        .text-block.visible {
-          transform: translateY(0);
-        }
-
-        .flip-card.no-transition .flip-card__front-side,
-        .flip-card.no-transition .flip-card__back-side {
-          transition: none;
-          backface-visibility: hidden;
-          transform-style: preserve-3d;
-        }
-
-        .flip-card.flipped.forward .flip-card__front-side {
-          transform: rotateX(-180deg) translateZ(0);
-          z-index: 10;
-        }
-
-        .flip-card.flipped.forward .flip-card__back-side {
-          transform: rotateX(0deg) translateZ(0);
-          z-index: 20;
-        }
-
-        .flip-card.flipped.backward .flip-card__front-side {
-          transform: rotateX(180deg) translateZ(0);
-          z-index: 10;
-        }
-
-        .flip-card.flipped.backward .flip-card__back-side {
-          transform: rotateX(360deg) translateZ(0);
-          z-index: 20;
-        }
-
-        @media (max-width: 768px) {
-          .cards-container {
-            flex-direction: column;
-          }
-
-          .cards-stack {
-            position: relative;
-            width: 100%;
-            height: 40vh;
-            margin-top: 2rem;
-          }
-
-          .text-blocks {
-            padding-right: 0;
-          }
-
-          .text-block h2 {
-            font-size: 2.5rem;
-          }
-        }
-      `}</style>
-
             <style jsx global>{`
-              @media (prefers-reduced-motion: no-preference) {
-                .dashboard-image {
-                  scale: 0.5;
-                  opacity: 1;
-                  animation: dashboard-fade-in linear both;
-                  animation-timeline: view();
-                  animation-range: entry 0% entry 100%;
-                }
-                @keyframes dashboard-fade-in {
-                  from {
-                    scale: 0.85;
-                    opacity: 0.3;
-                  }
-                  to {
-                    scale: 1;
+                @media (prefers-reduced-motion: no-preference) {
+                  .dashboard-image {
+                    scale: 0.5;
                     opacity: 1;
+                    animation: dashboard-fade-in linear both;
+                    animation-timeline: view();
+                    animation-range: entry 0% entry 100%;
+                  }
+                  @keyframes dashboard-fade-in {
+                    from {
+                      scale: 0.85;
+                      opacity: 0.3;
+                    }
+                    to {
+                      scale: 1;
+                      opacity: 1;
+                    }
                   }
                 }
-              }
             `}</style>
-        </>
+        </div>
     )
 }
+

@@ -160,3 +160,12 @@
   z-index: 10001;
   transition: width 0.1s ease-out;
 }
+
+.perspective-1000 {
+    perspective: 1000px;
+}
+
+.backface-hidden {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
