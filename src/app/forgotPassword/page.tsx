@@ -18,7 +18,7 @@ export default function ForgetPassword() {
     const [emailValues, setEmailValues] = useState<EmailValues>({
         email: ""
     })
-    
+
     const [errors, setErrors] = useState<FormErrors>({})
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,7 +38,7 @@ export default function ForgetPassword() {
     const validateForm = (): boolean => {
         const tempErrors: FormErrors = {}
         let isValid = true
-        
+
         if (!emailValues.email.trim()) {
             tempErrors.email = "Email is required"
             isValid = false
@@ -46,7 +46,7 @@ export default function ForgetPassword() {
             tempErrors.email = "Please enter a valid email address"
             isValid = false
         }
-        
+
         setErrors(tempErrors)
         return isValid
     }
@@ -78,13 +78,13 @@ export default function ForgetPassword() {
                         Enter your email address and we'll send you a link to reset your password.
                     </p>
                     <div className="form-group">
-                        <input 
-                            type="email" 
+                        <input
+                            type="email"
                             id="email"
-                            value={emailValues.email} 
+                            value={emailValues.email}
                             onChange={handleChange}
                             className={errors.email ? 'error' : ''}
-                            name="email" 
+                            name="email"
                             placeholder="Email"
                         />
                         {errors.email && <div className="error-message">{errors.email}</div>}

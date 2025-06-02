@@ -2,7 +2,6 @@
 
 import type React from "react"
 import { useState } from "react"
-import Footer from "@/components/layout/footer"
 import FormCard from "@/components/cards/formCards"
 import Navbar from "@/components/layout/navbar"
 
@@ -163,7 +162,6 @@ export default function ContactUsPage() {
                     </FormCard>
                 </div>
             </div>
-            <Footer />
         </div>
     )
 }

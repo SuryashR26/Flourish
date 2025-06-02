@@ -9,7 +9,7 @@
 }
 
 .site-logo {
-    position: absolute;
+    position: fixed;
     top: 19px;
     left: 20px;
     font-size: 2.22rem;
@@ -172,7 +172,8 @@ p {
 }
 
 .login-content {
-    margin-top: 8rem;
+    margin-top: 6rem;
+    /* Reduced from 8rem to account for fixed header */
     display: flex;
     flex-direction: column;
     align-items: center;

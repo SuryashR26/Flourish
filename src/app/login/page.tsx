@@ -3,7 +3,7 @@
 import type React from "react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { useRouter, usePathname } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { FaLightbulb, FaEye, FaEyeSlash } from "react-icons/fa"
 import FormCard from "@/components/cards/formCards"
 import "@/styles/login.css"
@@ -19,7 +19,6 @@ interface LoginErrors {
 }
 
 export default function LoginPage() {
-    const router = useRouter()
     const pathname = usePathname()
     const [loginValues, setLoginValues] = useState<LoginValues>({
         username: "",

@@ -1,6 +1,6 @@
 .navbar {
-    position: relative;
-    /* fixed to top always */
+    position: fixed;
+    /* changed to fixed */
     top: 0;
     left: 0;
     width: 100%;
@@ -54,13 +54,15 @@
 .navbar-logo {
     color: #fff;
     justify-self: start;
-    margin-left: 5%;
-    /* Changed from fixed 20px to percentage */
+    margin-left: -1%;
+    /* Reduced from 5% */
     cursor: pointer;
     text-decoration: none;
     font-size: 2.22rem;
     display: flex;
     align-items: center;
+    transition: margin-left 0.3s ease;
+    /* Add smooth transition */
 }
 
 .fa-typo3 {
@@ -123,7 +125,13 @@
 @media screen and (max-width: 960px) {
     .navbar-logo {
         margin-left: 25px;
-        /* Further reduced margin */
+        /* Default position in mobile */
+    }
+
+    /* Add margin when menu is active */
+    .nav-menu.active~.navbar-container .navbar-logo {
+        margin-left: 45px;
+        /* Increased margin when menu is open */
     }
 
     .menu-icon {
