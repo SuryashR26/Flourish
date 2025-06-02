@@ -1,10 +1,12 @@
 .navbar {
-    position: fixed;               /* fixed to top always */
+    position: fixed;
+    /* fixed to top always */
     top: 0;
     left: 0;
     width: 100%;
     height: 80px;
-    z-index: 10000;                /* ⬅ highest value on purpose */
+    z-index: 10000;
+    /* ⬅ highest value on purpose */
     background: transparent;
     display: flex;
     justify-content: center;
@@ -19,8 +21,9 @@
     align-items: center;
     height: 80px;
     width: 100%;
-    padding: 0 24px;
-    max-width: 1500px;
+    padding: 0 5%;
+    max-width: 2000px;
+    margin: 0 auto;
 }
 
 .navbar-right {
@@ -42,8 +45,9 @@
     transition: background-color 0.3s ease-in-out;
 }
 
-.navbar--scrolled .nav-links:hover{
-    box-shadow: inset 0 -4px 0 0 #fff; /* Creates a white underline effect */
+.navbar--scrolled .nav-links:hover {
+    box-shadow: inset 0 -4px 0 0 #fff;
+    /* Creates a white underline effect */
     color: white !important;
 }
 
@@ -177,6 +181,7 @@
         border-radius: 0;
         height: auto;
     }
+
     .nav-menu.active .nav-links:hover,
     .nav-menu.closing .nav-links:hover {
         box-shadow: none !important;
@@ -204,9 +209,11 @@
     .nav-links-mobile {
         display: block;
         text-align: left;
-        margin: 1rem 0;           /* Remove horizontal margin */
+        margin: 1rem 0;
+        /* Remove horizontal margin */
         border-radius: 4px;
-        width: fit-content;       /* Change from 80% to fit-content */
+        width: fit-content;
+        /* Change from 80% to fit-content */
         text-decoration: none;
         font-size: 1.2rem;
         background-color: transparent;
@@ -234,22 +241,29 @@
         background-color: rgba(0, 0, 0, 0.5);
         backdrop-filter: blur(8px);
         z-index: 998;
-        opacity: 0;                    /* Start with 0 opacity */
-        visibility: hidden;            /* Hide it initially */
-        transition: all 0.5s ease;     /* Match the menu transition timing */
+        opacity: 0;
+        /* Start with 0 opacity */
+        visibility: hidden;
+        /* Hide it initially */
+        transition: all 0.5s ease;
+        /* Match the menu transition timing */
     }
 
     .overlay.active {
-        opacity: 1;                    /* Fade to full opacity */
-        visibility: visible;           /* Make it visible */
+        opacity: 1;
+        /* Fade to full opacity */
+        visibility: visible;
+        /* Make it visible */
     }
 
     .nav-separator {
-        height: 3px;              /* Change height to be thin */
-        width: 80%;              /* Make width stretch */
+        height: 3px;
+        /* Change height to be thin */
+        width: 80%;
+        /* Make width stretch */
         background-color: #B3B3B3;
-        margin: 15px 0;          /* Add vertical margins */
+        margin: 15px 0;
+        /* Add vertical margins */
         border-radius: 3px;
     }
 }
-

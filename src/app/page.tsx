@@ -7,6 +7,7 @@ import Button from "@/components/ui/button"
 import Cards from "@/components/cards/cards"
 import gsap from "gsap"
 import { SplitText } from "gsap/SplitText"
+import Navbar from "@/components/layout/navbar"
 
 // Register the SplitText plugin
 gsap.registerPlugin(SplitText)
@@ -81,12 +82,13 @@ export default function Home() {
 
   return (
     <>
+      <Navbar scrollThreshold={100} />
       {/* Scroll Progress Bar */}
-      <div 
+      <div
         className="scroll-progress-bar"
         style={{ width: `${scrollProgress}%` }}
       />
-      
+
       {/* Hero Section with Video Background */}
       <div className="h-screen relative">
         {/* Top Fade */}
@@ -121,7 +123,7 @@ export default function Home() {
           </h1>
           <div className="mt-8 z-20">
             <Link href="/signup">
-              <Button 
+              <Button
                 className="btns flourish-title rounded-3xl px-8 py-3 text-xl font-semibold"
                 buttonStyle="outline"
                 buttonSize="large"

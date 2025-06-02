@@ -146,8 +146,10 @@
 
 /* Hide scrollbar for IE, Edge and Firefox */
 * {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
 /* Scroll progress bar */
@@ -159,4 +161,25 @@
   background: #58a6ff;
   z-index: 10001;
   transition: width 0.1s ease-out;
+}
+
+@layer components {
+
+  .form-card input,
+  .form-card textarea,
+  .form-card select {
+    @apply w-full p-3 border-2 border-gray-700 rounded-lg bg-gray-800 text-white text-base transition-colors duration-300 focus:border-blue-500 focus:outline-none;
+  }
+
+  .form-card textarea {
+    @apply min-h-[120px] max-h-[250px] h-auto overflow-y-auto resize-none;
+  }
+
+  .form-card button {
+    @apply px-6 py-3 border-0 rounded-lg bg-blue-500 text-white text-xl cursor-pointer transition-colors duration-300 mb-4 hover:bg-blue-600;
+  }
+
+  .form-card label {
+    @apply text-white text-base mb-2 block font-medium;
+  }
 }

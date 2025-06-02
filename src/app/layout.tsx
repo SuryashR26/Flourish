@@ -1,15 +1,30 @@
-import type React from "react"
-import type { Metadata } from "next"
-import { figtree } from "@/styles/fonts"
-import Navbar from "@/components/layout/navbar"
-import Footer from "@/components/layout/footer"
-import "@/styles/globals.css";
+"use client";
 
-export const metadata: Metadata = {
-  title: "Flourish - Let Your Ideas Flourish",
-  description: "A platform where you can share your ideas and get feedback from others.",
+import type React from "react"
+import { figtree } from "@/styles/fonts"
+import Footer from "@/components/layout/footer"
+import "@/styles/globals.css"
+// Client components
+import { NavbarProvider } from '@/context/NavbarContext'
+import { FooterProvider } from '@/context/FooterContext'
+import { usePathname } from 'next/navigation'
+import Navbar from "@/components/layout/navbar"
+
+const publicRoutes = ['/login', '/signUp', '/forgot-password']
+
+function MainLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname()
+  const showFooter = !publicRoutes.includes(pathname)
+
+  return (
+    <div>
+      {children}
+      {showFooter && <Footer />}
+    </div>
+  )
 }
 
+// Server component
 export default function RootLayout({
   children,
 }: {
@@ -18,9 +33,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={figtree.className}>
-        <Navbar scrollThreshold={750} />
-        {children}
-        <Footer />
+        <FooterProvider>
+          <MainLayout>{children}</MainLayout>
+        </FooterProvider>
       </body>
     </html>
   )

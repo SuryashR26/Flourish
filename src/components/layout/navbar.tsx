@@ -10,7 +10,7 @@ interface NavbarProps {
   scrollThreshold?: number;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ scrollThreshold = 300 }) => {
+const Navbar: React.FC<NavbarProps> = ({ scrollThreshold = 80 }) => {
   const [click, setClick] = useState<boolean>(false);
   const [button, setButton] = useState<boolean>(true);
   const [scrolled, setScrolled] = useState<boolean>(false);
@@ -72,74 +72,87 @@ const Navbar: React.FC<NavbarProps> = ({ scrollThreshold = 300 }) => {
     return () => window.removeEventListener("resize", showButton);
   }, []);
 
+  // Remove the duplicate scroll handler
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > scrollThreshold);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    handleScroll(); // Check initial scroll position
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [scrollThreshold]);
+
   return (
-    <nav className={`navbar ${scrolled ? "navbar--scrolled" : ""}`}>
-      <div className="navbar-container">
-        <Link href="/" className="navbar-logo" onClick={closeMobileMenu}>
-          Flourish <FaLightbulb />
-        </Link>
-        <div className="menu-icon" onClick={handleClick}>
-          {click ? <FaTimes /> : <FaBars />}
-        </div>
-        <div
-          className={click ? "overlay active" : "overlay"}
-          onClick={closeMobileMenu}
-        ></div>
-        <div className="navbar-right">
-          <ul className="nav-menu" ref={navMenuRef}>
-            <li className="nav-item">
-              <Link href="/" className="nav-links" onClick={closeMobileMenu}>
-                Search
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link href="/post" className="nav-links" onClick={closeMobileMenu}>
-                Post
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link href="/learn" className="nav-links" onClick={closeMobileMenu}>
-                Learn
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link href="/meet-flo" className="nav-links" onClick={closeMobileMenu}>
-                Meet Flo
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link href="/about" className="nav-links" onClick={closeMobileMenu}>
-                About
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link href="/contactUs" className="nav-links" onClick={closeMobileMenu}>
-                Contact Us
-              </Link>
-            </li>
-            <div className="nav-separator"></div>
-            <li className="nav-item">
-              <Link
-                href="/login"
-                className={button ? "nav-links-mobile" : "nav-links"}
-                onClick={closeMobileMenu}
-              >
-                Login
-              </Link>
-            </li>
-          </ul>
-          <Link href="/signup" className="no-underline hidden md:inline-block">
-            <Button
-              buttonStyle="outline"
-              buttonSize="large"
-              className="signup-button text-xl font-semibold"
-            >
-              SIGN UP
-            </Button>
+    <>
+      <nav className={`navbar ${scrolled ? "navbar--scrolled" : ""}`}>
+        <div className="navbar-container">
+          <Link href="/" className="navbar-logo" onClick={closeMobileMenu}>
+            Flourish <FaLightbulb />
           </Link>
+          <div className="menu-icon" onClick={handleClick}>
+            {click ? <FaTimes /> : <FaBars />}
+          </div>
+          <div
+            className={click ? "overlay active" : "overlay"}
+            onClick={closeMobileMenu}
+          ></div>
+          <div className="navbar-right">
+            <ul className="nav-menu" ref={navMenuRef}>
+              <li className="nav-item">
+                <Link href="/" className="nav-links" onClick={closeMobileMenu}>
+                  Search
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link href="/post" className="nav-links" onClick={closeMobileMenu}>
+                  Post
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link href="/learn" className="nav-links" onClick={closeMobileMenu}>
+                  Learn
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link href="/meet-flo" className="nav-links" onClick={closeMobileMenu}>
+                  Meet Flo
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link href="/about" className="nav-links" onClick={closeMobileMenu}>
+                  About
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link href="/contactUs" className="nav-links" onClick={closeMobileMenu}>
+                  Contact Us
+                </Link>
+              </li>
+              <div className="nav-separator"></div>
+              <li className="nav-item">
+                <Link
+                  href="/login"
+                  className={button ? "nav-links-mobile" : "nav-links"}
+                  onClick={closeMobileMenu}
+                >
+                  Login
+                </Link>
+              </li>
+            </ul>
+            <Link href="/signup" className="no-underline hidden md:inline-block">
+              <Button
+                buttonStyle="outline"
+                buttonSize="large"
+                className="signup-button text-xl font-semibold"
+              >
+                SIGN UP
+              </Button>
+            </Link>
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+    </>
   );
 };
 
