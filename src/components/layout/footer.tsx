@@ -55,7 +55,7 @@ const Footer = () => {
       </div>
       <hr className="footer-line" />
       <div className="footer-copy">
-        <h3>© 2025 TheIdeaBoard. All rights reserved.</h3>
+        <h3>© 2025 Flourish. All rights reserved.</h3>
       </div>
     </footer>
   );

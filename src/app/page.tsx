@@ -80,6 +80,11 @@ export default function Home() {
     }
   }, [])
 
+  const handleSignUpClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    window.location.replace('/signup')
+  }
+
   return (
     <>
       <Navbar scrollThreshold={100} />
@@ -122,7 +127,7 @@ export default function Home() {
             LET YOUR IDEAS FLOURISH
           </h1>
           <div className="mt-8 z-20">
-            <Link href="/signup">
+            <a href="/signup" onClick={handleSignUpClick}>
               <Button
                 className="btns flourish-title rounded-3xl px-8 py-3 text-xl font-semibold"
                 buttonStyle="outline"
@@ -131,7 +136,7 @@ export default function Home() {
               >
                 GET STARTED
               </Button>
-            </Link>
+            </a>
           </div>
         </div>
       </div>
