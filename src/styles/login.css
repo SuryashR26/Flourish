@@ -22,7 +22,8 @@
     /* Decreased from 24px */
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 2px;
+    /* Reduced from 4px to bring icon closer */
 }
 
 /* Icon specific spacing */

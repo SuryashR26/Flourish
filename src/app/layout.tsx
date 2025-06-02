@@ -4,11 +4,8 @@ import type React from "react"
 import { figtree } from "@/styles/fonts"
 import Footer from "@/components/layout/footer"
 import "@/styles/globals.css"
-// Client components
-import { NavbarProvider } from '@/context/NavbarContext'
 import { FooterProvider } from '@/context/FooterContext'
 import { usePathname } from 'next/navigation'
-import Navbar from "@/components/layout/navbar"
 
 const publicRoutes = ['/login', '/signUp', '/forgot-password']
 

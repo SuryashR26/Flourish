@@ -140,7 +140,7 @@ const Navbar: React.FC<NavbarProps> = ({ scrollThreshold = 80 }) => {
                 </Link>
               </li>
             </ul>
-            <Link href="/signup" className="no-underline hidden md:inline-block">
+            <Link href="/signUp" className="no-underline hidden md:inline-block">
               <Button
                 buttonStyle="outline"
                 buttonSize="large"

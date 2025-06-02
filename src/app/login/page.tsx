@@ -1,8 +1,9 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useRouter, usePathname } from 'next/navigation'
 import { FaLightbulb, FaEye, FaEyeSlash } from "react-icons/fa"
 import FormCard from "@/components/cards/formCards"
 import "@/styles/login.css"
@@ -18,6 +19,8 @@ interface LoginErrors {
 }
 
 export default function LoginPage() {
+    const router = useRouter()
+    const pathname = usePathname()
     const [loginValues, setLoginValues] = useState<LoginValues>({
         username: "",
         password: "",
@@ -25,6 +28,11 @@ export default function LoginPage() {
 
     const [errors, setErrors] = useState<LoginErrors>({})
     const [showPassword, setShowPassword] = useState(false)
+    const [isNavigating, setIsNavigating] = useState(false)
+
+    useEffect(() => {
+        setIsNavigating(false)
+    }, [pathname])
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword)
@@ -81,6 +89,16 @@ export default function LoginPage() {
         }
     }
 
+    const handleSignUpClick = (e: React.MouseEvent) => {
+        e.preventDefault()
+        setIsNavigating(true)
+        window.location.href = '/signUp'
+    }
+
+    if (isNavigating) {
+        return <div>Loading...</div>
+    }
+
     return (
         <div className="login-container">
             {/* Site Logo */}
@@ -127,7 +145,7 @@ export default function LoginPage() {
 
                     {/* Forgot Password Link */}
                     <div className="forget-password">
-                        <Link href="/forgot-password">
+                        <Link href="/forgotPassword">
                             Forgot Password?
                         </Link>
                     </div>
@@ -144,9 +162,9 @@ export default function LoginPage() {
                     <div className="login-bottom-text">
                         <span>
                             Don't have an account?{" "}
-                            <Link href="/signup">
+                            <a href="/signUp" onClick={handleSignUpClick}>
                                 Sign Up
-                            </Link>
+                            </a>
                         </span>
                     </div>
                 </div>
