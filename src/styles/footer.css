@@ -26,6 +26,7 @@
 /* Logo section */
 .footer-logo {
   flex: 1 1 200px;
+  max-width: 300px !important;
 }
 
 .footer-logo h1 {
@@ -38,6 +39,14 @@
 .footer-logo i {
   margin-left: 0.5rem;
   color: white;
+}
+
+.footer-logo p {
+  margin-top: 2rem !important;
+  font-size: 0.9rem !important;
+  color: #d1d5db !important;
+  text-align: left !important;
+  line-height: 1.5 !important;
 }
 
 /* Menus section */
@@ -56,10 +65,11 @@
 }
 
 .footer-menus h2 {
-  font-size: 1.125rem;
-  font-weight: bold;
-  margin-bottom: 0.75rem;
-  color: white;
+  font-size: 1.125rem !important;
+  font-weight: bold !important;
+  margin-bottom: 0.75rem !important;
+  color: white !important;
+  text-align: left !important;
 }
 
 .footer-menus ul {
@@ -70,6 +80,12 @@
 
 .footer-menus ul li {
   margin: 1rem 0;
+}
+
+.footer-about,
+.footer-links,
+.footer-extra {
+  min-width: 160px !important;
 }
 
 .social-icons {

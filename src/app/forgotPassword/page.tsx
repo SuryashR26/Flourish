@@ -66,7 +66,7 @@ export default function ForgetPassword() {
     return (
         <div className="login-container">
             {/* Site Logo */}
-            <Link href="/" className="site-logo">
+            <Link href="/" className="login-site-logo">
                 Flourish
                 <FaLightbulb />
             </Link>
@@ -77,17 +77,17 @@ export default function ForgetPassword() {
                     <p className="text-white text-base leading-normal my-3 text-center">
                         Enter your email address and we'll send you a link to reset your password.
                     </p>
-                    <div className="form-group">
+                    <div className="login-form-group">
                         <input
                             type="email"
                             id="email"
                             value={emailValues.email}
                             onChange={handleChange}
-                            className={errors.email ? 'error' : ''}
+                            className={errors.email ? 'login-error' : ''}
                             name="email"
                             placeholder="Email"
                         />
-                        {errors.email && <div className="error-message">{errors.email}</div>}
+                        {errors.email && <div className="login-error-message">{errors.email}</div>}
                     </div>
                     <button type="submit">
                         Send Reset Link

@@ -189,7 +189,7 @@ export default function SignUp() {
 
     return (
         <>
-            <Link href="/" className="site-logo">
+            <Link href="/" className="signup-site-logo">
                 Flourish<FaLightbulb />
             </Link>
             <div className="signup-container">
@@ -199,37 +199,37 @@ export default function SignUp() {
                         {currentStep === 1 ? (
                             <>
                                 <div className="form1-row">
-                                    <div className="form-group full-width">
+                                    <div className="signup-form-group full-width">
                                         <label>Username</label>
                                         <input
                                             type="text"
                                             name="username"
                                             value={signUpValues.username}
                                             onChange={handleChange}
-                                            className={errors.username ? "error" : ""}
+                                            className={errors.username ? "signup-error" : ""}
                                             placeholder="Choose a username"
                                         />
-                                        {errors.username && <div className="error-message">{errors.username}</div>}
+                                        {errors.username && <div className="signup-error-message">{errors.username}</div>}
                                     </div>
                                 </div>
 
                                 <div className="form1-row">
-                                    <div className="form-group full-width">
+                                    <div className="signup-form-group full-width">
                                         <label>Email</label>
                                         <input
                                             type="email"
                                             name="email"
                                             value={signUpValues.email}
                                             onChange={handleChange}
-                                            className={errors.email ? "error" : ""}
+                                            className={errors.email ? "signup-error" : ""}
                                             placeholder="Enter your email"
                                         />
-                                        {errors.email && <div className="error-message">{errors.email}</div>}
+                                        {errors.email && <div className="signup-error-message">{errors.email}</div>}
                                     </div>
                                 </div>
 
                                 <div className="form1-row">
-                                    <div className="form-group">
+                                    <div className="signup-form-group">
                                         <label>Password</label>
                                         <div className="password-field">
                                             <input
@@ -237,7 +237,7 @@ export default function SignUp() {
                                                 name="password"
                                                 value={signUpValues.password}
                                                 onChange={handleChange}
-                                                className={errors.password ? "error" : ""}
+                                                className={errors.password ? "signup-error" : ""}
                                                 placeholder="Enter your password"
                                             />
                                             <span
@@ -247,10 +247,10 @@ export default function SignUp() {
                                                 {showPassword ? <FaEye /> : <FaEyeSlash />}
                                             </span>
                                         </div>
-                                        {errors.password && <div className="error-message">{errors.password}</div>}
+                                        {errors.password && <div className="signup-error-message">{errors.password}</div>}
                                     </div>
 
-                                    <div className="form-group">
+                                    <div className="signup-form-group">
                                         <label>Confirm Password</label>
                                         <div className="password-field">
                                             <input
@@ -258,7 +258,7 @@ export default function SignUp() {
                                                 name="confirmPassword"
                                                 value={signUpValues.confirmPassword}
                                                 onChange={handleChange}
-                                                className={errors.confirmPassword ? "error" : ""}
+                                                className={errors.confirmPassword ? "signup-error" : ""}
                                                 placeholder="Confirm your password"
                                             />
                                             <span
@@ -268,63 +268,63 @@ export default function SignUp() {
                                                 {showPassword2 ? <FaEye /> : <FaEyeSlash />}
                                             </span>
                                         </div>
-                                        {errors.confirmPassword && <div className="error-message">{errors.confirmPassword}</div>}
+                                        {errors.confirmPassword && <div className="signup-error-message">{errors.confirmPassword}</div>}
                                     </div>
                                 </div>
 
                                 <div className="form1-row">
-                                    <div className="form-group">
+                                    <div className="signup-form-group">
                                         <label>Phone Number</label>
                                         <input
                                             type="tel"
                                             name="phoneNumber"
                                             value={signUpValues.phoneNumber}
                                             onChange={handleChange}
-                                            className={errors.phoneNumber ? "error" : ""}
+                                            className={errors.phoneNumber ? "signup-error" : ""}
                                             placeholder="(Optional) Enter phone number"
                                         />
-                                        {errors.phoneNumber && <div className="error-message">{errors.phoneNumber}</div>}
+                                        {errors.phoneNumber && <div className="signup-error-message">{errors.phoneNumber}</div>}
                                     </div>
                                 </div>
                             </>
                         ) : (
                             <>
                                 <div className="form1-row">
-                                    <div className="form-group">
+                                    <div className="signup-form-group">
                                         <label>First Name</label>
                                         <input
                                             type="text"
                                             name="firstName"
                                             value={signUpValues.firstName}
                                             onChange={handleChange}
-                                            className={errors.firstName ? "error" : ""}
+                                            className={errors.firstName ? "signup-error" : ""}
                                             placeholder="Enter your first name"
                                         />
-                                        {errors.firstName && <div className="error-message">{errors.firstName}</div>}
+                                        {errors.firstName && <div className="signup-error-message">{errors.firstName}</div>}
                                     </div>
 
-                                    <div className="form-group">
+                                    <div className="signup-form-group">
                                         <label>Last Name</label>
                                         <input
                                             type="text"
                                             name="lastName"
                                             value={signUpValues.lastName}
                                             onChange={handleChange}
-                                            className={errors.lastName ? "error" : ""}
+                                            className={errors.lastName ? "signup-error" : ""}
                                             placeholder="Enter your last name"
                                         />
-                                        {errors.lastName && <div className="error-message">{errors.lastName}</div>}
+                                        {errors.lastName && <div className="signup-error-message">{errors.lastName}</div>}
                                     </div>
                                 </div>
 
                                 <div className="form1-row">
-                                    <div className="form-group">
+                                    <div className="signup-form-group">
                                         <label>Birthday</label>
                                         <select
                                             name="birthMonth"
                                             value={signUpValues.birthMonth}
                                             onChange={handleDayChange}
-                                            className={errors.birthMonth ? "error" : ""}
+                                            className={errors.birthMonth ? "signup-error" : ""}
                                         >
                                             <option value="" disabled={signUpValues.birthMonth !== ""}>Select month</option>
                                             <option value="01">January</option>
@@ -340,14 +340,14 @@ export default function SignUp() {
                                             <option value="11">November</option>
                                             <option value="12">December</option>
                                         </select>
-                                        {errors.birthMonth && <div className="error-message">{errors.birthMonth}</div>}
+                                        {errors.birthMonth && <div className="signup-error-message">{errors.birthMonth}</div>}
                                     </div>
-                                    <div className="form-group">
+                                    <div className="signup-form-group">
                                         <select
                                             name="birthDay"
                                             value={signUpValues.birthDay}
                                             onChange={handleChange}
-                                            className={errors.birthDay ? "error" : ""}
+                                            className={errors.birthDay ? "signup-error" : ""}
                                             style={{ marginTop: '29px' }}
                                             disabled={!signUpValues.birthMonth}
                                         >
@@ -366,9 +366,9 @@ export default function SignUp() {
                                                 return days;
                                             })()}
                                         </select>
-                                        {errors.birthDay && <div className="error-message">{errors.birthDay}</div>}
+                                        {errors.birthDay && <div className="signup-error-message">{errors.birthDay}</div>}
                                     </div>
-                                    <div className="form-group">
+                                    <div className="signup-form-group">
                                         <input
                                             type="text"
                                             name="birthYear"
@@ -376,10 +376,10 @@ export default function SignUp() {
                                             onChange={handleChange}
                                             maxLength={4}
                                             placeholder='YYYY'
-                                            className={errors.birthYear ? "error" : ""}
+                                            className={errors.birthYear ? "signup-error" : ""}
                                             style={{ marginTop: '29px' }}
                                         />
-                                        {errors.birthYear && <div className="error-message">{errors.birthYear}</div>}
+                                        {errors.birthYear && <div className="signup-error-message">{errors.birthYear}</div>}
                                     </div>
                                 </div>
                             </>

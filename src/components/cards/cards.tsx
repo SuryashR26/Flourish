@@ -86,7 +86,7 @@ export default function Cards() {
     const back = cardData[stage + 1]
 
     return (
-        <div className="min-h-[2000px] relative">
+        <div className="min-h-[2000px] relative card-section"> {/* Added card-section class */}
             {/* Dashboard Image Section */}
             <div className="w-full flex justify-center items-center py-10 px-5 bg-black relative z-20">
                 <div className="w-full max-w-6xl mx-0 flex justify-center relative">
@@ -111,11 +111,11 @@ export default function Cards() {
                             <div
                                 key={index}
                                 ref={el => { textBlocksRef.current[index] = el; }}
-                                className="text-block min-h-screen flex flex-col justify-center p-8 mb-16 bg-black transform translate-y-12 transition-transform duration-700 relative z-10"
+                                className="homepage-card-text min-h-screen flex flex-col justify-center p-8 mb-16 bg-black transform translate-y-12 transition-transform duration-700 relative z-10"
                                 id={`text-block-${index}`}
                             >
-                                <h2 className="text-5xl leading-tight mb-6 text-white whitespace-pre-line">{card.title}</h2>
-                                <p className="text-lg leading-relaxed mb-8 text-gray-400 max-w-lg text-left">{card.text}</p>
+                                <h2 className="!font-bold !text-[3rem] !leading-tight !mb-6 !text-white !text-left">{card.title}</h2>
+                                <p className="!text-lg !leading-relaxed !mb-8 !text-gray-400 !text-left">{card.text}</p>
                                 <a
                                     href="#"
                                     className="text-blue-400 no-underline text-lg inline-flex items-center hover:text-blue-300 transition-colors duration-200 group"

@@ -18,9 +18,9 @@ interface FormRowProps {
 
 function FormRow({ children, className = "" }: FormRowProps) {
     return (
-        <div className={`form-row ${className}`}>
+        <div className={`form-row flex w-full gap-4 ${className}`}>
             {React.Children.map(children, (child) => (
-                <div>{child}</div>
+                <div className="flex-1 w-full">{child}</div>
             ))}
         </div>
     )
