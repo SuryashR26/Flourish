@@ -74,7 +74,6 @@ const Button = ({
             border-radius: inherit;
             z-index: -1;
             transition: width 0.35s cubic-bezier(0.4,0,0.2,1);
-            pointer-events: none;
         }
         .btn span {
             color: #fff;
