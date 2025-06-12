@@ -5,7 +5,6 @@
     overflow: hidden;
     transition: transform 0.3s ease;
     width: 100%;
-    max-width: 500px;
     margin: 1rem;
 }
 

@@ -94,7 +94,7 @@ export default function LoginPage() {
 
             {/* Login Content */}
             <div className="login-content">
-                <FormCard title="Log in to Flourish" onSubmit={handleSubmit}>
+                <FormCard title="Log in to Flourish" onSubmit={handleSubmit} style={{ width: '500px' }}>
                     {/* Username Field */}
                     <div className="login-form-group">
                         <input
