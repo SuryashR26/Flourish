@@ -91,44 +91,40 @@ export default function ContactUsPage() {
     return (
         <div>
             <Navbar scrollThreshold={-10} />
-            <div className="relative h-screen flex justify-center items-center">
+            <div className="relative min-h-[110vh] flex justify-center items-center"> {/* Changed from 120vh to 110vh */}
                 <img
                     src="/images/contactUs.jpg"
                     alt="Background"
-                    className="absolute top-0 left-0 w-full h-full object-cover -z-10"
+                    className="absolute inset-0 w-full h-full object-cover -z-10"
                 />
-                <div className="absolute top-[55%] right-[15%] -translate-y-1/2 max-w-[450px]">
+                <div className="absolute top-[52%] right-[15%] -translate-y-1/2 w-[500px]"> {/* Adjusted top position */}
                     <FormCard title="Contact Us" onSubmit={handleSubmit}>
-                        <FormCard.Row>
-                            <div>
-                                <label>First Name</label>
+                        <FormCard.Row className="flex gap-4 mb-2 w-full">
+                            <div className="flex-1 min-w-0"> {/* Changed min-w-0 to allow flex shrinking */}
+                                <label className="text-sm mb-1">First Name</label>
                                 <input
                                     type="text"
                                     name="firstName"
                                     value={formValues.firstName}
                                     onChange={handleChange}
-                                    className={`${errors.firstName ? "!border-red-500" : ""}`}
+                                    className={`w-full ${errors.firstName ? "!border-red-500" : ""}`}
                                 />
-                                {errors.firstName &&
-                                    <div className="text-red-500 text-sm mt-1">{errors.firstName}</div>
-                                }
+                                {errors.firstName && <div className="text-red-500 text-xs mt-1">{errors.firstName}</div>}
                             </div>
-                            <div>
-                                <label>Last Name</label>
+                            <div className="flex-1 min-w-0"> {/* Changed min-w-0 to allow flex shrinking */}
+                                <label className="text-sm mb-1">Last Name</label>
                                 <input
                                     type="text"
                                     name="lastName"
                                     value={formValues.lastName}
                                     onChange={handleChange}
-                                    className={`${errors.lastName ? "!border-red-500" : ""}`}
+                                    className={`w-full ${errors.lastName ? "!border-red-500" : ""}`}
                                 />
-                                {errors.lastName &&
-                                    <div className="text-red-500 text-sm mt-1">{errors.lastName}</div>
-                                }
+                                {errors.lastName && <div className="text-red-500 text-xs mt-1">{errors.lastName}</div>}
                             </div>
                         </FormCard.Row>
-                        <div>
-                            <label>Email</label>
+                        <div className="mb-1"> {/* Reduced from mb-2 */}
+                            <label className="text-sm mb-1">Email</label>
                             <input
                                 type="email"
                                 name="email"
@@ -136,29 +132,31 @@ export default function ContactUsPage() {
                                 onChange={handleChange}
                                 className={`${errors.email ? "!border-red-500" : ""}`}
                             />
-                            {errors.email &&
-                                <div className="text-red-500 text-sm mt-1">{errors.email}</div>
-                            }
+                            {errors.email && <div className="text-red-500 text-xs mt-1">{errors.email}</div>}
                         </div>
-                        <div>
-                            <label>What is your question?</label>
+                        <div className="mb-1"> {/* Reduced from mb-2 */}
+                            <label className="text-sm mb-1">What is your question?</label>
                             <textarea
                                 name="message"
                                 value={formValues.message}
                                 onChange={handleChange}
                                 maxLength={350}
-                                rows={5}
+                                rows={4}
+                                style={{ minHeight: '100px', height: '100px' }}  // Increased height
+                                className={`w-full p-2 rounded-md border ${errors.message ? "!border-red-500" : "border-gray-300"} bg-[#181c23] text-white resize-none`}
                                 placeholder="Maximum 350 characters"
-                                className={`${errors.message ? "!border-red-500" : ""}`}
                             />
-                            {errors.message &&
-                                <div className="text-red-500 text-sm mt-1">{errors.message}</div>
-                            }
-                            <div className="text-sm text-gray-400 text-right mt-1">
-                                {formValues.message.length}/350 characters
+                            {errors.message && <div className="text-red-500 text-xs mt-1">{errors.message}</div>}
+                            <div className="text-xs text-gray-400 text-right mt-0.5">
+                                {formValues.message.length}/350
                             </div>
                         </div>
-                        <button type="submit">Submit</button>
+                        <button
+                            type="submit"
+                            className="w-full py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors mt-2"
+                        >
+                            Submit
+                        </button>
                     </FormCard>
                 </div>
             </div>

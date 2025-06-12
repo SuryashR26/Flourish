@@ -19,7 +19,6 @@ interface LoginErrors {
 }
 
 export default function LoginPage() {
-    const pathname = usePathname()
     const [loginValues, setLoginValues] = useState<LoginValues>({
         username: "",
         password: "",
@@ -27,11 +26,7 @@ export default function LoginPage() {
 
     const [errors, setErrors] = useState<LoginErrors>({})
     const [showPassword, setShowPassword] = useState(false)
-    const [isNavigating, setIsNavigating] = useState(false)
 
-    useEffect(() => {
-        setIsNavigating(false)
-    }, [pathname])
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword)
@@ -88,58 +83,48 @@ export default function LoginPage() {
         }
     }
 
-    const handleSignUpClick = (e: React.MouseEvent) => {
-        e.preventDefault()
-        setIsNavigating(true)
-        window.location.href = '/signUp'
-    }
-
-    if (isNavigating) {
-        return <div>Loading...</div>
-    }
 
     return (
         <div className="login-container">
             {/* Site Logo */}
-            <Link href="/" className="site-logo">
+            <Link href="/" className="login-site-logo">
                 Flourish
                 <FaLightbulb />
             </Link>
 
             {/* Login Content */}
             <div className="login-content">
-                <FormCard title="Log in to Flourish" onSubmit={handleSubmit}>
+                <FormCard title="Log in to Flourish" onSubmit={handleSubmit} style={{ width: '500px' }}>
                     {/* Username Field */}
-                    <div className="form-group">
+                    <div className="login-form-group">
                         <input
                             type="text"
                             id="username"
                             value={loginValues.username}
                             onChange={handleChange}
-                            className={errors.username ? 'error' : ''}
+                            className={errors.username ? 'login-error' : ''}
                             name="username"
                             placeholder="Username or Email"
                         />
-                        {errors.username && <div className="error-message">{errors.username}</div>}
+                        {errors.username && <div className="login-error-message">{errors.username}</div>}
                     </div>
 
-                    {/* Password Field */}
-                    <div className="form-group">
-                        <div className="password-field">
+                    <div className="login-form-group">
+                        <div className="login-password-field">
                             <input
                                 type={showPassword ? "text" : "password"}
                                 id="password"
                                 value={loginValues.password}
                                 onChange={handleChange}
-                                className={errors.password ? 'error' : ''}
+                                className={errors.password ? 'login-error' : ''}
                                 name="password"
                                 placeholder="Password"
                             />
-                            <span className="password-toggle" onClick={togglePasswordVisibility}>
+                            <span className="login-password-toggle" onClick={togglePasswordVisibility}>
                                 {showPassword ? <FaEye /> : <FaEyeSlash />}
                             </span>
                         </div>
-                        {errors.password && <div className="error-message">{errors.password}</div>}
+                        {errors.password && <div className="login-error-message">{errors.password}</div>}
                     </div>
 
                     {/* Forgot Password Link */}
@@ -161,9 +146,9 @@ export default function LoginPage() {
                     <div className="login-bottom-text">
                         <span>
                             Don't have an account?{" "}
-                            <a href="/signUp" onClick={handleSignUpClick}>
+                            <Link href="/signUp">
                                 Sign Up
-                            </a>
+                            </Link>
                         </span>
                     </div>
                 </div>

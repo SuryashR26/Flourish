@@ -8,7 +8,7 @@
     background-color: #000000;
 }
 
-.site-logo {
+.login-site-logo {
     position: fixed;
     top: 19px;
     left: 20px;
@@ -27,23 +27,34 @@
 }
 
 /* Icon specific spacing */
-.site-logo svg {
+.login-site-logo svg {
     margin-left: 4px;
     /* Decreased from default */
 }
 
-.password-field {
+.login-error {
+    border-color: #ff3860 !important;
+}
+
+.login-error-message {
+    color: #ff3860;
+    font-size: 0.8rem;
+    display: block;
+    margin: 0.25rem 0 0;
+}
+
+.login-password-field {
     margin-top: -1rem;
     position: relative;
     display: flex;
     align-items: center;
 }
 
-.password-field input {
+.login-password-field input {
     width: 100%;
 }
 
-.password-toggle {
+.login-password-toggle {
     position: absolute;
     right: 10px;
     cursor: pointer;
@@ -51,7 +62,7 @@
     transition: color 0.2s ease;
 }
 
-.password-toggle:hover {
+.login-password-toggle:hover {
     color: #1f98f4;
 }
 
@@ -76,12 +87,12 @@
     margin: 0.25rem 0 0;
 }
 
-.form-group {
+.login-form-group {
     margin-bottom: 1rem;
     position: relative;
 }
 
-.form-group input {
+.login-form-group input {
     font-size: 1.15rem;
     font-weight: 400;
     height: 54px;
@@ -93,7 +104,7 @@
     box-sizing: border-box;
 }
 
-.form-group input::placeholder {
+.login-form-group input::placeholder {
     color: #b0b8c1;
     font-weight: 400;
     opacity: 1;
@@ -107,7 +118,7 @@
     margin-bottom: 0rem;
 }
 
-.form-group label {
+.login-form-group label {
     font-size: 1.1rem;
     font-weight: 500;
     display: block;
@@ -182,4 +193,15 @@ p {
 
 button[type="submit"] {
     margin-bottom: 16px;
+}
+
+/* Scope login styles */
+.login-container h2,
+.login-container p {
+    text-align: center !important;
+    font-size: inherit !important;
+}
+
+.login-content h2 {
+    font-size: 2rem !important;
 }

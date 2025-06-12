@@ -45,7 +45,7 @@
     font-size: 0.85rem;
 }
 
-.site-logo {
+.signup-site-logo {
     position: absolute;
     top: 19px;
     left: 20px;
@@ -198,13 +198,47 @@
     border-color: #ff3860 !important;
 }
 
+.signup-error {
+    border-color: #ff3860 !important;
+}
+
+.signup-error-message {
+    margin-top: 0.25rem;
+    color: #ff3860;
+    font-size: 0.85rem;
+}
+
+.signup-password-field {
+    position: relative;
+    width: 100%;
+}
+
+.signup-password-field input {
+    width: 100%;
+}
+
+.signup-password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #888;
+    transition: color 0.2s ease;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+    position: relative;
+}
+
 /* Gender select additional styling */
 .form-group select+input {
     margin-top: 10px;
 }
 
-/* Button styling */
-button {
+/* Scoped button styling to signup page */
+.signup-form-card button {
     background-color: #1f98f4;
     color: white;
     border: none;
@@ -216,11 +250,11 @@ button {
     transition: background-color 0.3s ease, transform 0.1s ease;
 }
 
-button:hover {
+.signup-form-card button:hover {
     background-color: #1a7fd0;
 }
 
-button:active {
+.signup-form-card button:active {
     background-color: #166ab0;
     transform: scale(0.98);
     /* Added subtle press effect */
@@ -265,7 +299,7 @@ h2 {
     }
 
     /* Reposition logo for mobile */
-    .site-logo {
+    .signup-site-logo {
         position: fixed;
         /* Changed from absolute to fixed */
         top: 15px;
@@ -336,7 +370,7 @@ h2 {
         margin-top: 15px !important;
     }
 
-    .site-logo {
+    .signup-site-logo {
         font-size: 1.5rem;
         top: 10px;
         left: 10px;
@@ -394,4 +428,51 @@ h2 {
 .next-button {
     width: 100%;
     margin-top: 1rem;
+}
+
+/* Update form group styles to fix signup page */
+.signup-form-group {
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.signup-form-group input,
+.signup-form-group select,
+.signup-form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    height: 42px;
+    border: 1px solid #2f3542;
+    border-radius: 8px;
+    background-color: #121824;
+    color: #fff;
+    font-size: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.signup-form-group input:focus,
+.signup-form-group select:focus,
+.signup-form-group textarea:focus {
+    border-color: #1f98f4;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(31, 152, 244, 0.2);
+}
+
+/* Properly scope error styles */
+.signup-form-group input.signup-error,
+.signup-form-group select.signup-error {
+    border-color: #ff3860 !important;
+}
+
+.signup-form-group label {
+    color: #ffffff;
+    font-size: 1rem;
+    margin-bottom: 12px;
+    display: block;
+}
+
+/* Update form row to target signup form groups */
+.form1-row>.signup-form-group {
+    flex: 1;
+    min-width: 0;
 }
