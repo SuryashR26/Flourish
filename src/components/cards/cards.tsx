@@ -234,12 +234,14 @@
                     </div>
                 </div>
 
+                {/* Spacer above Chatbot Section */}
+                <div style={{ height: '8rem' }}></div>
                 {/* Chatbot Section */}
-                <div className="w-full flex justify-center items-center pt-100 pb-10 px-5 bg-black relative z-20">
+                <div className="w-full flex justify-center items-center pb-10 px-5 bg-black relative z-20">
                     <div className="w-full max-w-6xl mx-0 flex flex-col justify-center items-center relative">
-                        <h2 className="text-4xl md:text-5xl leading-snug font-semibold text-white text-center mb-10">Meet Flo — your personal idea partner</h2>
+                        <h2 className="text-4xl md:text-5xl leading-snug font-semibold text-white text-center mb-64">Meet Flo — your personal idea partner</h2>
                         <div className="w-full flex justify-center">
-                            <div className="w-[90%] max-w-4xl h-auto rounded-2xl shadow-2xl object-contain flex items-center justify-center" style={{ minHeight: '400px' }}>
+                            <div className="w-[90%] max-w-4xl h-auto rounded-2xl shadow-2xl object-contain mt-64 flex items-center justify-center" style={{ minHeight: '400px' }}>
                                 <Image
                                     src="/images/chatbot.png"
                                     alt="Flo - Your Personal Idea Partner"
@@ -251,6 +253,29 @@
                         </div>
                     </div>
                 </div>
+                <div style={{ height: '8rem' }}></div>
+                <div className="w-full flex flex-col items-center justify-center bg-[#0000] py-24 px-4">
+                    <h2 className="text-3xl md:text-4xl font-semibold text-white text-center">We're in the business of growing businesses.</h2>
+                    <div style={{ height: '1.2rem' }}></div>
+                    <div className="w-full max-w-5xl flex flex-col md:flex-row justify-center items-center gap-16 md:gap-0">
+                        {/* Stat 1 */}
+                        <div className="flex-1 flex flex-col items-center justify-center px-6">
+                            <span className="text-[5rem] font-extrabold text-[#58a6ff] leading-none">98%</span>
+                            <span className="text-white text-lg text-center mt-4">of ideas never materialize<br/>them stay more connected<sup className='align-super text-xs'>5</sup></span>
+                        </div>
+                        {/* Stat 2 */}
+                        <div className="flex-1 flex flex-col items-center justify-center px-6">
+                            <span className="text-[5rem] font-extrabold text-[#58a6ff] leading-none">2.6</span>
+                            <span className="text-white text-lg text-center mt-4">times more likely that company validated<br/> teams are to deliver projects on time<sup className='align-super text-xs'>3</sup></span>
+                        </div>
+                        {/* Stat 3 */}
+                        <div className="flex-1 flex flex-col items-center justify-center px-6">
+                            <span className="text-[5rem] font-extrabold text-[#58a6ff] leading-none">30%</span>
+                            <span className="text-white text-lg text-center mt-4">is how much collaboration <br/>can reduce project timelines by<sup className='align-super text-xs'>5</sup></span>
+                        </div>
+                    </div>
+                </div>
+                <div style={{ height: '8rem' }}></div>
 
                 <style jsx global>{`
                     @media (prefers-reduced-motion: no-preference) {
