@@ -122,7 +122,7 @@ export default function PostPage() {
         <>
             <Navbar scrollThreshold={-10} />
             <div className="min-h-screen py-10 px-4 !mt-[80px] max-w-[1400px] mx-auto">
-                <div className="relative flex justify-center">
+                <div className="relative flex !justify-center">
                     <FormCard title="Post Your Idea" onSubmit={handleSubmit} style={{ width: '700px' }}>
                         <div>
                             <label>Title</label>
