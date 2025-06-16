@@ -5,6 +5,8 @@ import { useState, useEffect } from "react"
 import FormCard from "@/components/cards/formCards"
 import Navbar from "@/components/layout/navbar"
 import { on } from "events"
+import gsap from "gsap"
+import { SplitText } from "gsap/SplitText"
 
 interface PostValues {
     title: string
@@ -34,6 +36,8 @@ interface PostValuesErrors {
     authorID?: string
 }
 
+gsap.registerPlugin(SplitText)
+
 export default function PostPage() {
     const [postValues, setPostValues] = useState<PostValues>({
         title: "",
@@ -50,6 +54,73 @@ export default function PostPage() {
     })
 
     const [errors, setErrors] = useState<PostValuesErrors>({})
+
+    const [scrollProgress, setScrollProgress] = useState(0)
+
+    useEffect(() => {
+        const handleScroll = () => {
+            const totalHeight = document.documentElement.scrollHeight - window.innerHeight
+            const progress = (window.scrollY / totalHeight) * 100
+            setScrollProgress(progress)
+        }
+
+        window.addEventListener("scroll", handleScroll)
+        handleScroll() // Initial calculation
+
+        // GSAP Animation
+        document.fonts.ready.then(() => {
+            gsap.set('.flourish-title', { opacity: 1 });
+            // Animate heading first
+            const heading = document.querySelector('h1.flourish-title');
+            const button = document.querySelector('.btns.flourish-title');
+            let headingSplit, buttonSplit;
+            if (heading) {
+                SplitText.create(heading, {
+                    type: 'words,lines',
+                    linesClass: 'line',
+                    autoSplit: true,
+                    mask: 'lines',
+                    onSplit: (self) => {
+                        headingSplit = gsap.from(self.lines, {
+                            duration: 1.1,
+                            yPercent: 100,
+                            opacity: 0,
+                            stagger: 0.09,
+                            ease: 'expo.out',
+                        });
+                        return headingSplit;
+                    },
+                });
+            }
+            if (button) {
+                SplitText.create(button, {
+                    type: 'words,lines',
+                    linesClass: 'line',
+                    autoSplit: true,
+                    mask: 'lines',
+                    onSplit: (self) => {
+                        buttonSplit = gsap.from(self.lines, {
+                            duration: 0.7,
+                            yPercent: 100,
+                            opacity: 0,
+                            stagger: 0.08,
+                            delay: 0.5, // Staggered after heading
+                            ease: 'expo.out',
+                            onComplete: () => {
+                                // Add the animate-border class after text animation completes
+                                button.classList.add('animate-border');
+                            }
+                        });
+                        return buttonSplit;
+                    },
+                });
+            }
+        });
+
+        return () => {
+            window.removeEventListener("scroll", handleScroll)
+        }
+    }, [])
 
     const validateForm = (): boolean => {
         const tempErrors: PostValuesErrors = {}
@@ -121,6 +192,10 @@ export default function PostPage() {
     return (
         <>
             <Navbar scrollThreshold={-10} />
+            <div
+                className="scroll-progress-bar"
+                style={{ width: `${scrollProgress}%` }}
+            />
             <div className="min-h-screen py-10 !mt-[80px] w-full flex justify-center items-start">
                 <div className="w-full max-w-[700px] mx-auto" style={{ transform: 'translateX(-15.5px)' }}>
                     <FormCard title="Post Your Idea" onSubmit={handleSubmit} style={{ width: '100%' }} showSubmitButton={false}>

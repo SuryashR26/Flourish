@@ -2,8 +2,13 @@
 
 import type React from "react"
 import { useState } from "react"
+import { useEffect } from "react"
+import gsap from "gsap"
+import SplitText from "gsap/SplitText"
 import FormCard from "@/components/cards/formCards"
 import Navbar from "@/components/layout/navbar"
+
+gsap.registerPlugin(SplitText)
 
 interface FormValues {
     firstName: string
@@ -28,6 +33,73 @@ export default function ContactUsPage() {
     })
 
     const [errors, setErrors] = useState<FormErrors>({})
+
+    const [scrollProgress, setScrollProgress] = useState(0)
+
+    useEffect(() => {
+        const handleScroll = () => {
+            const totalHeight = document.documentElement.scrollHeight - window.innerHeight
+            const progress = (window.scrollY / totalHeight) * 100
+            setScrollProgress(progress)
+        }
+
+        window.addEventListener("scroll", handleScroll)
+        handleScroll() // Initial calculation
+
+        // GSAP Animation
+        document.fonts.ready.then(() => {
+            gsap.set('.flourish-title', { opacity: 1 });
+            // Animate heading first
+            const heading = document.querySelector('h1.flourish-title');
+            const button = document.querySelector('.btns.flourish-title');
+            let headingSplit, buttonSplit;
+            if (heading) {
+                SplitText.create(heading, {
+                    type: 'words,lines',
+                    linesClass: 'line',
+                    autoSplit: true,
+                    mask: 'lines',
+                    onSplit: (self) => {
+                        headingSplit = gsap.from(self.lines, {
+                            duration: 1.1,
+                            yPercent: 100,
+                            opacity: 0,
+                            stagger: 0.09,
+                            ease: 'expo.out',
+                        });
+                        return headingSplit;
+                    },
+                });
+            }
+            if (button) {
+                SplitText.create(button, {
+                    type: 'words,lines',
+                    linesClass: 'line',
+                    autoSplit: true,
+                    mask: 'lines',
+                    onSplit: (self) => {
+                        buttonSplit = gsap.from(self.lines, {
+                            duration: 0.7,
+                            yPercent: 100,
+                            opacity: 0,
+                            stagger: 0.08,
+                            delay: 0.5, // Staggered after heading
+                            ease: 'expo.out',
+                            onComplete: () => {
+                                // Add the animate-border class after text animation completes
+                                button.classList.add('animate-border');
+                            }
+                        });
+                        return buttonSplit;
+                    },
+                });
+            }
+        });
+
+        return () => {
+            window.removeEventListener("scroll", handleScroll)
+        }
+    }, [])
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target
@@ -96,6 +168,10 @@ export default function ContactUsPage() {
     return (
         <div>
             <Navbar scrollThreshold={-10} />
+            <div
+                className="scroll-progress-bar"
+                style={{ width: `${scrollProgress}%` }}
+            />
             <div className="min-h-[110vh] flex justify-center items-center bg-black"> {/* Set background to black and center form */}
                 <div className="w-[500px] flex justify-center items-center"> {/* Center the form */}
                     <FormCard title="Contact Us" onSubmit={handleSubmit} buttonClassName="w-full py-2 bg-white hover:bg-gray-200 text-black rounded-lg transition-colors mt-2 font-semibold" submitLabel="Submit" showSubmitButton={true}>
