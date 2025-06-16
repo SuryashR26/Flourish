@@ -20,8 +20,8 @@ function page() {
 
                 <div className="relative z-10">
                     <Navbar scrollThreshold={10} />
-                    <div className="flex flex-col items-center justify-center h-screen">
-                        <h1 className="text-2xl md:text-3xl lg:text-4xl text-center max-w-3xl text-white leading-relaxed mt-[15vh] md:mt-[20vh] lg:mt-[25vh] mb-[10vh] md:mb-[15vh] lg:mb-[20vh] px-4 md:px-8 lg:px-0">
+                    <div className="flex flex-col items-center justify-center h-screen px-6 sm:px-8 md:px-12 lg:px-32">
+                        <h1 className="text-2xl md:text-3xl lg:text-4xl text-center max-w-3xl text-white leading-relaxed mt-[15vh] md:mt-[20vh] lg:mt-[25vh] mb-[10vh] md:mb-[15vh] lg:mb-[20vh]">
                             Welcome to our website! We are dedicated to providing the best service possible. Our team is passionate about what we do and we strive to exceed your expectations.
                         </h1>
 
@@ -48,22 +48,22 @@ function page() {
 
             {/* Vision Section */}
             <div className="bg-black mb-10 md:mb-20 lg:mb-30 -mt-10 md:-mt-20 lg:-mt-30">
-                <div className="flex flex-col items-center justify-center min-h-screen px-4 md:px-8 lg:px-0">
-                    <h2 className="text-2xl !mb-20 md:text-3xl lg:text-4xl text-center max-w-2xl text-white leading-relaxed mb-[5vh] md:mb-[7vh] lg:mb-[10vh]">
+                <div className="flex flex-col items-center justify-center min-h-screen px-6 sm:px-8 md:px-12 lg:px-32">
+                    <h2 className="text-2xl md:text-3xl lg:text-4xl text-center max-w-2xl text-white leading-relaxed mb-[5vh] md:mb-[7vh] lg:mb-[10vh]">
                         Our Vision
                     </h2>
                     <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between w-full lg:w-4/5 gap-8 lg:gap-12">
                         <div className="flex-1 space-y-4 w-full text-center lg:text-left">
-                            <p className="text-lg md:text-xl lg:text-2xl text-white leading-relaxed px-2 md:px-4 lg:px-0">
+                            <p className="text-lg md:text-xl lg:text-2xl text-white leading-relaxed">
                                 We envision a world where ideas can flourish freely, fostering innovation and creativity.
                             </p>
-                            <p className="text-lg md:text-xl lg:text-2xl text-white leading-relaxed px-2 md:px-4 lg:px-0">
+                            <p className="text-lg md:text-xl lg:text-2xl text-white leading-relaxed">
                                 Our mission is to create a platform that empowers individuals and teams to bring their ideas to life.
                             </p>
-                            <p className="text-lg md:text-xl lg:text-2xl text-white leading-relaxed px-2 md:px-4 lg:px-0">
+                            <p className="text-lg md:text-xl lg:text-2xl text-white leading-relaxed">
                                 We believe in the power of collaboration and the importance of a supportive community.
                             </p>
-                            <p className="text-lg md:text-xl lg:text-2xl text-white leading-relaxed px-2 md:px-4 lg:px-0">
+                            <p className="text-lg md:text-xl lg:text-2xl text-white leading-relaxed">
                                 By providing the right tools and resources, we aim to help you transform your ideas into reality, no matter how big or small they may be.
                             </p>
                         </div>
@@ -80,13 +80,16 @@ function page() {
                     </div>
                 </div>
             </div>
+
             <ScrollSection />
-            <div className="flex flex-col items-center justify-center min-h-screen px-4 md:px-8 lg:px-0 bg-black pt-20">
-                <h1 className="text-2xl md:text-3xl lg:text-4xl text-center max-w-2xl text-white leading-relaxed !mb-16">
+
+            {/* Team Section */}
+            <div className="flex flex-col items-center justify-center min-h-screen px-6 sm:px-8 md:px-12 lg:px-32 bg-black pt-20">
+                <h1 className="text-2xl md:text-3xl lg:text-4xl text-center max-w-2xl text-white leading-relaxed mb-16">
                     Meet our Team
                 </h1>
                 <div className="flex flex-row flex-wrap justify-center items-stretch gap-16 w-full max-w-7xl">
-                    {/* Updated card with increased width */}
+                    {/* First Team Member */}
                     <div className="flex flex-col items-center p-8 rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.1)] w-full sm:w-[450px] md:w-[500px] lg:w-[550px] min-h-[500px] backdrop-blur-sm">
                         <Image
                             src="/Images/ideaG.jpg"
@@ -102,7 +105,7 @@ function page() {
                         </p>
                     </div>
 
-                    {/* Second card with same updates */}
+                    {/* Second Team Member */}
                     <div className="flex flex-col items-center p-8 rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.1)] w-full sm:w-[450px] md:w-[500px] lg:w-[550px] min-h-[500px] backdrop-blur-sm">
                         <Image
                             src="/Images/ideaG.jpg"
@@ -123,4 +126,4 @@ function page() {
     )
 }
 
-export default page
+export default page;
