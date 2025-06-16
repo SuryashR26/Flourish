@@ -49,7 +49,7 @@ function page() {
             {/* Vision Section */}
             <div className="bg-black mb-10 md:mb-20 lg:mb-30 -mt-10 md:-mt-20 lg:-mt-30">
                 <div className="flex flex-col items-center justify-center min-h-screen px-6 sm:px-8 md:px-12 lg:px-32">
-                    <h2 className="text-2xl md:text-3xl lg:text-4xl text-center max-w-2xl text-white leading-relaxed mb-[5vh] md:mb-[7vh] lg:mb-[10vh]">
+                    <h2 className="text-2xl !mb-16 md:text-3xl lg:text-4xl text-center max-w-2xl text-white leading-relaxed mb-[5vh] md:mb-[7vh] lg:mb-[10vh]">
                         Our Vision
                     </h2>
                     <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between w-full lg:w-4/5 gap-8 lg:gap-12">
