@@ -1,5 +1,3 @@
-"use client";
-
 import type React from "react"
 import { figtree } from "@/styles/fonts"
 import Footer from "@/components/layout/footer"
@@ -9,20 +7,12 @@ import "@/styles/navbar.css"
 import "@/styles/formCard.css"
 // import "@/styles/login.css"
 import { FooterProvider } from '@/context/FooterContext'
-import { usePathname } from 'next/navigation'
+import { Metadata } from 'next'
+import ClientLayout from '@/components/layout/ClientLayout'
 
-const publicRoutes = ['/login', '/signUp', '/forgot-password']
-
-function MainLayout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname()
-  const showFooter = !publicRoutes.includes(pathname)
-
-  return (
-    <div>
-      {children}
-      {showFooter && <Footer />}
-    </div>
-  )
+export const metadata: Metadata = {
+  title: 'Flourish',
+  description: 'Where ideas find their people',
 }
 
 // Server component
@@ -35,7 +25,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={figtree.className}>
         <FooterProvider>
-          <MainLayout>{children}</MainLayout>
+          <ClientLayout>{children}</ClientLayout>
         </FooterProvider>
       </body>
     </html>

@@ -9,6 +9,9 @@ interface FormCardProps {
     children: React.ReactNode
     className?: string
     style?: React.CSSProperties
+    buttonClassName?: string
+    submitLabel?: string
+    showSubmitButton?: boolean
 }
 
 interface FormRowProps {
@@ -26,13 +29,21 @@ function FormRow({ children, className = "" }: FormRowProps) {
     )
 }
 
-function FormCard({ title, onSubmit, children, className = "", style }: FormCardProps & { style?: React.CSSProperties }) {
+function FormCard({ title, onSubmit, children, className = "", style, buttonClassName, submitLabel = "Submit", showSubmitButton = true }: FormCardProps & { style?: React.CSSProperties }) {
     return (
         <div className={`form-card ${className}`} style={style}>
             <div className="form-card__content">
                 <h2 className="form-card__title">{title}</h2>
                 <form onSubmit={onSubmit} className="form-card__form">
                     {children}
+                    {showSubmitButton && (
+                        <button
+                            type="submit"
+                            className={buttonClassName ? buttonClassName : "form-card__button"}
+                        >
+                            {submitLabel}
+                        </button>
+                    )}
                 </form>
             </div>
         </div>

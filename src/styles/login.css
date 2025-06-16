@@ -10,7 +10,7 @@
 
 .login-site-logo {
     position: fixed;
-    top: 19px;
+    top: 14px;
     left: 20px;
     font-size: 2.22rem;
     cursor: pointer;
@@ -18,50 +18,43 @@
     background-color: #000000;
     z-index: 1000;
     text-decoration: none !important;
-    margin-left: 12px;
-    /* Decreased from 24px */
+    margin-left: 24px;
     display: inline-flex;
     align-items: center;
-    gap: 2px;
-    /* Reduced from 4px to bring icon closer */
 }
 
-/* Icon specific spacing */
 .login-site-logo svg {
+    position: relative;
+    top: -1.5px;
+    left: -0.5px;
     margin-left: 4px;
-    /* Decreased from default */
-}
-
-.login-error {
-    border-color: #ff3860 !important;
-}
-
-.login-error-message {
-    color: #ff3860;
-    font-size: 0.8rem;
-    display: block;
-    margin: 0.25rem 0 0;
 }
 
 .login-password-field {
-    margin-top: -1rem;
     position: relative;
+    width: 100%;
     display: flex;
     align-items: center;
+    font-size: 1.3rem;
+    margin: 0;
 }
 
 .login-password-field input {
     width: 100%;
+    margin-top: 0;
+    margin-bottom: 0;
 }
 
 .login-password-toggle {
     position: absolute;
-    right: 10px;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-65%);
     cursor: pointer;
     color: #888;
     transition: color 0.2s ease;
+    z-index: 2;
 }
-
 .login-password-toggle:hover {
     color: #1f98f4;
 }
@@ -84,27 +77,15 @@
     color: #ff3860;
     font-size: 0.8rem;
     display: block;
-    margin: 0.25rem 0 0;
+    margin: 0 0 0 2px;
 }
 
-.login-form-group {
-    margin-bottom: 1rem;
+.form-group {
+    margin-bottom: 0.5rem;
     position: relative;
 }
 
-.login-form-group input {
-    font-size: 1.15rem;
-    font-weight: 400;
-    height: 54px;
-    padding: 0 16px;
-    border-radius: 10px;
-    background: #181c23;
-    color: #fff;
-    border: 1px solid #222;
-    box-sizing: border-box;
-}
-
-.login-form-group input::placeholder {
+.form-group input::placeholder {
     color: #b0b8c1;
     font-weight: 400;
     opacity: 1;
@@ -113,12 +94,12 @@
 .forget-password {
     display: block;
     text-align: left;
-    margin-left: 1px;
-    margin-top: -0.75rem !important;
+    margin-left: 2px;
+    margin-top: -1.8rem !important;
     margin-bottom: 0rem;
 }
 
-.login-form-group label {
+.form-group label {
     font-size: 1.1rem;
     font-weight: 500;
     display: block;
@@ -147,18 +128,16 @@ p {
 }
 
 .login-separator-section {
+    position: fixed;
     width: 100%;
-    display: flex;
-    flex-direction: column;
     align-items: center;
-    margin-top: 6rem;
+    top:44rem;
 }
 
 .login-separator {
     width: 100%;
-    max-width: 435px;
     height: 2px;
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255,255,255,0.15);
     margin: 0 auto 18px auto;
 }
 
@@ -183,8 +162,7 @@ p {
 }
 
 .login-content {
-    margin-top: 6rem;
-    /* Reduced from 8rem to account for fixed header */
+    margin-top: 8rem;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -193,6 +171,7 @@ p {
 
 button[type="submit"] {
     margin-bottom: 16px;
+    margin-top: -0.5rem !important; /* should be negative */
 }
 
 /* Scope login styles */
@@ -203,5 +182,221 @@ button[type="submit"] {
 }
 
 .login-content h2 {
+    margin-bottom: 1rem;
     font-size: 2rem !important;
+}
+
+.login-container .form-card,
+.login-container .form-card * {
+    box-sizing: border-box;
+}
+
+.login-container .form-card {
+    width: 436px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.login-container .form-card input,
+.login-container .form-card select,
+.login-container .form-card textarea {
+    width: 100% !important;
+    height: 54px !important;
+    display: block;
+    margin: 0 0 4px 0;
+    font-weight: 400;
+}
+
+button[type="submit"].form-card {
+    background: #fff !important;
+    color: #0B0809 !important;
+    border: 1px solid #2f3542 !important;
+    border-radius: 8px !important;
+    transition: none !important;
+}
+
+.login-container .form-card button[type="submit"] {
+    font-weight: 500;
+    background:#fff !important;
+    color: #0B0809 !important;
+    border: 1px solid #2f3542 !important;
+    border-radius: 8px !important;
+}
+
+.login-container .form-card button[type="submit"]:hover {
+    background: #cdcccd !important;
+    color: #000000 !important;
+}
+
+.login-content > .form-card {
+    margin-bottom: 0;
+}
+
+/* Social login buttons */
+.form-card .social-login-btn {
+    background:#0B0809 !important;
+    color: #fff !important;
+    border: 1px solid #2f3542 !important;
+    border-radius: 8px !important;
+    font-size: 1.15rem !important;
+    font-weight: 500 !important;
+    padding: 0 !important;
+    margin-bottom: -0.2rem !important;
+    box-shadow: none !important;
+    transition: background 0.2s, border 0.2s !important;
+    width: 100% !important;
+    height: 54px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.5rem !important;
+
+}
+.form-card .social-login-btn:hover {
+    border-color: #1f98f4 !important;
+}
+.google-btn .google-icon {
+    font-size: 1.2rem;
+}
+.sso-btn {
+    background: #181c23 !important;
+    color: #fff !important;
+    border: 1.5px solid #222 !important;
+    transition: border-color 0.2s ease;
+}
+.sso-btn:hover {
+    border-color: #1f98f4;
+}
+
+.sso-btn .sso-icon {
+    font-size: 1.2rem;
+}
+
+/* Separator with 'or' */
+.login-or-separator {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: -0.4rem 0 -0.5rem 0;
+}
+.login-or-separator::before,
+.login-or-separator::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1.5px solid #222;
+    margin: 0 0.75rem;
+}
+.login-or-separator span {
+    color: #888;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+/* Password slide-down animation */
+.password-slide,
+.password-slide.show {
+    padding-top: 1px;
+    padding-bottom: 1px;
+    transition: max-height 0.6s cubic-bezier(0.4,0,0.2,1), opacity 0.4s;
+}
+.password-slide.show {
+    max-height: 150px;
+}
+
+.form-group.password-slide,
+.password-slide.form-group {
+    margin-bottom: 0;
+    margin-top: -1.2rem;
+}
+
+
+.form-group.password-slide.show {
+    margin-bottom: 0.5rem; /* Increase as needed */
+}
+
+.login-top-buttons {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    gap: 12px;
+    z-index: 1000;
+}
+
+.contact-us-btn {
+    background: #0B0809;
+    color: #ffffff;
+    border: 1px solid #2f3542;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+}
+
+.contact-us-btn:hover {
+    border-color: #1f98f4;
+}
+
+.sign-up-btn {
+    background: #ffffff;
+    color: #000000;
+    border: 1px solid #2f3542;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+.sign-up-btn:hover {
+    background: #cdcccd;
+}
+
+.form-card .email-continue-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    gap: 11px;
+    margin-top: -1rem !important;
+}
+
+.signup-fields-group .form-group {
+  margin-bottom: 0.7rem;
+}
+
+
+
+.signup-back-link {
+  text-align: center;
+  margin-top: -0.2rem;
+}
+
+button.social-login-btn.sso-btn {
+  background: #0B0809 !important;
+  color: #fff !important;
+  border: 1px solid #2f3542 !important;
+  transition: none !important;
+}
+
+.login-container .form-card input.verification-digit-input {
+  width: 50px !important;
+  height: 50px !important;
+  font-size: 1.3rem !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.login-container .login-content .signup-fields-group + button[type="submit"] {
+  margin-top: -1.2rem !important;
+}
+
+.login-container .login-content button[type="submit"] + .signup-back-link {
+    margin-top: -1.2rem !important;
 }

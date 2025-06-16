@@ -31,13 +31,14 @@
 .form-card textarea,
 .form-card select {
     width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #333;
+    padding: 10px 12px;
+    border: 1px solid #2f3542;
     /* Changed from 2px to 1px */
     border-radius: 8px;
-    background-color: #2a2a2a;
+    background-color: #0B0809;
     color: #fff;
     font-size: 1rem;
+    font-weight: 400;
     transition: border-color 0.3s ease;
 }
 
@@ -62,8 +63,8 @@
     padding: 0.75rem 1.5rem;
     border: none;
     border-radius: 8px;
-    background-color: #1f98f4;
-    color: white;
+    background-color: #fff;
+    color: black;
     font-size: 1.2rem;
     cursor: pointer;
     transition: background-color 0.3s ease;
@@ -71,7 +72,7 @@
 }
 
 .form-card button:hover {
-    background-color: #1a7ac5;
+    background-color: #cdcccd;
 }
 
 .form-card label {
@@ -130,9 +131,10 @@
 
     h2 {
         font-size: 3rem !important;
-        line-height: 1.2 !important;
-        color: #fff !important;
-        margin-bottom: 1.5rem !important;
+        line-height: 1.25 !important;
+        color: #ffffff !important;
+        margin-bottom: 1rem !important;
+        font-weight: 600 !important;
         text-align: left !important;
     }
 
@@ -186,7 +188,7 @@ div[id^="text-block-"]>h2 {
     color: #fff !important;
     margin-bottom: 1rem !important;
     text-align: left !important;
-    font-weight: bold !important;
+    font-weight: 600 !important;
     padding: 0 !important;
 }
 
@@ -205,4 +207,43 @@ div[id^="text-block-"]>p {
 .login-container p {
     text-align: center !important;
     font-size: 2rem !important;
+}
+
+.contact-error-message {
+  /* General error message styles */
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  font-weight: 500;
+}
+
+.contact-error-firstName {
+  color: #ff3860;
+  /* Add more specific styles for first name error */
+}
+
+.contact-error-lastName {
+  color: #ff3860;
+  /* Add more specific styles for last name error */
+}
+
+.contact-error-email {
+  color: #ff3860;
+  /* Add more specific styles for email error */
+}
+
+.contact-error-messageField {
+  color: #ff3860;
+  margin-top: -0.1rem;
+  /* Add more specific styles for message error */
+}
+
+.vertical-center-line {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  width: 1px;
+  height: 100vh;
+  background-color: rgba(255, 255, 255, 0.2);
+  z-index: 1000;
+  pointer-events: none;
 }
