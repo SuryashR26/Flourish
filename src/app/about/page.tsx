@@ -85,7 +85,7 @@ function page() {
 
             {/* Team Section */}
             <div className="flex flex-col items-center justify-center min-h-screen px-6 sm:px-8 md:px-12 lg:px-32 bg-black pt-20">
-                <h1 className="text-2xl md:text-3xl lg:text-4xl text-center max-w-2xl text-white leading-relaxed mb-16">
+                <h1 className="text-2xl md:text-3xl lg:text-4xl text-center max-w-2xl text-white leading-relaxed !mb-16">
                     Meet our Team
                 </h1>
                 <div className="flex flex-row flex-wrap justify-center items-stretch gap-16 w-full max-w-7xl">
