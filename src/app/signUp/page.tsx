@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import '@/styles/signUp.css';
-import { FaEye, FaEyeSlash, FaLightbulb } from 'react-icons/fa';
+import "@/styles/login.css";
+import { FaEye, FaEyeSlash, FaLightbulb, FaGoogle, FaGraduationCap, FaEnvelope, FaExclamationCircle } from 'react-icons/fa';
+import FormCard from "@/components/cards/formCards";
 
 interface SignUpForm {
     firstName: string;
@@ -31,6 +32,7 @@ interface FormErrors {
     birthDay?: string;
     birthMonth?: string;
     birthYear?: string;
+    verificationCode?: string;
 }
 
 export default function SignUp() {
@@ -54,6 +56,9 @@ export default function SignUp() {
     const [errors, setErrors] = useState<FormErrors>({});
     const [showPassword, setShowPassword] = useState(false);
     const [showPassword2, setShowPassword2] = useState(false);
+    const [verificationCode, setVerificationCode] = useState(["", "", "", "", "", ""]);
+    const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
+    const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
@@ -82,6 +87,9 @@ export default function SignUp() {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         const numericFields = ['birthDay', 'birthMonth', 'birthYear'];
+
+        // Clear the error for the field being edited
+        setErrors(prev => ({ ...prev, [name]: undefined }));
 
         if (name === 'phoneNumber') {
             const numericValue = value.replace(/\D/g, '');
@@ -113,54 +121,90 @@ export default function SignUp() {
         }
     };
 
-    const validateStep1 = () => {
-        let tempErrors: FormErrors = {};
-
-        if (!signUpValues.email) {
-            tempErrors['email'] = 'Email is required';
-        } else if (!/\S+@\S+\.\S+/.test(signUpValues.email)) {
-            tempErrors['email'] = 'Email is invalid';
-        }
-        if (!signUpValues.username) tempErrors['username'] = 'Username is required';
-        if (!signUpValues.password) {
-            tempErrors['password'] = 'Password is required';
-        } else if (signUpValues.password.length < 6) {
-            tempErrors['password'] = 'Password must be at least 6 characters';
-        }
-        if (signUpValues.password !== signUpValues.confirmPassword) {
-            tempErrors['confirmPassword'] = 'Passwords do not match';
-        }
-        if (signUpValues.phoneNumber && signUpValues.phoneNumber.length !== 12) {
-            tempErrors['phoneNumber'] = 'Phone number must be 10 digits';
-        }
-
-        setErrors(tempErrors);
-        return Object.keys(tempErrors).length === 0;
+    const handleVerificationFocus = (idx: number) => {
+        setFocusedIndex(idx);
     };
 
-    const validateStep2 = () => {
-        let tempErrors: FormErrors = {};
-
-        if (!signUpValues.firstName) tempErrors['firstName'] = 'First name is required';
-        if (!signUpValues.lastName) tempErrors['lastName'] = 'Last name is required';
-        if (!signUpValues.birthMonth) tempErrors['birthMonth'] = 'Birth month is required';
-        if (!signUpValues.birthDay) tempErrors['birthDay'] = 'Birth day is required';
-        if (!signUpValues.birthYear) tempErrors['birthYear'] = 'Birth year is required';
-
-        setErrors(tempErrors);
-        return Object.keys(tempErrors).length === 0;
+    const handleVerificationBlur = () => {
+        setFocusedIndex(null);
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        if (currentStep === 1) {
-            if (validateStep1()) {
-                setCurrentStep(2);
-                setErrors({});
+    const handleVerificationChange = (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
+        const val = e.target.value.replace(/[^0-9]/g, "");
+        if (!val) return;
+        const newCode = [...verificationCode];
+        newCode[idx] = val[0];
+        setVerificationCode(newCode);
+        if (idx < 5 && val) {
+            inputRefs.current[idx + 1]?.focus();
+        }
+        if (idx === 5 && val) {
+            const enteredCode = newCode.join("");
+            if (enteredCode !== "333333") {
+                setErrors(prev => ({ ...prev, verificationCode: "Incorrect Code. Please try again." }));
+            } else {
+                setErrors(prev => ({ ...prev, verificationCode: undefined }));
+                setCurrentStep(3);
             }
         } else {
-            if (validateStep2()) {
+            // Clear error if editing before last digit
+            setErrors(prev => ({ ...prev, verificationCode: undefined }));
+        }
+    };
+
+    const handleVerificationKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, idx: number) => {
+        if (e.key === "Backspace") {
+            if (verificationCode[idx]) {
+                const newCode = [...verificationCode];
+                newCode[idx] = "";
+                setVerificationCode(newCode);
+            } else if (idx > 0) {
+                inputRefs.current[idx - 1]?.focus();
+                const newCode = [...verificationCode];
+                newCode[idx - 1] = "";
+                setVerificationCode(newCode);
+            }
+        } else if (e.key === "ArrowLeft" && idx > 0) {
+            inputRefs.current[idx - 1]?.focus();
+        } else if (e.key === "ArrowRight" && idx < 5) {
+            inputRefs.current[idx + 1]?.focus();
+        }
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (currentStep === 1) {
+            // Basic email validation
+            if (!signUpValues.email.trim() || !/\S+@\S+\.\S+/.test(signUpValues.email)) {
+                setErrors({ email: "Please enter a valid email address" });
+                return;
+            }
+            setErrors({});
+            setCurrentStep(2);
+        } else if (currentStep === 2) {
+            // Verification code validation
+            const enteredCode = verificationCode.join('');
+            if (enteredCode !== "333333") {
+                setErrors(prev => {
+                    const newErrors = { ...prev, verificationCode: "Incorrect Code. Please try again" };
+                    return newErrors;
+                });
+                return;
+            }
+            setErrors(prev => ({ ...prev, verificationCode: undefined }));
+            setCurrentStep(3);
+        } else if (currentStep === 3) {
+            // 3rd step: Validate first name, last name, password, confirm password
+            let tempErrors: FormErrors = {};
+            if (!signUpValues.firstName.trim()) tempErrors.firstName = "First name is required";
+            if (!signUpValues.lastName.trim()) tempErrors.lastName = "Last name is required";
+            if (!signUpValues.password.trim()) tempErrors.password = "Password is required";
+            else if (signUpValues.password.length < 8) tempErrors.password = "Password must be at least 8 characters";
+            if (!signUpValues.confirmPassword.trim()) tempErrors.confirmPassword = "Confirm password is required";
+            else if (signUpValues.password !== signUpValues.confirmPassword) tempErrors.confirmPassword = "Passwords must match";
+            setErrors(tempErrors);
+            if (Object.keys(tempErrors).length === 0) {
+                // Submit form or continue
                 console.log('Form submitted:', signUpValues);
                 // Reset form
                 setSignUpValues({
@@ -176,8 +220,9 @@ export default function SignUp() {
                     birthMonth: '',
                     birthYear: '',
                 });
-                setCurrentStep(1);
+                router.push('/');
                 setErrors({});
+                
             }
         }
     };
@@ -189,219 +234,203 @@ export default function SignUp() {
 
     return (
         <>
-            <Link href="/" className="signup-site-logo">
-                Flourish<FaLightbulb />
-            </Link>
-            <div className="signup-container">
-                <div className="signup-form-card">
-                    <h2>{currentStep === 1 ? 'Create Account' : 'Personal Information'}</h2>
-                    <form onSubmit={handleSubmit}>
+            <div className="login-container">
+                {/* Site Logo */}
+                <Link href="/" className="login-site-logo">
+                    Flourish
+                    <FaLightbulb />
+                </Link>
+
+                {/* Top Right Buttons */}
+                <div className="login-top-buttons">
+                    <Link href="/contactUs" className="contact-us-btn">Contact Us</Link>
+                    <Link href="/login" className="sign-up-btn">Log In</Link>
+                </div>
+
+                {/* Sign Up Content */}
+                <div className="login-content">
+                    <FormCard
+                        title={currentStep === 2 ? "Verification" : "Create an Account"}
+                        onSubmit={handleSubmit}
+                        style={{ width: '468px', marginBottom: '9rem' }}
+                        showSubmitButton={false}
+                    >
                         {currentStep === 1 ? (
                             <>
-                                <div className="form1-row">
-                                    <div className="signup-form-group full-width">
-                                        <label>Username</label>
+                                {/* Social Login Buttons */}
+                                <button type="button" className="social-login-btn google-btn">
+                                    <FaGoogle className="google-icon" /> Sign up with Google
+                                </button>
+                                <button type="button" className="social-login-btn sso-btn" style={{ background: "#181c23", color: "#fff", border: "1.5px solid #222" }}>
+                                    <FaGraduationCap className="sso-icon" /> Sign Up with School SSO
+                                </button>
+                                {/* Separator */}
+                                <div className="login-or-separator">
+                                    <span>or</span>
+                                </div>
+                                <div className="form-group">
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        value={signUpValues.email}
+                                        onChange={handleChange}
+                                        className={errors.email ? "error" : ""}
+                                        placeholder="Email"
+                                    />
+                                    {errors.email && <div className="error-message">{errors.email}</div>}
+                                </div>
+                                <button type="submit" className="email-continue-btn">
+                                    <FaEnvelope />
+                                    Continue with Email
+                                </button>
+                            </>
+                        ) : currentStep === 2 ? (
+                            <div style={{ marginTop: '-1rem' }}>
+                                <p style={{
+                                    textAlign: 'center',
+                                    color: '#b0b8c1',
+                                    marginBottom: '1.2rem',
+                                    fontSize: '1.05rem',
+                                    fontWeight: 400,
+                                    opacity: 1
+                                }}>
+                                    If you have an account, we have sent a code to <b style={{ color: '#fff', fontWeight: 500 }}>{signUpValues.email}</b>. Enter it below.
+                                </p>
+                                <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '1.2rem' }}>
+                                    {verificationCode.map((digit, idx) => (
                                         <input
+                                            key={idx}
+                                            className={`verification-digit-input ${errors.verificationCode ? 'error' : ''}`}
+                                            ref={el => { inputRefs.current[idx] = el; }}
                                             type="text"
-                                            name="username"
-                                            value={signUpValues.username}
-                                            onChange={handleChange}
-                                            className={errors.username ? "signup-error" : ""}
-                                            placeholder="Choose a username"
+                                            inputMode="numeric"
+                                            maxLength={1}
+                                            value={digit}
+                                            onFocus={() => handleVerificationFocus(idx)}
+                                            onBlur={handleVerificationBlur}
+                                            onChange={e => handleVerificationChange(e, idx)}
+                                            onKeyDown={e => handleVerificationKeyDown(e, idx)}
+                                            style={{
+                                                textAlign: 'center',
+                                                border: `2px solid ${focusedIndex === idx ? '#fff' : errors.verificationCode ? '#ff3860' : '#888'}`,
+                                                borderRadius: '8px',
+                                                background: '#0B0809',
+                                                color: '#fff',
+                                                outline: 'none',
+                                                transition: 'border-color 0.2s',
+                                                fontWeight: 500,
+                                                boxSizing: 'border-box',
+                                                padding: 0
+                                            }}
                                         />
-                                        {errors.username && <div className="signup-error-message">{errors.username}</div>}
-                                    </div>
+                                    ))}
                                 </div>
-
-                                <div className="form1-row">
-                                    <div className="signup-form-group full-width">
-                                        <label>Email</label>
-                                        <input
-                                            type="email"
-                                            name="email"
-                                            value={signUpValues.email}
-                                            onChange={handleChange}
-                                            className={errors.email ? "signup-error" : ""}
-                                            placeholder="Enter your email"
-                                        />
-                                        {errors.email && <div className="signup-error-message">{errors.email}</div>}
+                                {currentStep === 2 && errors.verificationCode && (
+                                    <div className="error-message" style={{ display: 'flex', alignItems: 'center', fontSize: '1rem',justifyContent: 'center', gap: '8px', margin: '-0.5rem 0 1rem 0', textAlign: 'center' }}>
+                                        <FaExclamationCircle style={{ margin: 0, fontSize: '1.3rem', verticalAlign: 'middle' }} />
+                                        <span style={{ verticalAlign: 'middle' }}>{errors.verificationCode}</span>
                                     </div>
+                                )}
+                                <div className="signup-back-link">
+                                    <a href="#" style={{ color: '#1f98f4', textDecoration: 'none', fontWeight: 500, }} onClick={e => { e.preventDefault(); setCurrentStep(1); }}>
+                                        &larr; Back
+                                    </a>
                                 </div>
-
-                                <div className="form1-row">
-                                    <div className="signup-form-group">
-                                        <label>Password</label>
-                                        <div className="password-field">
+                            </div>
+                        ) : (
+                            <>
+                                <div className="signup-fields-group">
+                                    <div style={{ display: 'flex', gap: '12px' }}>
+                                        <div className="form-group" style={{ flex: 1 }}>
+                                            <input
+                                                type="text"
+                                                name="firstName"
+                                                value={signUpValues.firstName}
+                                                onChange={handleChange}
+                                                className={errors.firstName ? "error" : ""}
+                                                placeholder="First Name"
+                                            />
+                                            {errors.firstName && <div className="error-message">{errors.firstName}</div>}
+                                        </div>
+                                        <div className="form-group" style={{ flex: 1 }}>
+                                            <input
+                                                type="text"
+                                                name="lastName"
+                                                value={signUpValues.lastName}
+                                                onChange={handleChange}
+                                                className={errors.lastName ? "error" : ""}
+                                                placeholder="Last Name"
+                                            />
+                                            {errors.lastName && <div className="error-message">{errors.lastName}</div>}
+                                        </div>
+                                    </div>
+                                    <div className="form-group">
+                                        <div className="login-password-field">
                                             <input
                                                 type={showPassword ? "text" : "password"}
                                                 name="password"
                                                 value={signUpValues.password}
                                                 onChange={handleChange}
-                                                className={errors.password ? "signup-error" : ""}
-                                                placeholder="Enter your password"
+                                                className={errors.password ? "error" : ""}
+                                                placeholder="Password"
                                             />
-                                            <span
-                                                className="password-toggle"
-                                                onClick={togglePasswordVisibility}
-                                            >
+                                            <span className="login-password-toggle" onClick={togglePasswordVisibility}>
                                                 {showPassword ? <FaEye /> : <FaEyeSlash />}
                                             </span>
                                         </div>
-                                        {errors.password && <div className="signup-error-message">{errors.password}</div>}
+                                        {errors.password && <div className="error-message">{errors.password}</div>}
                                     </div>
-
-                                    <div className="signup-form-group">
-                                        <label>Confirm Password</label>
-                                        <div className="password-field">
+                                    <div className="form-group">
+                                        <div className="login-password-field">
                                             <input
                                                 type={showPassword2 ? "text" : "password"}
                                                 name="confirmPassword"
                                                 value={signUpValues.confirmPassword}
                                                 onChange={handleChange}
-                                                className={errors.confirmPassword ? "signup-error" : ""}
-                                                placeholder="Confirm your password"
+                                                className={errors.confirmPassword ? "error" : ""}
+                                                placeholder="Confirm Password"
                                             />
-                                            <span
-                                                className="password-toggle"
-                                                onClick={togglePasswordVisibility2}
-                                            >
+                                            <span className="login-password-toggle" onClick={togglePasswordVisibility2}>
                                                 {showPassword2 ? <FaEye /> : <FaEyeSlash />}
                                             </span>
                                         </div>
-                                        {errors.confirmPassword && <div className="signup-error-message">{errors.confirmPassword}</div>}
+                                        {errors.confirmPassword && <div className="error-message">{errors.confirmPassword}</div>}
                                     </div>
                                 </div>
-
-                                <div className="form1-row">
-                                    <div className="signup-form-group">
-                                        <label>Phone Number</label>
-                                        <input
-                                            type="tel"
-                                            name="phoneNumber"
-                                            value={signUpValues.phoneNumber}
-                                            onChange={handleChange}
-                                            className={errors.phoneNumber ? "signup-error" : ""}
-                                            placeholder="(Optional) Enter phone number"
-                                        />
-                                        {errors.phoneNumber && <div className="signup-error-message">{errors.phoneNumber}</div>}
-                                    </div>
-                                </div>
-                            </>
-                        ) : (
-                            <>
-                                <div className="form1-row">
-                                    <div className="signup-form-group">
-                                        <label>First Name</label>
-                                        <input
-                                            type="text"
-                                            name="firstName"
-                                            value={signUpValues.firstName}
-                                            onChange={handleChange}
-                                            className={errors.firstName ? "signup-error" : ""}
-                                            placeholder="Enter your first name"
-                                        />
-                                        {errors.firstName && <div className="signup-error-message">{errors.firstName}</div>}
-                                    </div>
-
-                                    <div className="signup-form-group">
-                                        <label>Last Name</label>
-                                        <input
-                                            type="text"
-                                            name="lastName"
-                                            value={signUpValues.lastName}
-                                            onChange={handleChange}
-                                            className={errors.lastName ? "signup-error" : ""}
-                                            placeholder="Enter your last name"
-                                        />
-                                        {errors.lastName && <div className="signup-error-message">{errors.lastName}</div>}
-                                    </div>
-                                </div>
-
-                                <div className="form1-row">
-                                    <div className="signup-form-group">
-                                        <label>Birthday</label>
-                                        <select
-                                            name="birthMonth"
-                                            value={signUpValues.birthMonth}
-                                            onChange={handleDayChange}
-                                            className={errors.birthMonth ? "signup-error" : ""}
-                                        >
-                                            <option value="" disabled={signUpValues.birthMonth !== ""}>Select month</option>
-                                            <option value="01">January</option>
-                                            <option value="02">February</option>
-                                            <option value="03">March</option>
-                                            <option value="04">April</option>
-                                            <option value="05">May</option>
-                                            <option value="06">June</option>
-                                            <option value="07">July</option>
-                                            <option value="08">August</option>
-                                            <option value="09">September</option>
-                                            <option value="10">October</option>
-                                            <option value="11">November</option>
-                                            <option value="12">December</option>
-                                        </select>
-                                        {errors.birthMonth && <div className="signup-error-message">{errors.birthMonth}</div>}
-                                    </div>
-                                    <div className="signup-form-group">
-                                        <select
-                                            name="birthDay"
-                                            value={signUpValues.birthDay}
-                                            onChange={handleChange}
-                                            className={errors.birthDay ? "signup-error" : ""}
-                                            style={{ marginTop: '29px' }}
-                                            disabled={!signUpValues.birthMonth}
-                                        >
-                                            <option value="" disabled={signUpValues.birthDay !== ""}>Day</option>
-                                            {(() => {
-                                                const days = [];
-                                                let maxDay = 31;
-                                                if (dayValue === 2) maxDay = 30;
-                                                else if (dayValue === 3) maxDay = 29;
-                                                for (let i = 1; i <= maxDay; i++) {
-                                                    const day = i < 10 ? `0${i}` : `${i}`;
-                                                    days.push(
-                                                        <option key={day} value={day}>{day}</option>
-                                                    );
-                                                }
-                                                return days;
-                                            })()}
-                                        </select>
-                                        {errors.birthDay && <div className="signup-error-message">{errors.birthDay}</div>}
-                                    </div>
-                                    <div className="signup-form-group">
-                                        <input
-                                            type="text"
-                                            name="birthYear"
-                                            value={signUpValues.birthYear}
-                                            onChange={handleChange}
-                                            maxLength={4}
-                                            placeholder='YYYY'
-                                            className={errors.birthYear ? "signup-error" : ""}
-                                            style={{ marginTop: '29px' }}
-                                        />
-                                        {errors.birthYear && <div className="signup-error-message">{errors.birthYear}</div>}
-                                    </div>
+                                <button
+                                    type="submit"
+                                    style={{
+                                        background: "#fff",
+                                        color: "#0B0809",
+                                        border: "1px solid #2f3542",
+                                        borderRadius: "8px",
+                                        fontWeight: 500,
+                                        transition: "none"
+                                    }}
+                                >
+                                    Create Account
+                                </button>
+                                <div className="signup-back-link">
+                                    <a href="#" style={{ color: '#1f98f4', textDecoration: 'none', fontWeight: 500 }} onClick={e => { e.preventDefault(); setCurrentStep(1); }}>
+                                        &larr; Back
+                                    </a>
                                 </div>
                             </>
                         )}
+                    </FormCard>
 
-                        <div className="button-container">
-                            {currentStep === 2 ? (
-                                <div className="button-row">
-                                    <button type="button" onClick={handleBack} className="back-button">
-                                        Back
-                                    </button>
-                                    <button type="submit" className="submit-button">
-                                        Sign Up
-                                    </button>
-                                </div>
-                            ) : (
-                                <button type="submit" className="next-button">
-                                    Next
-                                </button>
-                            )}
+                    {/* Separator and Login Link */}
+                    <div className="login-separator-section">
+                        <div className="login-separator" />
+                        <div className="login-bottom-text">
+                            <span>
+                                Already have an account?{" "}
+                                <Link href="/login">
+                                    Login
+                                </Link>
+                            </span>
                         </div>
-                    </form>
+                    </div>
                 </div>
             </div>
         </>

@@ -278,37 +278,37 @@ export default function Cards() {
             <div style={{ height: '8rem' }}></div>
 
             <style jsx global>{`
-@media (prefers-reduced-motion: no-preference) {
-.dashboard-image {
-    scale: 0.5;
-    opacity: 1;
-    animation: dashboard-fade-in linear both;
-    animation-timeline: view();
-    animation-range: entry 0% entry 100%;
-}
-@keyframes dashboard-fade-in {
-    from {
-        scale: 0.85;
-        opacity: 0.3;
-    }
-    to {
-        scale: 1;
-        opacity: 1;
-    }
-}
-.text-block {
-    opacity: 0;
-    animation: text-fade-in linear forwards;
-    animation-timeline: view();
-    animation-range: entry 300px;
-}
-@keyframes text-fade-in {
-    to {
-        opacity: 1;
-    }
-}
-}
-`}</style>
+                @media (prefers-reduced-motion: no-preference) {
+                .dashboard-image {
+                    scale: 0.5;
+                    opacity: 1;
+                    animation: dashboard-fade-in linear both;
+                    animation-timeline: view();
+                    animation-range: entry 0% entry 100%;
+                }
+                @keyframes dashboard-fade-in {
+                    from {
+                        scale: 0.85;
+                        opacity: 0.3;
+                    }
+                    to {
+                        scale: 1;
+                        opacity: 1;
+                    }
+                }
+                .text-block {
+                    opacity: 0;
+                    animation: text-fade-in linear forwards;
+                    animation-timeline: view();
+                    animation-range: entry 300px;
+                }
+                @keyframes text-fade-in {
+                    to {
+                        opacity: 1;
+                    }
+                }
+                }
+                `}</style>
         </div>
     )
 }

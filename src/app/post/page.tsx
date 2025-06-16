@@ -121,9 +121,9 @@ export default function PostPage() {
     return (
         <>
             <Navbar scrollThreshold={-10} />
-            <div className="min-h-screen py-10 px-4 !mt-[80px] max-w-[1400px] mx-auto">
-                <div className="relative flex justify-center">
-                    <FormCard title="Post Your Idea" onSubmit={handleSubmit} style={{ width: '700px' }}>
+            <div className="min-h-screen py-10 !mt-[80px] w-full flex justify-center items-start">
+                <div className="w-full max-w-[700px] mx-auto" style={{ transform: 'translateX(-15.5px)' }}>
+                    <FormCard title="Post Your Idea" onSubmit={handleSubmit} style={{ width: '100%' }} showSubmitButton={false}>
                         <div>
                             <label>Title</label>
                             <input
@@ -156,11 +156,7 @@ export default function PostPage() {
                                             locationL: undefined
                                         });
                                     }}
-                                    className={`font-medium transition-all duration-150 !rounded-r !rounded-r-none !border-r-2 !border-black
-                                  ${postValues.locationS
-                                            ? '!bg-[#2a2a2a] !text-white !shadow-md'
-                                            : '!bg-[#2a2a2a] !text-[#9CA3AF]'}
-                                `}
+                                    className={`font-medium transition-all duration-150 !rounded-r !rounded-r-none !bg-[#0B0809] !border !border-[#2f3542] ${postValues.locationS ? '!text-white' : '!text-[#9CA3AF]'} !text-base !font-normal`}
                                 >
                                     Remote
                                 </button>
@@ -176,11 +172,7 @@ export default function PostPage() {
                                             });
                                         }
                                     }}
-                                    className={`font-medium transition-all duration-150 !rounded-l !rounded-l-none
-                                ${!postValues.locationS
-                                            ? '!bg-[#2a2a2a] !text-white !border-none !shadow-md'
-                                            : '!bg-[#2a2a2a] !text-[#9CA3AF] !border-none'}
-                              `}
+                                    className={`font-medium transition-all duration-150 !rounded-l !rounded-l-none !bg-[#0B0809] !border !border-[#2f3542] ${!postValues.locationS ? '!text-white' : '!text-[#9CA3AF]'} !text-base !font-normal`}
                                 >
                                     In Person
                                 </button>
@@ -234,9 +226,9 @@ export default function PostPage() {
                                 {postValues.tags.split(',').filter(tag => tag.trim()).map((tag, index) => (
                                     <span
                                         key={index}
-                                        className="!bg-[#2a2a2a] !px-8 py-3 rounded-md inline-flex items-center justify-center !text-white !min-h-[40px] !text-md relative"
+                                        className="!bg-[#0B0809] px-4 py-1 rounded-md flex items-center justify-between !text-white !max-h-[45px] !text-md border border-[#2f3542] font-normal"
                                     >
-                                        {tag.trim()}
+                                        <span className="ml-4 text-left font-normal">{tag.trim()}</span>
                                         <button
                                             type="button"
                                             onClick={() => {
@@ -246,7 +238,9 @@ export default function PostPage() {
                                                     .join(',');
                                                 setPostValues({ ...postValues, tags: newTags });
                                             }}
-                                            className="absolute !-right-6 !-top-5 flex items-center justify-center !bg-transparent text-[#9CA3AF] hover:text-white transition-colors">
+                                            className="pr-2 flex items-center justify-center !bg-transparent hover:text-white transition-colors relative"
+                                            style={{fontSize: '2rem', color: '#b0b8c1', top: '7px'}}
+                                        >
                                             ×
                                         </button>
                                     </span>
@@ -282,9 +276,9 @@ export default function PostPage() {
                                 {postValues.skills.split(',').filter(skills => skills.trim()).map((skills, index) => (
                                     <span
                                         key={index}
-                                        className="!bg-[#2a2a2a] !px-8 py-3 rounded-md inline-flex items-center justify-center !text-white !min-h-[40px] !text-md relative"
+                                        className="!bg-[#0B0809] px-4 py-1 rounded-md flex items-center justify-between !text-white !max-h-[45px] !text-md border border-[#2f3542] font-normal"
                                     >
-                                        {skills.trim()}
+                                        <span className="ml-4 text-left font-normal">{skills.trim()}</span>
                                         <button
                                             type="button"
                                             onClick={() => {
@@ -294,7 +288,9 @@ export default function PostPage() {
                                                     .join(',');
                                                 setPostValues({ ...postValues, skills: newSkills });
                                             }}
-                                            className="absolute !-right-6 !-top-5 flex items-center justify-center !bg-transparent text-[#9CA3AF] hover:text-white transition-colors">
+                                            className="pr-2 flex items-center justify-center !bg-transparent hover:text-white transition-colors relative"
+                                            style={{fontSize: '2rem', color: '#b0b8c1', top: '4px'}}
+                                        >
                                             ×
                                         </button>
                                     </span>
@@ -425,27 +421,24 @@ export default function PostPage() {
                                 </div>
                             )}
                         </div>
-                        <div className="mt-4 flex gap-8">
-                            <div className="w-1/2">
-                                <button
-                                    type="button"
-                                    className="w-full py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
-                                >
-                                    Save Draft
-                                </button>
-                            </div>
-                            <div className="w-1/2">
-                                <button
-                                    type="submit"
-                                    className="w-full py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
-                                >
-                                    Submit Post
-                                </button>
-                            </div>
+
+                        <div className="mt-4 flex gap-1">
+                            <button
+                                type="button"
+                                className="flex-1 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+                            >
+                                Save Draft
+                            </button>
+                            <button
+                                type="submit"
+                                className="flex-1 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+                            >
+                                Submit Post
+                            </button>
                         </div>
                     </FormCard>
-                </div >
-            </div >
+                </div>
+            </div>
         </>
     )
 }
