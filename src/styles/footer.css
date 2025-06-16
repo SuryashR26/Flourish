@@ -147,7 +147,7 @@
 
   .footer-logo,
   .footer-menus>div {
-    text-align: center;
+    text-align: center !important;
     width: 100%;
   }
 
