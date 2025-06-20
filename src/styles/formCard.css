@@ -247,3 +247,10 @@ div[id^="text-block-"]>p {
   z-index: 1000;
   pointer-events: none;
 }
+
+.form-card input::placeholder,
+.form-card textarea::placeholder {
+  color: #b0b8c1;
+  font-weight: 400;
+  opacity: 1;
+}

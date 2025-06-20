@@ -262,7 +262,7 @@ export default function SignUp() {
                                     <FaGoogle className="google-icon" /> Sign up with Google
                                 </button>
                                 <button type="button" className="social-login-btn sso-btn" style={{ background: "#181c23", color: "#fff", border: "1.5px solid #222" }}>
-                                    <FaGraduationCap className="sso-icon" /> Sign Up with School SSO
+                                    <FaGraduationCap className="sso-icon" /> Sign up with School SSO
                                 </button>
                                 {/* Separator */}
                                 <div className="login-or-separator">

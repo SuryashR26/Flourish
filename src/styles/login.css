@@ -119,7 +119,7 @@
     text-decoration: underline;
 }
 
-p {
+.login-container p {
     color: #ffffff;
     font-size: 1rem;
     line-height: 1.5;
@@ -169,7 +169,7 @@ p {
     width: 100%;
 }
 
-button[type="submit"] {
+.login-container button[type="submit"] {
     margin-bottom: 16px;
     margin-top: -0.5rem !important; /* should be negative */
 }

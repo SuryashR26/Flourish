@@ -5,6 +5,8 @@ import { useState, useEffect } from "react"
 import FormCard from "@/components/cards/formCards"
 import Navbar from "@/components/layout/navbar"
 import { on } from "events"
+import dynamic from "next/dynamic"
+import { components } from "react-select"
 
 interface PostValues {
     title: string
@@ -33,6 +35,124 @@ interface PostValuesErrors {
     authorImage?: string
     authorID?: string
 }
+
+const TAG_DIRECTORY = [
+    { value: "Monday", label: "Monday" },
+    { value: "Tuesday", label: "Tuesday" },
+    { value: "Wednesday", label: "Wednesday" },
+    { value: "Thursday", label: "Thursday" },
+    { value: "Friday", label: "Friday" },
+    { value: "Saturday", label: "Saturday" },
+    { value: "Sunday", label: "Sunday" },
+    // ...add more as needed
+]
+
+const SKILL_DIRECTORY = [
+    { value: "React", label: "React" },
+    { value: "Node.js", label: "Node.js" },
+    { value: "UI Design", label: "UI Design" },
+    { value: "TypeScript", label: "TypeScript" },
+    { value: "Python", label: "Python" },
+    // ...add more as needed
+]
+
+const TagSelect = dynamic(() => import("react-select/creatable"), { ssr: false })
+
+const customSelectStyles = {
+    control: (provided: any, state: any) => ({
+        ...provided,
+        backgroundColor: '#0B0809',
+        border: state.isFocused ? '1px solid #1f98f4' : '1px solid #2f3542',
+        borderRadius: 8,
+        color: 'white',
+        fontWeight: 400,
+        minHeight: 56,
+        boxShadow: 'none',
+        flexWrap: 'wrap',
+        '&:hover': {
+            border: state.isFocused ? '1px solid #1f98f4' : '1px solid #2f3542',
+        },
+    }),
+    menu: (provided: any) => ({
+        ...provided,
+        backgroundColor: '#0B0809',
+        color: 'white',
+        border: '1px solid #2f3542',
+        borderRadius: 8,
+        zIndex: 20,
+    }),
+    option: (provided: any, state: any) => ({
+        ...provided,
+        backgroundColor: state.isFocused ? '#181c23' : '#0B0809',
+        color: 'white',
+        fontWeight: 400,
+        cursor: 'pointer',
+    }),
+    input: (provided: any) => ({
+        ...provided,
+        color: 'white',
+        fontWeight: 400,
+    }),
+    singleValue: (provided: any) => ({
+        ...provided,
+        color: 'white',
+        fontWeight: 400,
+    }),
+    multiValue: (provided: any) => ({
+        ...provided,
+        backgroundColor: '#181c23',
+        color: 'white',
+        borderRadius: 8,
+        minHeight: 36,
+        height: 36,
+        display: 'flex',
+        alignItems: 'center',
+        fontSize: 20,
+        paddingLeft: 8,
+        paddingRight: 8,
+        marginTop: 4,
+        marginBottom: 4,
+    }),
+    multiValueLabel: (provided: any) => ({
+        ...provided,
+        color: 'white',
+        fontWeight: 400,
+        fontSize: 16,
+        paddingRight: 5,
+        display: 'flex',
+        alignItems: 'center',
+    }),
+    multiValueRemove: (provided: any) => ({
+        ...provided,
+        color: 'white',
+        fontSize: 20,
+        display: 'flex',
+        alignItems: 'center',
+        ':hover': {
+            backgroundColor: '#2f3542',
+            color: 'white',
+        },
+    }),
+    placeholder: (provided: any) => ({
+        ...provided,
+        color: '#b0b8c1',
+        fontWeight: 400,
+    }),
+};
+
+const CustomMultiValueRemove = (props: any) => (
+  <components.MultiValueRemove {...props}>
+    <svg
+      width={24} height={24} viewBox="0 0 24 24"
+      style={{ display: "block" }}
+      aria-hidden="true"
+      focusable="false"
+    >
+      <line x1="6" y1="6" x2="18" y2="18" stroke="white" strokeWidth="2" />
+      <line x1="6" y1="18" x2="18" y2="6" stroke="white" strokeWidth="2" />
+    </svg>
+  </components.MultiValueRemove>
+);
 
 export default function PostPage() {
     const [postValues, setPostValues] = useState<PostValues>({
@@ -222,101 +342,57 @@ export default function PostPage() {
 
                         <div className="mt-4">
                             <label> Project Tags (up to 5)</label>
-                            <div className="flex flex-wrap !gap-2 !mb-2">
-                                {postValues.tags.split(',').filter(tag => tag.trim()).map((tag, index) => (
-                                    <span
-                                        key={index}
-                                        className="!bg-[#0B0809] px-4 py-1 rounded-md flex items-center justify-between !text-white !max-h-[45px] !text-md border border-[#2f3542] font-normal"
-                                    >
-                                        <span className="ml-4 text-left font-normal">{tag.trim()}</span>
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                const newTags = postValues.tags
-                                                    .split(',')
-                                                    .filter((_, i) => i !== index)
-                                                    .join(',');
-                                                setPostValues({ ...postValues, tags: newTags });
-                                            }}
-                                            className="pr-2 flex items-center justify-center !bg-transparent hover:text-white transition-colors relative"
-                                            style={{ fontSize: '2rem', color: '#b0b8c1', top: '7px' }}
-                                        >
-                                            ×
-                                        </button>
-                                    </span>
-                                ))}
-                            </div>
-                            <input
-                                type="text"
-                                placeholder="Add tags to define your idea"
-                                onKeyDown={(e) => {
-                                    if (e.key === ',' || e.key === 'Enter') {
-                                        e.preventDefault();
-                                        const input = e.target as HTMLInputElement;
-                                        const newTag = input.value.trim();
-
-                                        if (newTag && postValues.tags.split(',').filter(tag => tag.trim()).length < 5) {
-                                            const newTags = postValues.tags ?
-                                                `${postValues.tags},${newTag}` : newTag;
-                                            setPostValues({ ...postValues, tags: newTags });
-                                            input.value = '';
-                                        }
-                                    }
+                            <TagSelect
+                                isMulti
+                                options={postValues.tags.split(",").filter((tag) => tag.trim()).length >= 5 ? [] : TAG_DIRECTORY}
+                                value={postValues.tags
+                                    .split(",")
+                                    .filter((tag) => tag.trim())
+                                    .map((tag) => ({ value: tag.trim(), label: tag.trim() }))}
+                                onChange={(selected) => {
+                                    const tags = (selected as { value: string; label: string }[])
+                                        .map((option) => option.value)
+                                        .slice(0, 5)
+                                        .join(",");
+                                    setPostValues({ ...postValues, tags });
                                 }}
-                                className={`${errors.tags ? "!border-red-500" : ""}`}
+                                placeholder="Add tags to define your idea"
+                                closeMenuOnSelect={false}
+                                isClearable
+                                styles={customSelectStyles}
+                                components={{ MultiValueRemove: CustomMultiValueRemove }}
+                                noOptionsMessage={() => null}
                             />
                             <div className="text-sm text-gray-400 mt-1">
-                                {postValues.tags.split(',').filter(tag => tag.trim()).length}/5 tags
+                                {postValues.tags.split(",").filter((tag) => tag.trim()).length}/5 tags
                             </div>
                         </div>
 
                         <div className="mt-4">
                             <label> Skill Tags (up to 5)</label>
-                            <div className="flex flex-wrap !gap-2 !mb-2">
-                                {postValues.skills.split(',').filter(skills => skills.trim()).map((skills, index) => (
-                                    <span
-                                        key={index}
-                                        className="!bg-[#0B0809] px-4 py-1 rounded-md flex items-center justify-between !text-white !max-h-[45px] !text-md border border-[#2f3542] font-normal"
-                                    >
-                                        <span className="ml-4 text-left font-normal">{skills.trim()}</span>
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                const newSkills = postValues.skills
-                                                    .split(',')
-                                                    .filter((_, i) => i !== index)
-                                                    .join(',');
-                                                setPostValues({ ...postValues, skills: newSkills });
-                                            }}
-                                            className="pr-2 flex items-center justify-center !bg-transparent hover:text-white transition-colors relative"
-                                            style={{ fontSize: '2rem', color: '#b0b8c1', top: '4px' }}
-                                        >
-                                            ×
-                                        </button>
-                                    </span>
-                                ))}
-                            </div>
-                            <input
-                                type="text"
-                                placeholder="Add tags to define the skills needed for your idea"
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter' || e.key === ',') {
-                                        e.preventDefault();
-                                        const input = e.target as HTMLInputElement;
-                                        const newSkills = input.value.trim();
-
-                                        if (newSkills && postValues.skills.split(',').filter(skills => skills.trim()).length < 5) {
-                                            const newTags = postValues.tags ?
-                                                `${postValues.tags},${newSkills}` : newSkills;
-                                            setPostValues({ ...postValues, skills: newSkills });
-                                            input.value = '';
-                                        }
-                                    }
+                            <TagSelect
+                                isMulti
+                                options={postValues.skills.split(",").filter((skill) => skill.trim()).length >= 5 ? [] : SKILL_DIRECTORY}
+                                value={postValues.skills
+                                    .split(",")
+                                    .filter((skill) => skill.trim())
+                                    .map((skill) => ({ value: skill.trim(), label: skill.trim() }))}
+                                onChange={(selected) => {
+                                    const skills = (selected as { value: string; label: string }[])
+                                        .map((option) => option.value)
+                                        .slice(0, 5)
+                                        .join(",");
+                                    setPostValues({ ...postValues, skills });
                                 }}
-                                className={`${errors.tags ? "!border-red-500" : ""}`}
+                                placeholder="Add tags to define the skills needed for your idea"
+                                closeMenuOnSelect={false}
+                                isClearable
+                                styles={customSelectStyles}
+                                components={{ MultiValueRemove: CustomMultiValueRemove }}
+                                noOptionsMessage={() => null}
                             />
                             <div className="text-sm text-gray-400 mt-1">
-                                {postValues.skills.split(',').filter(skills => skills.trim()).length}/5 tags
+                                {postValues.skills.split(",").filter((skill) => skill.trim()).length}/5 tags
                             </div>
                         </div>
 
