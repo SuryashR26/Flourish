@@ -6,7 +6,7 @@ import Footer from './footer';
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const publicRoutes = ['/login', '/signup', '/forgot-password'];
+  const publicRoutes = ['/login', '/signup', '/forgotPassword', '/search'];
   const showFooter = !publicRoutes.includes(pathname);
 
   return (

@@ -100,7 +100,7 @@ const Navbar: React.FC<NavbarProps> = ({ scrollThreshold = 80 }) => {
           <div className="navbar-right">
             <ul className="nav-menu" ref={navMenuRef}>
               <li className="nav-item">
-                <Link href="/" className="nav-links" onClick={closeMobileMenu}>
+                <Link href="/search" className="nav-links" onClick={closeMobileMenu}>
                   Search
                 </Link>
               </li>
