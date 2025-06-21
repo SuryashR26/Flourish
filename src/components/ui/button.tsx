@@ -12,6 +12,7 @@ type ButtonProps = {
     buttonStyle?: string;
     buttonSize?: string;
     animatedBorder?: boolean;
+    borderAnimationDelay?: number;
 };
 
 const forcedStyle = {
@@ -28,6 +29,7 @@ const Button = ({
     buttonStyle = 'btn--outline',
     buttonSize = 'btn--large',
     animatedBorder = false,
+    borderAnimationDelay = 1000,
 }: ButtonProps) => {
     const textRef = useRef<HTMLSpanElement | null>(null);
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
@@ -176,7 +178,7 @@ const Button = ({
                         style={{
                             strokeDasharray: borderDash,
                             strokeDashoffset: borderDash,
-                            animation: "dash 0.9s cubic-bezier(.25, .1, .25, 1.0) forwards 1s",
+                            animation: `dash 0.9s cubic-bezier(.25, .1, .25, 1.0) forwards ${borderAnimationDelay}ms`,
                         }}
                     />
                 </svg>

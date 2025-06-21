@@ -186,8 +186,8 @@ export default function Cards() {
                             <div className="hidden lg:block" style={{ minWidth: '10px' }}></div>
                             {/* Card Image Column */}
                             <div className="flex-1 flex justify-end">
-                                <div className="sticky top-24 h-[80vh] flex items-center justify-center ml-80 min-w-[80vh] max-w-[90vh]">
-                                    <div className="perspective-1000 w-full h-[55vh]">
+                                <div className="sticky top-24 h-[80vh] flex items-center justify-center ml-80 min-w-[80vh] max-w-[85vh]">
+                                    <div className="perspective-1000 w-full h-[50vh]">
                                         <div
                                             ref={cardRef}
                                             className="relative w-full h-full"
