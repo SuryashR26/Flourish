@@ -30,8 +30,9 @@ export default function Home() {
       gsap.set('.flourish-title', { opacity: 1 });
       // Animate heading first
       const heading = document.querySelector('h1.flourish-title');
+      const description = document.querySelector('.description-text');
       const button = document.querySelector('.btns.flourish-title');
-      let headingSplit, buttonSplit;
+      let headingSplit, descriptionSplit, buttonSplit;
       if (heading) {
         SplitText.create(heading, {
           type: 'words,lines',
@@ -50,6 +51,25 @@ export default function Home() {
           },
         });
       }
+      if (description) {
+        SplitText.create(description, {
+          type: 'words,lines',
+          linesClass: 'line',
+          autoSplit: true,
+          mask: 'lines',
+          onSplit: (self) => {
+            descriptionSplit = gsap.from(self.lines, {
+              duration: 0.9,
+              yPercent: 100,
+              opacity: 0,
+              stagger: 0.06,
+              delay: 0.4, // Staggered after heading
+              ease: 'expo.out',
+            });
+            return descriptionSplit;
+          },
+        });
+      }
       if (button) {
         SplitText.create(button, {
           type: 'words,lines',
@@ -62,12 +82,8 @@ export default function Home() {
               yPercent: 100,
               opacity: 0,
               stagger: 0.08,
-              delay: 0.5, // Staggered after heading
+              delay: 0.8, // Staggered after description
               ease: 'expo.out',
-              onComplete: () => {
-                // Add the animate-border class after text animation completes
-                button.classList.add('animate-border');
-              }
             });
             return buttonSplit;
           },
@@ -121,13 +137,17 @@ export default function Home() {
           <h1 className="text-white text-8xl md:text-[100px] text-center z-20 flourish-title transform -translate-y-5">
             LET YOUR IDEAS FLOURISH
           </h1>
-          <div className="mt-8 z-20">
+          <p className="text-white text-lg md:text-xl text-center max-w-2xl mx-auto mt-2 mb-6 px-6 description-text flourish-title opacity-0 font-normal">
+            Connect with creators, share your projects, and build amazing things together. Whether you're a developer, designer, or innovator, find your team and bring your ideas to life.
+          </p>
+          <div className="z-20">
             <Link href="/signup">
               <Button
                 className="btns flourish-title rounded-3xl px-8 py-3 text-xl font-semibold"
                 buttonStyle="outline"
                 buttonSize="large"
                 animatedBorder={true}
+                borderAnimationDelay={1400}
               >
                 GET STARTED
               </Button>

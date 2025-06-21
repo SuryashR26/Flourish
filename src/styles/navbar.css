@@ -12,7 +12,7 @@
     justify-content: center;
     align-items: center;
     font-size: 1.2rem;
-    transition: background-color 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
 }
 
 .navbar-container {
@@ -41,8 +41,10 @@
 }
 
 .navbar--scrolled {
-    background-color: #000000 !important;
-    transition: background-color 0.3s ease-in-out;
+    background-color: rgba(0, 0, 0, 0.3) !important;
+    -webkit-backdrop-filter: blur(10px) !important; /* For Safari */
+    backdrop-filter: blur(10px) !important;
+    transition: all 0.3s ease-in-out;
 }
 
 .navbar--scrolled .nav-links:hover {
@@ -58,7 +60,7 @@
     font-size: 2.22rem;
     cursor: pointer;
     color: #ffffff !important;
-    background-color: #000000;
+    background-color: transparent !important;
     z-index: 1000;
     text-decoration: none !important;
     margin-left: 24px;
@@ -72,8 +74,6 @@
     left: -0.5px;
     margin-left: 4px;
 }
-
-
 
 .fa-typo3 {
     margin-left: 0.5rem;
@@ -165,7 +165,9 @@
         position: fixed;
         top: 0;
         left: 0;
-        background-color: #000000;
+        background-color: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
         z-index: 10002;
         justify-content: flex-start;
         align-items: flex-start;
@@ -180,7 +182,9 @@
         top: 0;
         height: 100vh;
         width: 30vw;
-        background-color: #000000;
+        background-color: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
         display: flex;
         flex-direction: column;
         align-items: flex-start;
@@ -257,8 +261,9 @@
         left: 0;
         width: 100vw;
         height: 100vh;
-        background-color: rgba(0, 0, 0, 0.5);
+        background-color: rgba(0, 0, 0, 0.3);
         backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
         z-index: 998;
         opacity: 0;
         /* Start with 0 opacity */
