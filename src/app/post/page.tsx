@@ -307,7 +307,7 @@ export default function PostPage() {
 
     return (
         <>
-            <Navbar scrollThreshold={-10} />
+            <Navbar />
             <div
                 className="scroll-progress-bar"
                 style={{ width: `${scrollProgress}%` }}

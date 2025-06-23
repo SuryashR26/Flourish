@@ -8,22 +8,43 @@
     z-index: 10000;
     /* ⬅ highest value on purpose */
     background: transparent;
-    display: flex;
-    justify-content: center;
     align-items: center;
     font-size: 1.2rem;
     transition: all 0.3s ease-in-out;
 }
 
+.navbar--with-separator {
+    border-bottom: 1px solid #2f3542;
+}
+
 .navbar-container {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
     height: 80px;
     width: 100%;
-    padding: 0 5%;
+    padding: 0 2%;
     max-width: 2000px;
     margin: 0 auto;
+}
+
+.navbar-column-left {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex: 2.5 1 auto;
+}
+
+.navbar-column-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1rem;
+    flex: 1 1 auto;
+}
+
+.navbar-spacer {
+    flex-grow: 1;
 }
 
 .navbar-right {
@@ -35,7 +56,7 @@
 .nav-separator {
     height: 25px;
     width: 3px;
-    background-color: #B3B3B3;
+    background-color: #2f3542;
     margin: 0;
     border-radius: 3px;
 }
@@ -47,10 +68,13 @@
     transition: all 0.3s ease-in-out;
 }
 
+.navbar--scrolled.navbar--with-separator {
+    border-bottom-color: transparent;
+}
+
 .navbar--scrolled .nav-links:hover {
-    box-shadow: inset 0 -4px 0 0 #fff;
-    /* Creates a white underline effect */
-    color: white !important;
+    color: grey !important;
+    transition: all 0.2s ease-out;
 }
 
 .navbar-logo {
@@ -86,11 +110,13 @@
     text-align: center;
     align-items: center;
     margin-right: 0;
-    gap: 5px;
+    gap: 2px;
 }
 
 .nav-item {
     height: 80px;
+    display: flex;
+    align-items: center;
 }
 
 .nav-links {
@@ -130,6 +156,54 @@
     display: none;
     color: white;
     left: 30px;
+}
+
+.sign-up-btn-navbar {
+    background: #ffffff;
+    color: #000000;
+    border: 1px solid #2f3542;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 1.05rem;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.sign-up-btn-navbar:hover {
+    background: #cdcccd;
+}
+
+.navbar-search-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-top: 0px;
+}
+
+.navbar-search-input {
+    width: 450px;
+    height: 40px;
+    background-color: #0B0809;
+    border: 1px solid #2f3542;
+    border-radius: 8px;
+    color: white;
+    padding-left: 40px;
+    font-size: 1rem;
+    font-weight: 400;
+}
+
+.navbar-search-input:focus {
+    outline: none;
+    border-color: #1f98f4;
+}
+
+.navbar-search-icon {
+    position: absolute;
+    left: 15px;
+    color: #888;
 }
 
 @media screen and (max-width: 960px) {

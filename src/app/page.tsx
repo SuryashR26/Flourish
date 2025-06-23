@@ -63,7 +63,7 @@ export default function Home() {
               yPercent: 100,
               opacity: 0,
               stagger: 0.06,
-              delay: 0.4, // Staggered after heading
+              delay: 0.6, // Staggered after heading
               ease: 'expo.out',
             });
             return descriptionSplit;
@@ -82,7 +82,7 @@ export default function Home() {
               yPercent: 100,
               opacity: 0,
               stagger: 0.08,
-              delay: 0.8, // Staggered after description
+              delay: 1.2, // Staggered after description
               ease: 'expo.out',
             });
             return buttonSplit;
@@ -98,7 +98,7 @@ export default function Home() {
 
   return (
     <>
-      <Navbar scrollThreshold={100} />
+      <Navbar />
       {/* Scroll Progress Bar */}
       <div
         className="scroll-progress-bar"
@@ -134,11 +134,11 @@ export default function Home() {
           priority
         />
         <div className="h-screen w-full flex flex-col justify-center items-center relative z-10 pt-10">
-          <h1 className="text-white text-8xl md:text-[100px] text-center z-20 flourish-title transform -translate-y-5">
+          <h1 className="text-white text-6xl md:text-[90px] text-center z-20 flourish-title transform !translate-y-4 font-semibold">
             LET YOUR IDEAS FLOURISH
           </h1>
-          <p className="text-white text-lg md:text-xl text-center max-w-2xl mx-auto mt-2 mb-6 px-6 description-text flourish-title opacity-0 font-normal">
-            Connect with creators, share your projects, and build amazing things together. Whether you're a developer, designer, or innovator, find your team and bring your ideas to life.
+          <p className="text-white text-lg md:text-xl text-center max-w-2xl mx-auto !mt-7 !mb-7 px-6 description-text flourish-title opacity-0">
+            Flourish is the collaboration platform for creators. Find your team, build your project, and turn your ideas into reality.
           </p>
           <div className="z-20">
             <Link href="/signup">
@@ -147,7 +147,7 @@ export default function Home() {
                 buttonStyle="outline"
                 buttonSize="large"
                 animatedBorder={true}
-                borderAnimationDelay={1400}
+                borderAnimationDelay={1700}
               >
                 GET STARTED
               </Button>
@@ -158,6 +158,11 @@ export default function Home() {
 
       {/* Cards Section */}
       <Cards />
+      <style jsx global>{`
+        .description-text div {
+          font-weight: 400 !important;
+        }
+      `}</style>
     </>
   )
 }

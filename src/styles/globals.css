@@ -129,7 +129,23 @@
   margin: 0;
   padding: 0;
   font-family: "Figtree", sans-serif;
-  font-weight: 600;
+  font-weight: 500;
+}
+
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: #b0b8c1;
+  font-weight: 400;
+  opacity: 1; /* Firefox */
+}
+
+:-ms-input-placeholder { /* Internet Explorer 10-11 */
+  color: #b0b8c1;
+  font-weight: 400;
+}
+
+::-ms-input-placeholder { /* Microsoft Edge */
+  color: #b0b8c1;
+  font-weight: 400;
 }
 
 #scroll-wrapper::-webkit-scrollbar {
@@ -164,6 +180,75 @@
   transition: width 0.1s ease-out;
 }
 
+/* Get Started Button specific styling */
+.btns.flourish-title {
+  outline: none;
+  background: transparent;
+  color: #fff;
+  display: inline-block;
+  text-decoration: none;
+  border-radius: 12px;
+  border: none;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.btns.flourish-title:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* Left-to-right animated background for Get Started button */
+.btns.flourish-title::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 100%;
+  background: #fff;
+  border-radius: inherit;
+  z-index: -1;
+  transition: width 0.35s cubic-bezier(0.4,0,0.2,1);
+}
+
+.btns.flourish-title span {
+  color: #fff;
+  transition: color 0.25s;
+}
+
+.btns.flourish-title:hover::after,
+.btns.flourish-title:focus::after {
+  width: 100%;
+}
+
+.btns.flourish-title:hover span,
+.btns.flourish-title:hover span * {
+  color: #000 !important;
+  transition: color 0.25s;
+}
+
+/* Ensure the animated border works for Get Started button */
+.btns.flourish-title .relative.inline-flex {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.btns.flourish-title .relative.inline-flex span {
+  color: #fff !important;
+  font-weight: 600;
+  position: relative;
+  z-index: 10;
+}
+
+.btns.flourish-title:hover .relative.inline-flex span {
+  color: #000 !important;
+}
+
 @layer components {
 
   .form-card input,
@@ -183,6 +268,32 @@
   .form-card label {
     @apply text-white text-base mb-2 block font-medium;
   }
+}
+
+.search-page-wrapper {
+  background-color: #000;
+  min-height: 100vh;
+}
+
+/* Force scrollbar to be visible for the filter sidebar - HIGHER SPECIFICITY */
+div.filter-sidebar-scrollable::-webkit-scrollbar {
+  display: none !important;
+  width: 0px;
+}
+div.filter-sidebar-scrollable::-webkit-scrollbar-track {
+  display: none !important;
+}
+div.filter-sidebar-scrollable::-webkit-scrollbar-thumb {
+  display: none !important;
+}
+div.filter-sidebar-scrollable::-webkit-scrollbar-thumb:hover {
+  display: none !important;
+}
+
+/* Override global scrollbar hiding for filter sidebar - HIGHER SPECIFICITY */
+div.filter-sidebar-scrollable {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
 }
 
 .perspective-1000 {
@@ -208,4 +319,32 @@
 .vision-text p {
   font-weight: 400 !important;
   font-size: 1.2rem !important;
+}
+
+/* Custom Checkbox Styles */
+.custom-checkbox {
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: transparent;
+  width: 20px;
+  height: 20px;
+  border: 1px solid white;
+  border-radius: 4px;
+  display: inline-block;
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0; /* Prevents shrinking in flex container */
+}
+
+.custom-checkbox:checked {
+  background-color: transparent;
+  border-color: white;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3e%3cpath fill='white' fill-rule='evenodd' clip-rule='evenodd' d='M13.637 1.198a1 1 0 0 1 .134 1.408l-8.04 9.73-.003.002a1.922 1.922 0 0 1-1.5.693A1.923 1.923 0 0 1 2.7 11.97l-.001-.002L.21 9.045a1 1 0 1 1 1.578-1.228l2.464 3.167 7.976-9.652a1 1 0 0 1 1.408-.134Z'/%3e%3c/svg%3e");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 14px;
+}
+
+.custom-checkbox:checked::before {
+  content: '';
 }

@@ -11,7 +11,7 @@ function page() {
         <div className="relative min-h-screen bg-black">
             <AnimatedStars />
             <div className="relative z-10">
-                <Navbar scrollThreshold={10} />
+                <Navbar />
                 <div className="flex flex-col items-center justify-center h-screen px-6 sm:px-8 md:px-12 lg:px-32">
                     <h1 className="text-2xl md:text-3xl lg:text-4xl text-center max-w-3xl text-white leading-relaxed mt-[15vh] md:mt-[20vh] lg:mt-[25vh] mb-[10vh] md:mb-[15vh] lg:mb-[20vh]">
                         Welcome to our website! We are dedicated to providing the best service possible. Our team is passionate about what we do and we strive to exceed your expectations.
