@@ -145,6 +145,8 @@ function page() {
     const [selectedProject, setSelectedProject] = useState<null | Project>(null)
     const [showAllProjects, setShowAllProjects] = useState(false)
     const [showAllProjects2, setShowAllProjects2] = useState(false)
+    const [showAllBookmarks, setShowAllBookmarks] = useState(false)
+    const [showAllDrafts, setShowAllDrafts] = useState(false)
     const projectCards: Project[] = [
         {
             id: 1,
@@ -791,6 +793,73 @@ function page() {
                     </div>
                 )}
             </div >
+            <div className="grid grid-cols-2 gap-x-10 mt-4" style={{ marginLeft: "30%", maxWidth: "1200px", marginBottom: "20px" }}>
+                <div className="!mt-10 !mb-10 !min-h-[50px] shadow-lg">
+                    <h1 className="text-3xl text-white text-center">
+                        Bookmarks
+                    </h1>
+                    {projectCards.slice(0, 5).map((project, idx) => (
+                        <div key={idx}>
+                            <p className="text-white text-xl !mt-10 !mb-5">{project.title}</p>
+                            <hr className="my-2 border-gray-600 max-w-[400px]" />
+                        </div>
+
+                    ))}
+                    <div>
+                        <button
+                            onClick={() => setShowAllBookmarks(!showAllBookmarks)}
+                            className="bg-[#1f98f4] !mt-10 text-white px-6 py-3 rounded-lg font-medium hover:bg-[#1a7bc8] transition-colors flex items-center gap-2"
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                            {showAllBookmarks ? "Show Less" : "View All Bookmarks"}
+                            <svg
+                                className={`w-4 h-4 transition-transform ${showAllBookmarks ? "rotate-180" : ""}`}
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div className="!mt-10 !mb-10 !min-h-[50px] shadow-lg">
+                    <h1 className="text-3xl text-white text-center">
+                        Drafts
+                    </h1>
+                    {projectCards.slice(0, 5).map((project, idx) => (
+                        <div key={idx}>
+                            <p className="text-white text-xl !mt-10 !mb-5">{project.title}</p>
+                            <hr className="my-2 border-gray-600 max-w-[400px]" />
+                        </div>
+
+                    ))}
+                    <div>
+                        <button
+                            onClick={() => setShowAllDrafts(!showAllDrafts)}
+                            className="bg-[#1f98f4] !mt-10 text-white px-6 py-3 rounded-lg font-medium hover:bg-[#1a7bc8] transition-colors flex items-center gap-2"
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                            {showAllDrafts ? "Show Less" : "View All Drafts"}
+                            <svg
+                                className={`w-4 h-4 transition-transform ${showAllDrafts ? "rotate-180" : ""}`}
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div style={{ marginLeft: "30%", maxWidth: "1200px", marginBottom: "50px", marginTop: "80px" }}>
+                <h1 className="text-white text-3xl text-center"> The IdeaBoard</h1>
+            </div>
 
         </>
     )
