@@ -1,6 +1,6 @@
 "use client"
 import { useState } from "react"
-import Navbar2 from "@/components/layout/navbar2"
+import Navbar from "@/components/layout/navbar"
 import { X } from "lucide-react"
 import dynamic from "next/dynamic"
 import { components } from "react-select"
@@ -257,7 +257,7 @@ function page() {
     ]
     return (
         <>
-            <Navbar2 />
+            <Navbar showSearchBar={true} showDashboard={true} />
             <div
                 className="fixed left-0"
                 style={{
