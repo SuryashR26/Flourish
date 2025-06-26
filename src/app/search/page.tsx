@@ -371,7 +371,7 @@ function page() {
         <div className="search-page-wrapper">
             {/* Fixed Navbar at the top */}
             <div className=" fixed top-0 left-0 w-full z-50">
-                <Navbar showSearchBar={true} showSeparator={true}/>
+                <Navbar showSearchBar={true} showSeparator={true} />
             </div>
             {/* Fixed form sidebar */}
             <div
@@ -640,7 +640,7 @@ function page() {
                             Sort by <ChevronDownIcon size={16} />
                         </button>
                         {sortDropdownOpen && (
-                             <div className="absolute right-0 mt-2 w-48 bg-[#181c23] border border-[#2f3542] rounded-md shadow-lg z-10">
+                            <div className="absolute right-0 mt-2 w-48 bg-[#181c23] border border-[#2f3542] rounded-md shadow-lg z-10">
                                 <a href="#" className="block px-4 py-2 text-sm text-white hover:bg-[#272727]">Relevance</a>
                                 <a href="#" className="block px-4 py-2 text-sm text-white hover:bg-[#272727]">Newest</a>
                                 <a href="#" className="block px-4 py-2 text-sm text-white hover:bg-[#272727]">Oldest</a>
@@ -654,7 +654,7 @@ function page() {
                     style={{ width: `${scrollProgress}%` }}
                 />
                 <div style={{ minHeight: "0px" }} />
-                
+
                 {/* Responsive grid layout */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
                     {projectCards.map((project, idx) => {
@@ -665,8 +665,8 @@ function page() {
                         const categoryClass = category === 'Tech'
                             ? 'bg-blue-900/10 text-blue-400 border border-blue-400/20'
                             : category === 'Creative'
-                            ? 'bg-pink-600/10 text-pink-300 border border-pink-300/20'
-                            : 'bg-green-900/10 text-green-400 border border-green-400/20';
+                                ? 'bg-pink-600/10 text-pink-300 border border-pink-300/20'
+                                : 'bg-green-900/10 text-green-400 border border-green-400/20';
                         const isRemote = project.remote;
                         const locationBadgeClass = isRemote ? 'bg-indigo-900 text-indigo-200' : 'bg-green-900 text-green-300';
                         const locationBadgeText = isRemote ? 'Remote' : 'In Person';
@@ -753,11 +753,10 @@ function page() {
                                         )}
                                     </div>
                                     {selectedProject.status && (
-                                        <span className={`px-3 py-1 text-sm font-medium rounded-full ml-4 ${
-                                            selectedProject.status === 'active' ? 'bg-green-900 text-green-300' :
-                                            selectedProject.status === 'completed' ? 'bg-blue-900 text-blue-300' :
-                                            'bg-yellow-900 text-yellow-300'
-                                        }`}>
+                                        <span className={`px-3 py-1 text-sm font-medium rounded-full ml-4 ${selectedProject.status === 'active' ? 'bg-green-900 text-green-300' :
+                                                selectedProject.status === 'completed' ? 'bg-blue-900 text-blue-300' :
+                                                    'bg-yellow-900 text-yellow-300'
+                                            }`}>
                                             {selectedProject.status}
                                         </span>
                                     )}
@@ -801,8 +800,8 @@ function page() {
                                     <h3 className="text-lg font-semibold text-white mb-3">Required Skills</h3>
                                     <div className="flex flex-wrap gap-2">
                                         {selectedProject.skills.map((skill, i) => (
-                                            <span 
-                                                key={i} 
+                                            <span
+                                                key={i}
                                                 className="bg-[#1f2937] text-[#1f98f4] px-3 py-2 rounded-md text-sm font-medium border border-[#1f98f4]/20"
                                             >
                                                 {skill}
@@ -817,8 +816,8 @@ function page() {
                                     <h3 className="text-lg font-semibold text-white mb-3">Project Tags</h3>
                                     <div className="flex flex-wrap gap-2">
                                         {selectedProject.tags.map((tag, i) => (
-                                            <span 
-                                                key={i} 
+                                            <span
+                                                key={i}
                                                 className="bg-[#0B0809] text-gray-300 px-3 py-2 rounded-md text-sm border border-[#2f3542]"
                                             >
                                                 {tag}
