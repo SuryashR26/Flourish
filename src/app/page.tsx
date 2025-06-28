@@ -8,6 +8,7 @@ import Cards from "@/components/cards/cards"
 import gsap from "gsap"
 import { SplitText } from "gsap/SplitText"
 import Navbar from "@/components/layout/navbar"
+import AnimatedStars from "@/components/ui/AnimatedStars"
 
 // Register the SplitText plugin
 gsap.registerPlugin(SplitText)
@@ -106,7 +107,23 @@ export default function Home() {
       />
 
       {/* Hero Section with Video Background */}
-      <div className="h-screen relative">
+      <div className="h-screen relative bg-black overflow-hidden">
+        {/* Video Background */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src="/videos/starsbackground_noaudio.mp4" type="video/mp4" />
+        </video>
+        
+        {/* Commented out stars for future use */}
+        {/* <div className="absolute inset-0">
+          <AnimatedStars starCount={800} />
+        </div> */}
+        
         {/* Top Fade */}
         <div
           className="pointer-events-none absolute top-0 left-0 w-full h-[240px] z-10"
@@ -125,13 +142,6 @@ export default function Home() {
           style={{
             background: "linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.2) 40%, #000 100%)",
           }}
-        />
-        <Image
-          src="/Images/nightsky2.avif?height=1080&width=1920"
-          alt="Background"
-          fill
-          className="object-cover -z-10 pointer-events-none"
-          priority
         />
         <div className="h-screen w-full flex flex-col justify-center items-center relative z-10 pt-10">
           <h1 className="text-white text-6xl md:text-[90px] text-center z-20 flourish-title transform !translate-y-4 font-semibold">

@@ -12,13 +12,17 @@ interface Star {
   delay: number;
 }
 
-const AnimatedStars = () => {
+interface AnimatedStarsProps {
+  starCount?: number;
+}
+
+const AnimatedStars = ({ starCount = 300 }: AnimatedStarsProps) => {
   const [stars, setStars] = useState<Star[]>([]);
 
   useEffect(() => {
     const generateStars = () => {
       const newStars: Star[] = [];
-      for (let i = 0; i < 300; i++) {
+      for (let i = 0; i < starCount; i++) {
         newStars.push({
           id: i,
           size: Math.random() * 2 + 1,
@@ -33,10 +37,10 @@ const AnimatedStars = () => {
     };
 
     generateStars();
-  }, []);
+  }, [starCount]);
 
   return (
-    <div className="fixed inset-0 overflow-hidden pointer-events-none">
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
       {stars.map((star) => (
         <div
           key={star.id}
