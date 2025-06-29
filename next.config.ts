@@ -3,17 +3,25 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  // Ensure proper hot reloading
+  // Improved hot reloading configuration
   webpack: (config, { dev, isServer }) => {
     if (dev && !isServer) {
+      // Optimize for faster rebuilds
       config.optimization.moduleIds = 'named';
-      // Add additional webpack configuration for better HMR
+      config.optimization.chunkIds = 'named';
+      
+      // Faster file watching
       config.watchOptions = {
-        poll: 1000, // Check for changes every second
-        aggregateTimeout: 300, // Delay before rebuilding
+        poll: 1000,
+        aggregateTimeout: 200, // Reduced from 300
+        ignored: ['**/node_modules', '**/.git', '**/.next'],
       };
     }
     return config;
+  },
+  // Enable experimental features for better performance
+  experimental: {
+    optimizePackageImports: ['lucide-react', 'react-icons'],
   },
 };
 
