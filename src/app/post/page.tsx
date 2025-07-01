@@ -7,6 +7,7 @@ import Navbar from "@/components/layout/navbar"
 import { on } from "events"
 import dynamic from "next/dynamic"
 import { components } from "react-select"
+import { X } from "lucide-react"
 
 interface PostValues {
     title: string
@@ -20,6 +21,8 @@ interface PostValues {
     skills: string
     authorImage: string
     authorID: string
+    status: string
+    difficulty: string
 }
 
 interface PostValuesErrors {
@@ -34,6 +37,8 @@ interface PostValuesErrors {
     skills?: string
     authorImage?: string
     authorID?: string
+    status?: string
+    difficulty?: string
 }
 
 const TAG_DIRECTORY = [
@@ -167,9 +172,13 @@ export default function PostPage() {
         skills: "",
         authorImage: "",
         authorID: "",
+        status: "active",
+        difficulty: "easy"
     })
 
     const [errors, setErrors] = useState<PostValuesErrors>({})
+
+    const [viewPost, setViewPost] = useState(false)
 
     const [scrollProgress, setScrollProgress] = useState(0)
 
@@ -185,7 +194,6 @@ export default function PostPage() {
 
         // GSAP Animation
         document.fonts.ready.then(() => {
-            gsap.set('.flourish-title', { opacity: 1 });
             // Animate heading first
             const heading = document.querySelector('h1.flourish-title');
             const button = document.querySelector('.btns.flourish-title');
@@ -295,6 +303,8 @@ export default function PostPage() {
                 skills: "",
                 authorImage: "",
                 authorID: "",
+                status: "active",
+                difficulty: "easy"
             });
             console.log("Post values reset");
             setErrors({});
@@ -409,6 +419,36 @@ export default function PostPage() {
                             <div className="text-sm text-gray-400 text-right mt-1">
                                 {postValues.content.length}/450 characters
                             </div>
+                        </div>
+                        <div className="flex flex-row gap-4">
+                            <div className="mt-4 w-1/2">
+                                <label>Status</label>
+                                <select
+                                    name="status"
+                                    value={postValues.status}
+                                    onChange={handleChange}
+                                    placeholder="Select Status"
+                                    className="w-full p-2 border rounded bg-[#0B0809] text-white"
+                                >
+                                    <option value="active">Active</option>
+                                    <option value="inactive">Completed</option>
+                                </select>
+                            </div>
+                            <div className="mt-4 w-1/2">
+                                <label>Difficulty</label>
+                                <select
+                                    name="difficulty"
+                                    value={postValues.difficulty}
+                                    onChange={handleChange}
+                                    placeholder="Select Difficulty"
+                                    className="w-full p-2 border rounded bg-[#0B0809] text-white"
+                                >
+                                    <option value="Easy">Easy</option>
+                                    <option value="Intermediate">Intermediate</option>
+                                    <option value="Advanced">Advanced</option>
+                                </select>
+                            </div>
+
                         </div>
 
                         <div className="mt-4">
@@ -569,6 +609,194 @@ export default function PostPage() {
                             )}
                         </div>
 
+                        <div className="mt-4 flex">
+                            <button
+                                className="flex-1 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+                                type="button"
+                                onClick={(e) => {
+                                    e.preventDefault(); // Prevent form submission
+                                    setViewPost(true);
+                                }}
+                            >
+                                View Post
+                            </button>
+                        </div>
+                        {viewPost && (
+                            <div
+                                className="fixed left-0 top-0 w-full h-full flex items-center justify-center z-[999] !p-4"
+                                style={{ background: "rgba(0,0,0,0.8)" }}
+                                onClick={e => { if (e.target === e.currentTarget) setViewPost(false); }}
+                            >
+                                <div className="!bg-[#181c23] !border !border-[#333] !rounded-2xl !w-full !max-w-2xl !max-h-[90vh] !overflow-y-auto !relative !shadow-2xl">
+                                    <div className="!p-8 !pb-6 !border-b !border-[#2f3542] !relative">
+                                        <button
+                                            onClick={() => setViewPost(false)}
+                                            className="!absolute !top-5 !right-5 !text-[#888] hover:!text-white !text-2xl !p-2 !rounded-lg hover:!bg-[#2f3542] !transition-colors"
+                                            aria-label="Close"
+                                        >
+                                            <X size={24} />
+                                        </button>
+
+                                        <h1 className="!text-3xl !font-bold !text-white !mb-4 !pr-12 !leading-tight">
+                                            {postValues.title || 'Untitled Project'}
+                                        </h1>
+
+                                        <div className="flex items-center !gap-3 !mb-4">
+                                            <div className="!w-10 !h-10 !rounded-full !bg-indigo-900 flex items-center justify-center !text-indigo-200 !text-sm !font-semibold">
+                                                {'Unknown'}
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <div className="!text-white !font-medium">
+                                                    {'Unknown Author'}
+                                                </div>
+                                                <div className="!text-[#888] !text-sm">
+                                                    {'Student'}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex !gap-2 flex-wrap">
+                                            {postValues.status && (
+                                                <span className={`!px-3 !py-1 !text-sm !font-medium !rounded-full ${postValues.status === 'active' ? '!bg-green-900 !text-green-300' :
+                                                    postValues.status === 'completed' ? '!bg-blue-900 !text-blue-300' :
+                                                        '!bg-yellow-900 !text-yellow-300'
+                                                    }`}>
+                                                    {postValues.status}
+                                                </span>
+                                            )}
+                                            <span className={`!px-3 !py-1 !text-sm !font-medium !rounded-full ${postValues.locationL ? '!bg-indigo-900 !text-indigo-200' : '!bg-green-900 !text-green-300'
+                                                }`}>
+                                                {postValues.locationL ? 'Remote' : 'In Person'}
+                                            </span>
+
+                                        </div>
+                                    </div>
+
+                                    <div className="!p-8">
+                                        {/* Project Details Grid */}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 !gap-6 !mb-8 !p-5 !bg-white/[0.02] !border !border-[#2f3542] !rounded-xl">
+                                            <div className="flex items-center !gap-3">
+                                                <svg className="!w-5 !h-5 !text-[#1f98f4] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                <span className="!text-[#ccc] !text-sm">
+                                                    {postValues.roleCount || 0} collaborator{postValues.roleCount !== 1 ? 's' : ''} needed
+                                                </span>
+                                            </div>
+
+                                            {postValues.difficulty && (
+                                                <div className="flex items-center !gap-3">
+                                                    <svg className="!w-5 !h-5 !text-[#1f98f4] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                                    </svg>
+                                                    <span className="!text-[#ccc] !text-sm !capitalize">
+                                                        {postValues.difficulty} level
+                                                    </span>
+                                                </div>
+                                            )}
+
+                                            <div className="flex items-center !gap-3">
+                                                <svg className="!w-5 !h-5 !text-[#1f98f4] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                                                </svg>
+                                                <span className="!text-[#ccc] !text-sm">
+                                                    {postValues.locationL ? 'Remote collaboration' : postValues.locationS}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* Project Description */}
+                                        <div className="!mb-8">
+                                            <h3 className="!text-lg !font-semibold !text-white !mb-3 flex items-center !gap-2">
+                                                <div className="!w-1 !h-5 !bg-[#1f98f4] !rounded"></div>
+                                                Project Description
+                                            </h3>
+                                            <p className="!text-[#ccc] !leading-relaxed !text-[15px] !whitespace-pre-line">
+                                                {postValues.content || 'No description available'}
+                                            </p>
+                                        </div>
+
+                                        {/* Required Skills */}
+                                        {postValues.skills && postValues.skills.length > 0 && (
+                                            <div className="!mb-8">
+                                                <h3 className="!text-lg !font-semibold !text-white !mb-3 flex items-center !gap-2">
+                                                    <div className="!w-1 !h-5 !bg-[#1f98f4] !rounded"></div>
+                                                    Required Skills
+                                                </h3>
+                                                <div className="flex flex-wrap !gap-2">
+                                                    {(() => {
+                                                        const skillArr = postValues.skills.split(",").filter(s => s.trim());
+                                                        const skillSpans = [];
+                                                        for (let i = 0; i < skillArr.length; i++) {
+                                                            skillSpans.push(
+                                                                <span
+                                                                    key={i}
+                                                                    className="!bg-[#1f2937] !text-[#1f98f4] !px-3 !py-2 !rounded-lg !text-sm !font-medium !border !border-[#1f98f4]/20"
+                                                                >
+                                                                    {skillArr[i]}
+                                                                </span>
+                                                            );
+                                                        }
+                                                        return skillSpans;
+                                                    })()}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Project Tags */}
+                                        {postValues.tags && postValues.tags.length > 0 && (
+                                            <div className="!mb-8">
+                                                <h3 className="!text-lg !font-semibold !text-white !mb-3 flex items-center !gap-2">
+                                                    <div className="!w-1 !h-5 !bg-[#1f98f4] !rounded"></div>
+                                                    Project Tags
+                                                </h3>
+                                                <div className="flex flex-wrap !gap-2">
+                                                    {(() => {
+                                                        const tagArr = postValues.tags.split(",").filter(t => t.trim());
+                                                        const tagSpans = [];
+                                                        for (let i = 0; i < tagArr.length; i++) {
+                                                            tagSpans.push(
+                                                                <span
+                                                                    key={i}
+                                                                    className="!bg-[#0B0809] !text-gray-300 !px-3 !py-2 !rounded-lg !text-sm !border !border-[#2f3542]"
+                                                                >
+                                                                    {tagArr[i]}
+                                                                </span>
+                                                            );
+                                                        }
+                                                        return tagSpans;
+                                                    })()}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Action Buttons */}
+                                        <div className="flex flex-col sm:flex-row !gap-3 !pt-6 !border-t !border-[#2f3542]">
+                                            <button
+                                                className="flex-1 !bg-[#1f98f4] !text-white !px-6 !py-3 !rounded-xl !font-medium hover:!bg-[#1a7bc8] !transition-all !duration-200 hover:!-translate-y-0.5"
+                                                onClick={() => {
+                                                    // Handle join project action
+                                                    console.log('Joining project:', postValues.title);
+                                                    setViewPost(false);
+                                                }}
+                                            >
+                                                Join Project
+                                            </button>
+                                            <button
+                                                className="flex-1 !bg-transparent !text-[#1f98f4] !border !border-[#1f98f4] !px-6 !py-3 !rounded-xl !font-medium hover:!bg-[#1f98f4] hover:!text-white !transition-colors"
+                                                onClick={() => {
+                                                    // Handle contact author action
+                                                    console.log('Contacting author:', 'Unknown');
+                                                    setViewPost(false);
+                                                }}
+                                            >
+                                                Contact {'Author'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                         <div className="mt-4 flex gap-1">
                             <button
                                 type="button"

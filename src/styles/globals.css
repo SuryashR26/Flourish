@@ -121,6 +121,7 @@
     @apply bg-background text-foreground;
     background: #000 !important;
     color: var(--foreground);
+    overflow-x: hidden;
   }
 }
 
@@ -132,18 +133,22 @@
   font-weight: 500;
 }
 
-::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+::placeholder {
+  /* Chrome, Firefox, Opera, Safari 10.1+ */
   color: #b0b8c1;
   font-weight: 400;
-  opacity: 1; /* Firefox */
+  opacity: 1;
+  /* Firefox */
 }
 
-:-ms-input-placeholder { /* Internet Explorer 10-11 */
+:-ms-input-placeholder {
+  /* Internet Explorer 10-11 */
   color: #b0b8c1;
   font-weight: 400;
 }
 
-::-ms-input-placeholder { /* Microsoft Edge */
+::-ms-input-placeholder {
+  /* Microsoft Edge */
   color: #b0b8c1;
   font-weight: 400;
 }
@@ -210,7 +215,7 @@
   background: #fff;
   border-radius: inherit;
   z-index: -1;
-  transition: width 0.35s cubic-bezier(0.4,0,0.2,1);
+  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .btns.flourish-title span {
@@ -280,12 +285,15 @@ div.filter-sidebar-scrollable::-webkit-scrollbar {
   display: none !important;
   width: 0px;
 }
+
 div.filter-sidebar-scrollable::-webkit-scrollbar-track {
   display: none !important;
 }
+
 div.filter-sidebar-scrollable::-webkit-scrollbar-thumb {
   display: none !important;
 }
+
 div.filter-sidebar-scrollable::-webkit-scrollbar-thumb:hover {
   display: none !important;
 }
@@ -309,6 +317,7 @@ div.filter-sidebar-scrollable {
 .scroll-line-container {
   top: -45vh;
 }
+
 @media (max-width: 640px) {
   .scroll-line-container {
     top: -300px;
@@ -333,7 +342,8 @@ div.filter-sidebar-scrollable {
   display: inline-block;
   position: relative;
   cursor: pointer;
-  flex-shrink: 0; /* Prevents shrinking in flex container */
+  flex-shrink: 0;
+  /* Prevents shrinking in flex container */
 }
 
 .custom-checkbox:checked {

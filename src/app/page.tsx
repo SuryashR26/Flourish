@@ -107,7 +107,7 @@ export default function Home() {
       />
 
       {/* Hero Section with Video Background */}
-      <div className="h-screen relative bg-black overflow-hidden">
+      <div className="h-screen relative bg-black overflow-x-hidden">
         {/* Video Background */}
         <video
           autoPlay
@@ -118,12 +118,12 @@ export default function Home() {
         >
           <source src="/videos/starsbackground_noaudio.mp4" type="video/mp4" />
         </video>
-        
+
         {/* Commented out stars for future use */}
         {/* <div className="absolute inset-0">
           <AnimatedStars starCount={800} />
         </div> */}
-        
+
         {/* Top Fade */}
         <div
           className="pointer-events-none absolute top-0 left-0 w-full h-[240px] z-10"
