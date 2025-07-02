@@ -1,8 +1,7 @@
 "use client"
 
-import React, { useRef, useLayoutEffect, useState, useCallback } from 'react'
+import React, { useRef, useLayoutEffect, useState, useCallback, useEffect } from 'react'
 import Navbar from '@/components/layout/navbar'
-import { useEffect } from 'react'
 import { Pagination } from '@/components/ui/pagination'
 import { ChevronDownIcon } from "lucide-react"
 import { X } from 'lucide-react'
@@ -233,8 +232,8 @@ function SkillsRow({ skills = [] }: { skills: string[] }) {
                 <span
                     key={i}
                     className={`skill-tag !py-1 !px-2 !rounded !text-[13px] !font-medium ${i < 2
-                            ? 'bg-[#1d4ed8] text-[#dbeafe]'
-                            : 'bg-[#2a2a2a] text-[#e5e5e5]'
+                        ? 'bg-[#1d4ed8] text-[#dbeafe]'
+                        : 'bg-[#2a2a2a] text-[#e5e5e5]'
                         }`}
                 >
                     {skill}
@@ -275,6 +274,8 @@ function page() {
     const [categoryOpen, setCategoryOpen] = useState(true);
     const [difficultyOpen, setDifficultyOpen] = useState(false);
     const [timeOpen, setTimeOpen] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
+    const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -298,6 +299,13 @@ function page() {
             window.removeEventListener("scroll", handleScroll)
         }
     }, [])
+
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 960);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     // Helper function to get initials from name
     const getInitials = (name: string) => {
@@ -480,11 +488,35 @@ function page() {
     return (
         <div className="search-page-wrapper">
             {/* Fixed Navbar at the top */}
-            <div className=" fixed top-0 left-0 w-full z-50">
+            <div className="fixed top-0 left-0 w-full z-50">
                 <Navbar showSearchBar={true} showSeparator={true} />
             </div>
-            {/* Fixed form sidebar */}
-            <div className="filters-sidebar !w-[300px] !bg-black !border-r !border-[#2f3542] !p-5 h-screen fixed top-[80px] left-0 z-40 flex flex-col">
+            {/* Mobile filter button */}
+            {isMobile && (
+                <button
+                    onClick={() => setMobileFiltersOpen(true)}
+                    className="fixed top-[100px] left-4 z-50 bg-black text-white p-3 rounded-lg shadow-lg flex items-center gap-2"
+                >
+                    <FilterIcon className="w-5 h-5 !text-[#1f98f4]" />
+                    <span className="text-xl font-medium">Filters</span>
+                </button>
+            )}
+            <div className={`
+                filters-sidebar !w-[300px] !bg-black !border-r !border-[#2f3542] !p-5 h-screen z-10000 flex flex-col
+                ${isMobile
+                    ? `fixed top-0 left-0 transform transition-transform duration-300 ${mobileFiltersOpen ? 'translate-x-0' : '-translate-x-full'}`
+                    : 'fixed top-[80px] left-0'
+                }
+            `}>
+                {isMobile && (
+                    <button
+                        onClick={() => setMobileFiltersOpen(false)}
+                        className="absolute top-4 right-4 text-gray-400 hover:text-white"
+                    >
+                        <X size={24} />
+                    </button>
+                )}
+
                 <div className="flex-1 flex flex-col overflow-y-auto">
                     {/* Filters Header */}
                     <div className="filters-header flex items-center !gap-2 !mb-6 !pb-4 !border-b !border-[#2f3542]">
@@ -620,7 +652,7 @@ function page() {
                     </div>
 
                     {/* Time Commitment Filter */}
-                    <div className="filter-section !mb-6">
+                    <div className="filter-section !mb-15">
                         <div className="filter-header flex items-center justify-between cursor-pointer !mb-3 !py-2" onClick={() => setTimeOpen(open => !open)}>
                             <span className="filter-label !text-[16px] !font-medium !text-white">Time Commitment</span>
                             <ChevronDownIcon className={`chevron !w-4 !h-4 !text-[#888] transition-transform ${timeOpen ? 'open !rotate-180' : ''}`} />
@@ -647,11 +679,23 @@ function page() {
                         </div>
                     </div>
                 </div>
-                <div className="filter-actions flex !gap-2 !pt-4 !border-t !border-[#2f3542] w-full bg-black">
+                <div
+                    className={`
+                        filter-actions flex !gap-2 !pt-4 !border-t !border-[#2f3542] w-full bg-black
+                        ${isMobile ? '' : 'sticky bottom-0'}
+                    `}
+                    style={!isMobile ? { zIndex: 10001, background: "#000" } : {}}
+                >
                     <button className="btn btn-clear flex-1 !bg-transparent !text-[#888] !border !border-[#2f3542] !px-4 !py-2 !rounded-lg !text-[14px] !font-medium hover:!bg-[#2f3542] hover:!text-white">Clear All</button>
                     <button className="btn btn-apply flex-1 !bg-[#1f98f4] !text-white !px-4 !py-2 !rounded-lg !text-[14px] !font-medium hover:!bg-[#1a7bc8]">Apply</button>
                 </div>
             </div>
+            {isMobile && mobileFiltersOpen && (
+                <div
+                    className="fixed inset-0 bg-black/50 z-30"
+                    onClick={() => setMobileFiltersOpen(false)}
+                />
+            )}
             {/* Main content area with scrollable cards */}
             <div
                 className="main-content-area"
@@ -823,8 +867,8 @@ function page() {
                                 <div className="flex !gap-2 flex-wrap">
                                     {selectedProject.status && (
                                         <span className={`!px-3 !py-1 !text-sm !font-medium !rounded-full ${selectedProject.status === 'active' ? '!bg-green-900 !text-green-300' :
-                                                selectedProject.status === 'completed' ? '!bg-blue-900 !text-blue-300' :
-                                                    '!bg-yellow-900 !text-yellow-300'
+                                            selectedProject.status === 'completed' ? '!bg-blue-900 !text-blue-300' :
+                                                '!bg-yellow-900 !text-yellow-300'
                                             }`}>
                                             {selectedProject.status}
                                         </span>
