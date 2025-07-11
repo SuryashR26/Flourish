@@ -1,0 +1,367 @@
+.navbar {
+    position: fixed;
+    /* changed to fixed */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 80px;
+    z-index: 10000;
+    /* ⬅ highest value on purpose */
+    background: transparent;
+    align-items: center;
+    font-size: 1.2rem;
+    transition: all 0.3s ease-in-out;
+}
+
+.navbar--with-separator {
+    border-bottom: 1px solid #2f3542;
+}
+
+.navbar-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 80px;
+    width: 100%;
+    padding: 0 2%;
+    max-width: 2000px;
+    margin: 0 auto;
+}
+
+.navbar-column-left {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex: 2.5 1 auto;
+}
+
+.navbar-column-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1rem;
+    flex: 1 1 auto;
+}
+
+.navbar-spacer {
+    flex-grow: 1;
+}
+
+.navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.nav-separator {
+    height: 25px;
+    width: 3px;
+    background-color: #2f3542;
+    margin: 0;
+    border-radius: 3px;
+}
+
+.navbar--scrolled {
+    background-color: rgba(0, 0, 0, 0.3) !important;
+    -webkit-backdrop-filter: blur(10px) !important; /* For Safari */
+    backdrop-filter: blur(10px) !important;
+    transition: all 0.3s ease-in-out;
+}
+
+.navbar--scrolled.navbar--with-separator {
+    border-bottom-color: transparent;
+}
+
+.navbar--scrolled .nav-links:hover {
+    color: grey !important;
+    transition: all 0.2s ease-out;
+}
+
+.navbar-logo {
+    position: fixed;
+    top: 14px;
+    left: 20px;
+    font-size: 2.22rem;
+    cursor: pointer;
+    color: #ffffff !important;
+    background-color: transparent !important;
+    z-index: 1000;
+    text-decoration: none !important;
+    margin-left: 24px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.navbar-logo svg {
+    position: relative;
+    top: -1.5px;
+    left: -0.5px;
+    margin-left: 4px;
+}
+
+.fa-typo3 {
+    margin-left: 0.5rem;
+    font-size: 1.8rem;
+}
+
+.nav-menu {
+    display: flex;
+    list-style: none;
+    text-align: center;
+    align-items: center;
+    margin-right: 0;
+    gap: 2px;
+}
+
+.nav-item {
+    height: 80px;
+    display: flex;
+    align-items: center;
+}
+
+.nav-links {
+    color: #fff;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    height: 100%;
+}
+
+.nav-links:hover {
+    color: grey;
+    transition: all 0.2s ease-out;
+}
+
+.fa-bars {
+    color: #fff;
+}
+
+.nav-links-mobile {
+    color: #fff;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    height: 100%;
+    margin-right: 0px;
+}
+
+.nav-links-mobile:hover {
+    color: grey;
+    transition: all 0.2s ease-out;
+}
+
+.menu-icon {
+    display: none;
+    color: white;
+    left: 30px;
+}
+
+.sign-up-btn-navbar {
+    background: #ffffff;
+    color: #000000;
+    border: 1px solid #2f3542;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 1.05rem;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.sign-up-btn-navbar:hover {
+    background: #cdcccd;
+}
+
+.navbar-search-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-top: 0px;
+}
+
+.navbar-search-input {
+    width: 450px;
+    height: 40px;
+    background-color: #0B0809;
+    border: 1px solid #2f3542;
+    border-radius: 8px;
+    color: white;
+    padding-left: 40px;
+    font-size: 1rem;
+    font-weight: 400;
+}
+
+.navbar-search-input:focus {
+    outline: none;
+    border-color: #1f98f4;
+}
+
+.navbar-search-icon {
+    position: absolute;
+    left: 15px;
+    color: #888;
+}
+
+@media screen and (max-width: 960px) {
+    .navbar-logo {
+        margin-left: 25px;
+        /* Default position in mobile */
+    }
+
+    /* Add margin when menu is active */
+    .nav-menu.active~.navbar-container .navbar-logo {
+        margin-left: 45px;
+        /* Increased margin when menu is open */
+    }
+
+    .menu-icon {
+        display: block;
+        position: absolute;
+        top: 50%;
+        left: 15px;
+        /* Further reduced distance */
+        transform: translateY(-50%);
+        font-size: 2rem;
+        cursor: pointer;
+        z-index: 10003;
+    }
+
+    /* Mobile menu specific styles */
+    .nav-menu.active {
+        display: flex;
+        flex-direction: column;
+        width: 30vw;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        background-color: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        z-index: 10002;
+        justify-content: flex-start;
+        align-items: flex-start;
+        padding-top: 80px;
+        gap: 0;
+        padding-left: 20px;
+    }
+
+    .nav-menu {
+        position: fixed;
+        left: -100%;
+        top: 0;
+        height: 100vh;
+        width: 30vw;
+        background-color: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        transition: all 0.5s ease;
+    }
+
+    /* Mobile specific nav-links */
+    .nav-menu.active .nav-links,
+    .nav-menu.closing .nav-links {
+        text-align: left;
+        font-size: 1.2rem;
+        padding: 1rem 0;
+        width: 100%;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        border-radius: 0;
+        height: auto;
+    }
+
+    .nav-menu.active .nav-links:hover,
+    .nav-menu.closing .nav-links:hover {
+        box-shadow: none !important;
+        color: grey !important;
+        transition: all 0.2s ease-out;
+    }
+
+    .nav-item {
+        height: auto;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        padding: 0.5rem 0;
+        width: 100%;
+    }
+
+    /* Keep the desktop nav items visible */
+    .navbar-right {
+        display: flex;
+        align-items: center;
+        height: 80px;
+    }
+
+    /* Style for desktop buttons in mobile view */
+    .nav-links-mobile {
+        display: block;
+        text-align: left;
+        margin: 1rem 0;
+        /* Remove horizontal margin */
+        border-radius: 4px;
+        width: fit-content;
+        /* Change from 80% to fit-content */
+        text-decoration: none;
+        font-size: 1.2rem;
+        background-color: transparent;
+        color: #fff;
+        padding: 8px 15px;
+        border: 1px solid #fff;
+        transition: all 0.5s ease-out;
+        height: auto;
+    }
+
+    .nav-links-mobile:hover {
+        background-color: #fff;
+        color: #000;
+        border: 1px solid #fff;
+        transition: all 0.3s ease-out;
+    }
+
+    /* Overlay to blur the rest of the page */
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: 998;
+        opacity: 0;
+        /* Start with 0 opacity */
+        visibility: hidden;
+        /* Hide it initially */
+        transition: all 0.5s ease;
+        /* Match the menu transition timing */
+    }
+
+    .overlay.active {
+        opacity: 1;
+        /* Fade to full opacity */
+        visibility: visible;
+        /* Make it visible */
+    }
+
+    .nav-separator {
+        height: 3px;
+        /* Change height to be thin */
+        width: 80%;
+        /* Make width stretch */
+        background-color: #B3B3B3;
+        margin: 15px 0;
+        /* Add vertical margins */
+        border-radius: 3px;
+    }
+}
