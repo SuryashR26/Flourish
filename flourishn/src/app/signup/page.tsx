@@ -207,7 +207,7 @@ export default function SignUp() {
                 birthYear: '',
                 verificationCode: '', // Reset verification code
             });
-            router.push('/');
+            router.push('/dashboard');
             setErrors({});
 
         }
@@ -240,6 +240,8 @@ export default function SignUp() {
                     } else {
                         setErrors(prev => ({ ...prev, verificationCode: undefined }));
                         setCurrentStep(3);
+                        if (timerRef.current) clearInterval(timerRef.current);
+                        if (timer2Ref.current) clearInterval(timer2Ref.current);
                     }
                 })
 

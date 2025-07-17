@@ -37,6 +37,11 @@ export default function ContactUsPage() {
 
     const [scrollProgress, setScrollProgress] = useState(0)
 
+    const [successMessage, setSuccessMessage] = useState(false)
+
+    const [errorMessage, setErrorMessage] = useState(false)
+    const [errorText, setErrorText] = useState<string>("");
+
     useEffect(() => {
         const handleScroll = () => {
             const totalHeight = document.documentElement.scrollHeight - window.innerHeight
@@ -163,8 +168,13 @@ export default function ContactUsPage() {
             setErrors({});
             contactUs(formValues.firstName, formValues.lastName, formValues.email, formValues.message)
                 .then(response => {
-                    console.log('Contact form submitted successfully:', response);
-                    // Optionally, show a success message or redirect
+                    if (response.success) {
+                        console.log("Contact form submitted successfully", response);
+                        setSuccessMessage(true);
+                        return;
+                    }
+                    setErrorText(response.message || "There was an error submitting your contact form.");
+                    setErrorMessage(true);
                 }
 
                 )
@@ -233,6 +243,52 @@ export default function ContactUsPage() {
                             </div>
                         </div>
                     </FormCard>
+                    {successMessage && (
+                        <div
+                            className="fixed inset-0 z-50 flex items-center justify-center min-w-[300px] bg-black/40 backdrop-blur-sm"
+                            style={{ pointerEvents: 'auto' }}
+                        >
+                            <div className="relative bg-black text-white text-md p-6 min-w-[300px] min-h-[150px] max-w-2xl rounded-lg shadow-xl text-center mt-10">
+                                {/* X button overlayed above the text */}
+                                <div className="absolute left-0 top-0 w-full flex justify-end">
+                                    <button
+                                        onClick={() => setSuccessMessage(false)}
+                                        className="text-white text-2xl font-bold hover:text-gray-400 focus:outline-none p-2"
+                                        aria-label="Close"
+                                        style={{ zIndex: 10 }}
+                                    >
+                                        &times;
+                                    </button>
+                                </div>
+                                <div className="flex flex-col items-center justify-center h-full !mt-10">
+                                    Your contact form has been submitted successfully. We will get back to you soon.
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    {errorMessage && (
+                        <div
+                            className="fixed inset-0 z-50 flex items-center justify-center min-w-[300px] bg-black/40 backdrop-blur-sm"
+                            style={{ pointerEvents: 'auto' }}
+                        >
+                            <div className="relative bg-black text-white text-md p-6 min-w-[300px] min-h-[150px] max-w-2xl rounded-lg shadow-xl text-center mt-10">
+                                {/* X button overlayed above the text */}
+                                <div className="absolute left-0 top-0 w-full flex justify-end">
+                                    <button
+                                        onClick={() => setSuccessMessage(false)}
+                                        className="text-white text-2xl font-bold hover:text-gray-400 focus:outline-none p-2"
+                                        aria-label="Close"
+                                        style={{ zIndex: 10 }}
+                                    >
+                                        &times;
+                                    </button>
+                                </div>
+                                <div className="flex flex-col items-center justify-center h-full !mt-10">
+                                    {errorText + " Please try again later."}
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

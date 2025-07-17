@@ -28,11 +28,6 @@ export function login(email: string, password: string) {
         body: JSON.stringify({ email, password }),
     })
         .then(async response => {
-            if (!response.ok) {
-                const errorBody = await response.json().catch(() => null);
-                const message = errorBody?.error || response.statusText;
-                throw new Error(`Error ${response.status}: ${message}`);
-            }
             return response.json();
         }
         )
@@ -47,11 +42,6 @@ export function contactUs(first_name: string, last_name: string, email: string, 
         body: JSON.stringify({ first_name, last_name, email, message }),
     })
         .then(async response => {
-            if (!response.ok) {
-                const errorBody = await response.json().catch(() => null);
-                const message = errorBody?.error || response.statusText;
-                throw new Error(`Error ${response.status}: ${message}`);
-            }
             return response.json();
         })
 }
@@ -65,11 +55,6 @@ export function resetPass(email: string) {
         body: JSON.stringify({ email }),
     })
         .then(async response => {
-            if (!response.ok) {
-                const errorBody = await response.json().catch(() => null);
-                const message = errorBody?.error || response.statusText;
-                throw new Error(`Error ${response.status}: ${message}`);
-            }
             return response.json();
         })
 }

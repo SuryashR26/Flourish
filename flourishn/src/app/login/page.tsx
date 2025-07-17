@@ -57,10 +57,22 @@ export default function LoginPage() {
 
     const handleLogIn = (e: React.FormEvent) => {
         e.preventDefault();
+        const isValid = validateForm();
+        if (isValid) {
+            setLoginValues({
+                username: "",
+                password: "",
+            });
+            setErrors({});
+        } else {
+            console.log("Login failed", errors);
+            return;
+        }
         login(loginValues.username, loginValues.password)
             .then(response => {
                 console.log('Login was:', response);
             })
+        router.push('/dashboard')
     }
 
     const handleShowPasswordField = (e: React.FormEvent) => {
