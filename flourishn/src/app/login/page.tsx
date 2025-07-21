@@ -29,6 +29,8 @@ export default function LoginPage() {
     const [showPassword, setShowPassword] = useState(false)
     const [showPasswordField, setShowPasswordField] = useState(true)
     const [passwordTouched, setPasswordTouched] = useState(false)
+    const [errorMessage, setErrorMessage] = useState(false)
+    const [errorText, setErrorText] = useState<string>("");
     const router = useRouter()
 
     const togglePasswordVisibility = () => {
@@ -70,9 +72,17 @@ export default function LoginPage() {
         }
         login(loginValues.username, loginValues.password)
             .then(response => {
-                console.log('Login was:', response);
+                if (!response.success) {
+                    setErrorText(response.message || "There was an error logging.");
+                    setErrorMessage(true);
+                    return;
+
+                }
+                console.log("Login Successfully", response);
+                router.push('/dashboard')
+
             })
-        router.push('/dashboard')
+
     }
 
     const handleShowPasswordField = (e: React.FormEvent) => {
@@ -96,9 +106,6 @@ export default function LoginPage() {
         if (!loginValues.password.trim()) {
             tempErrors.password = "Password is required"
             isValid = false
-        } else if (loginValues.password !== "a") {
-            tempErrors.password = "Password must be 'a' for testing"
-            isValid = false
         }
 
         setErrors(tempErrors)
@@ -108,7 +115,6 @@ export default function LoginPage() {
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        // First step: validate username only
         if (!showPasswordField) {
             if (!loginValues.username.trim()) {
                 setErrors({ username: "Username or email is required" });
@@ -119,7 +125,6 @@ export default function LoginPage() {
             return;
         }
 
-        // Second step: validate both fields
         const isValid = validateForm();
         if (isValid) {
             setLoginValues({
@@ -199,19 +204,40 @@ export default function LoginPage() {
                             )}
                             {showPasswordField && errors.password && <div className="error-message">{errors.password}</div>}
                         </div>
-                        {/* Forgot Password Link */}
                         <div className="forget-password">
                             <Link href="/forgotPassword">
                                 Forgot Password?
                             </Link>
                         </div>
-                        {/* Submit Button */}
                         <button type="submit"
                             onClick={handleLogIn}
                         >
                             Log in
                         </button>
                     </FormCard>
+                    {errorMessage && (
+                        <div
+                            className="fixed inset-0 z-50 flex items-center justify-center min-w-[300px] bg-black/40 backdrop-blur-sm"
+                            style={{ pointerEvents: 'auto' }}
+                        >
+                            <div className="relative bg-black text-white text-md p-6 min-w-[300px] min-h-[150px] max-w-2xl rounded-lg shadow-xl text-center mt-10">
+                                {/* X button overlayed above the text */}
+                                <div className="absolute left-0 top-0 w-full flex justify-end">
+                                    <button
+                                        onClick={() => setErrorMessage(false)}
+                                        className="text-white text-2xl font-bold hover:text-gray-400 focus:outline-none p-2"
+                                        aria-label="Close"
+                                        style={{ zIndex: 10 }}
+                                    >
+                                        &times;
+                                    </button>
+                                </div>
+                                <div className="flex flex-col items-center justify-center h-full !mt-10">
+                                    {errorText}
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Separator and Sign Up Link */}
                     <div className="login-separator-section">

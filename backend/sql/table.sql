@@ -1,4 +1,4 @@
-Create Table publlic.users
+Create Table public.users
 (
     id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email       TEXT NOT NULL UNIQUE,
@@ -47,3 +47,26 @@ Create Table public.reset_password_requests
     reset_code  TEXT NOT NULL,
     email       TEXT NOT NULL
 );
+
+Create Table public.postData 
+(
+    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id     UUID REFERENCES users(id) ON DELETE CASCADE,
+    user_name TEXT,
+    user_email TEXT,
+    user_image TEXT,
+    title       TEXT NOT NULL,
+    content     TEXT NOT NULL,
+    role_count  INTEGER NOT NULL DEFAULT 1,
+    role_description TEXT NOT NULL,
+    image_url   TEXT,
+    project_tags TEXT[],
+    skill_tags   TEXT[],
+    status      TEXT NOT NULL DEFAULT 'active',
+    location_preference TEXT NOT NULL DEFAULT 'remote',
+    location     TEXT,
+    difficulty  TEXT NOT NULL DEFAULT 'beginner',
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    is_active   BOOLEAN NOT NULL DEFAULT TRUE
+)

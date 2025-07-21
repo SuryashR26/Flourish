@@ -33,11 +33,14 @@ const signup = async (req, res) => {
                 'SELECT first_name FROM users WHERE email = $1',
                 [email.toLowerCase()]
             );
-            if (existingUser.rows.length > 0) {
+
+            if (existingUser.rows.length > 0 && existingUser.rows[0].first_name !== null) {
                 return res.status(409).json({
                     error: 'Email already registered'
                 });
             }
+
+
 
             const emailLower = email.toLowerCase();
             const new_user = await pool.query(

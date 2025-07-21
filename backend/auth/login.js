@@ -18,7 +18,8 @@ const login = async (req, res) => {
                 [emailLower, clientIP]
             )
             return res.status(404).json({
-                error: 'User not found'
+                success: false,
+                message: 'User not found. Please sign up first.'
             });
         }
 
@@ -29,7 +30,8 @@ const login = async (req, res) => {
                 [emailLower, clientIP]
             )
             return res.status(401).json({
-                error: 'Invalid password'
+                success: false,
+                message: 'Invalid password. Please try again.'
             });
         }
 
@@ -50,12 +52,14 @@ const login = async (req, res) => {
 
         if (error.code === '23505') {
             return res.status(409).json({
-                error: 'Email not registered '
+                success: false,
+                message: 'Email already exists. Please try a different email.'
             });
         }
 
         return res.status(500).json({
-            error: 'Internal server error. Please try again.'
+            success: false,
+            message: 'Internal server error. Please try again.'
         });
 
     }

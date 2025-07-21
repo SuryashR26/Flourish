@@ -249,7 +249,6 @@ export default function ContactUsPage() {
                             style={{ pointerEvents: 'auto' }}
                         >
                             <div className="relative bg-black text-white text-md p-6 min-w-[300px] min-h-[150px] max-w-2xl rounded-lg shadow-xl text-center mt-10">
-                                {/* X button overlayed above the text */}
                                 <div className="absolute left-0 top-0 w-full flex justify-end">
                                     <button
                                         onClick={() => setSuccessMessage(false)}
@@ -272,10 +271,9 @@ export default function ContactUsPage() {
                             style={{ pointerEvents: 'auto' }}
                         >
                             <div className="relative bg-black text-white text-md p-6 min-w-[300px] min-h-[150px] max-w-2xl rounded-lg shadow-xl text-center mt-10">
-                                {/* X button overlayed above the text */}
                                 <div className="absolute left-0 top-0 w-full flex justify-end">
                                     <button
-                                        onClick={() => setSuccessMessage(false)}
+                                        onClick={() => setErrorMessage(false)}
                                         className="text-white text-2xl font-bold hover:text-gray-400 focus:outline-none p-2"
                                         aria-label="Close"
                                         style={{ zIndex: 10 }}
