@@ -99,13 +99,17 @@ export default function LoginPage() {
         let isValid = true
 
         if (!loginValues.username.trim()) {
-            tempErrors.username = "Username or email is required"
+            tempErrors.username = " Email is required"
             isValid = false
         }
 
         if (!loginValues.password.trim()) {
             tempErrors.password = "Password is required"
             isValid = false
+        }
+        if (!loginValues.username.trim() || !/\S+@\S+\.\S+/.test(loginValues.username)) {
+            tempErrors.username = "Please enter a valid email address"
+            isValid = false;
         }
 
         setErrors(tempErrors)

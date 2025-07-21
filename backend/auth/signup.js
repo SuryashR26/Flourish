@@ -36,7 +36,8 @@ const signup = async (req, res) => {
 
             if (existingUser.rows.length > 0 && existingUser.rows[0].first_name !== null) {
                 return res.status(409).json({
-                    error: 'Email already registered'
+                    success: false,
+                    message: 'Email already registered',
                 });
             }
 
@@ -63,7 +64,8 @@ const signup = async (req, res) => {
         } catch (error) {
             console.error('Error in sending verification code:', error);
             return res.status(500).json({
-                error: 'Internal server error. Please try again.'
+                success: false,
+                message: 'Internal server error. Please try again later.'
             });
         }
     }
@@ -72,7 +74,8 @@ const signup = async (req, res) => {
             const { email, code } = req.body;
             if (!email || !code) {
                 return res.status(400).json({
-                    error: 'Email and verification code are required'
+                    success: false,
+                    message: 'Email and verification code are required'
                 });
             }
             const emailLower = email.toLowerCase();
@@ -93,7 +96,8 @@ const signup = async (req, res) => {
             if (verified.rows.length === 0) {
 
                 return res.status(400).json({
-                    error: 'Invalid verification code or expired verification code'
+                    success: false,
+                    message: 'Invalid or expired verification code'
                 });
             }
 
@@ -104,7 +108,8 @@ const signup = async (req, res) => {
         } catch (error) {
             console.error('Error in verifying email:', error);
             return res.status(500).json({
-                error: 'Internal server error. Please try again.'
+                success: false,
+                message: 'Internal server error. Please try again later.'
             });
         }
     }
@@ -114,7 +119,8 @@ const signup = async (req, res) => {
 
             if (!email || !first_name || !last_name || !password) {
                 return res.status(400).json({
-                    error: 'All fields are required: email, first, last, password'
+                    success: false,
+                    message: 'All fields are required: email, first_name, last_name, password'
                 });
             }
             const emailLower = email.toLowerCase();
@@ -138,12 +144,14 @@ const signup = async (req, res) => {
 
             if (error.code === '23505') {
                 return res.status(409).json({
-                    error: 'Email already registered'
+                    success: false,
+                    message: 'Email already exists. Please try a different email.'
                 });
             }
 
             res.status(500).json({
-                error: 'Internal server error. Please try again.'
+                success: false,
+                message: 'Internal server error. Please try again later.'
             });
         }
 

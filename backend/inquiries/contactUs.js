@@ -64,7 +64,7 @@ const contactUs = async (req, res) => {
         console.log('Email sent successfully');
         return res.status(200).json({
             success: true,
-            message: 'Your message has been sent successfully!',
+            message: 'Your message has been sent successfully! If you do not receive a response within 24 hours, please contact us again.',
         });
 
     } catch (error) {
@@ -72,11 +72,13 @@ const contactUs = async (req, res) => {
 
         if (error.code === '23505') {
             return res.status(409).json({
-                error: 'Values do not meet the constraints of the database',
+                success: false,
+                message: 'Values do not meet the constraints of our system. Please try again later',
             });
         }
         return res.status(500).json({
-            error: 'Internal server error. Please try again.',
+            success: false,
+            message: 'Internal server error. Please try again later.',
         });
     }
 };

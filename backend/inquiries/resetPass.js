@@ -29,7 +29,8 @@ const resetPass = async (req, res) => {
         const { email } = req.body;
         if (!email) {
             return res.status(400).json({
-                error: 'Email is required'
+                success: false,
+                message: 'Email is required'
             });
         }
         emailLower = email.toLowerCase();
@@ -39,7 +40,8 @@ const resetPass = async (req, res) => {
         );
         if (user.rows.length === 0) {
             return res.status(404).json({
-                error: 'User not found'
+                success: false,
+                message: 'User not found. Please sign up first.'
             });
         }
 
@@ -80,7 +82,8 @@ const resetPass = async (req, res) => {
     } catch (error) {
         console.error('Error in fetching user:', error);
         return res.status(500).json({
-            error: 'Internal server error. Please try again.'
+            success: false,
+            message: 'Internal server error. Please try again later.'
         });
     }
 }

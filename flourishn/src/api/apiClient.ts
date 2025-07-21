@@ -9,11 +9,6 @@ export function signup(email: string, first_name: string, last_name: string, pas
         body: JSON.stringify({ email, first_name, last_name, password, code }),
     })
         .then(async response => {
-            if (!response.ok) {
-                const errorBody = await response.json().catch(() => null);
-                const message = errorBody?.error || response.statusText;
-                throw new Error(`Error ${response.status}: ${message}`);
-            }
             return response.json();
         })
 }

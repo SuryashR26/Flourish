@@ -65,6 +65,8 @@ export default function SignUp() {
     const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
     const [timer, setTimer] = useState(0);
     const [timer2, setTimer2] = useState(0);
+    const [errorMessage, setErrorMessage] = useState(false)
+    const [errorText, setErrorText] = useState<string>("");
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     const timer2Ref = useRef<NodeJS.Timeout | null>(null);
 
@@ -152,31 +154,46 @@ export default function SignUp() {
             return;
         }
         setErrors({});
-        setCurrentStep(2);
-        setTimer(60);
-        if (timerRef.current) clearInterval(timerRef.current);
-        timerRef.current = setInterval(() => {
-            setTimer(prev => {
-                if (prev <= 1) {
-                    clearInterval(timerRef.current!);
-                    return 0;
-                }
-                return prev - 1;
-            });
-        }, 1000);
-        setTimer2(300);
-        if (timer2Ref.current) clearInterval(timer2Ref.current);
-        timer2Ref.current = setInterval(() => {
-            setTimer2(prev => {
-                if (prev <= 1) {
-                    clearInterval(timer2Ref.current!);
-                    signup(signUpValues.email, signUpValues.firstName, signUpValues.lastName, signUpValues.password, 'Failed')
-                    return 0;
-                }
-                return prev - 1;
-            });
-        }, 1000);
         signup(signUpValues.email, signUpValues.firstName, signUpValues.lastName, signUpValues.password, signUpValues.verificationCode)
+            .then(response => {
+                console.log('Signup was:', response);
+                if (response.success === false) {
+                    setErrorMessage(true);
+                    setErrorText(response.message);
+
+                } else {
+                    setCurrentStep(2);
+                    setTimer(60);
+                    if (timerRef.current) clearInterval(timerRef.current);
+                    timerRef.current = setInterval(() => {
+                        setTimer(prev => {
+                            if (prev <= 1) {
+                                clearInterval(timerRef.current!);
+                                return 0;
+                            }
+                            return prev - 1;
+                        });
+                    }, 1000);
+                    setTimer2(300);
+                    if (timer2Ref.current) clearInterval(timer2Ref.current);
+                    timer2Ref.current = setInterval(() => {
+                        setTimer2(prev => {
+                            if (prev <= 1) {
+                                clearInterval(timer2Ref.current!);
+                                signup(signUpValues.email, signUpValues.firstName, signUpValues.lastName, signUpValues.password, 'Failed')
+                                return 0;
+                            }
+                            return prev - 1;
+                        });
+                    }, 1000);
+                }
+            })
+            .catch(error => {
+                console.error('Signup error:', error);
+                setErrorMessage(true);
+                setErrorText("An error occurred while sending the verification code. Please try again.");
+            });
+
     }
 
     const handleSignUp = (e: React.FormEvent) => {
@@ -534,6 +551,29 @@ export default function SignUp() {
                             </>
                         )}
                     </FormCard>
+                    {errorMessage && (
+                        <div
+                            className="fixed inset-0 z-50 flex items-center justify-center min-w-[300px] bg-black/40 backdrop-blur-sm"
+                            style={{ pointerEvents: 'auto' }}
+                        >
+                            <div className="relative bg-black text-white text-md p-6 min-w-[300px] min-h-[150px] max-w-2xl rounded-lg shadow-xl text-center mt-10">
+                                {/* X button overlayed above the text */}
+                                <div className="absolute left-0 top-0 w-full flex justify-end">
+                                    <button
+                                        onClick={() => setErrorMessage(false)}
+                                        className="text-white text-2xl font-bold hover:text-gray-400 focus:outline-none p-2"
+                                        aria-label="Close"
+                                        style={{ zIndex: 10 }}
+                                    >
+                                        &times;
+                                    </button>
+                                </div>
+                                <div className="flex flex-col items-center justify-center h-full !mt-10">
+                                    {errorText}
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Separator and Login Link */}
                     <div className="login-separator-section">
