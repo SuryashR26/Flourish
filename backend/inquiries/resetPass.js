@@ -78,6 +78,11 @@ const resetPass = async (req, res) => {
                 .replace('{{timestamp}}', time),
         });
 
+        return res.status(200).json({
+            success: true,
+            message: 'A reset link has been sent to your email address. Please check your inbox.'
+        });
+
 
     } catch (error) {
         console.error('Error in fetching user:', error);

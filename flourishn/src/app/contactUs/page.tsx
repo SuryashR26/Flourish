@@ -282,7 +282,7 @@ export default function ContactUsPage() {
                                     </button>
                                 </div>
                                 <div className="flex flex-col items-center justify-center h-full !mt-10">
-                                    {errorText + " Please try again later."}
+                                    {errorText}
                                 </div>
                             </div>
                         </div>

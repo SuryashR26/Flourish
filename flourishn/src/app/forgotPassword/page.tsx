@@ -21,6 +21,8 @@ export default function ForgetPassword() {
     })
 
     const [errors, setErrors] = useState<FormErrors>({})
+    const [errorMessage, setErrorMessage] = useState<boolean>(false)
+    const [errorText, setErrorText] = useState<string>("")
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target
@@ -60,11 +62,15 @@ export default function ForgetPassword() {
             setErrors({})
             resetPass(emailValues.email)
                 .then(response => {
-                    console.log("Password reset email sent successfully", response)
+                    if (response.success === false) {
+                        setErrorText(response.message || "An error occurred. Please try again later.")
+                        setErrorMessage(true)
+                    } else {
+                        setErrorText("A reset link has been sent to your email address. Please check your inbox.")
+                        setErrorMessage(true)
+                    }
                 })
-                .catch(error => {
-                    console.error("Error sending password reset email", error)
-                })
+
         } else {
             console.log("Form validation failed", errors)
         }
@@ -100,6 +106,28 @@ export default function ForgetPassword() {
                         Send Reset Link
                     </button>
                 </FormCard>
+                {errorMessage && (
+                    <div
+                        className="fixed inset-0 z-50 flex items-center justify-center min-w-[300px] bg-black/40 backdrop-blur-sm"
+                        style={{ pointerEvents: 'auto' }}
+                    >
+                        <div className="relative bg-black text-white text-md p-6 min-w-[300px] min-h-[150px] max-w-2xl rounded-lg shadow-xl text-center mt-10">
+                            <div className="absolute left-0 top-0 w-full flex justify-end">
+                                <button
+                                    onClick={() => setErrorMessage(false)}
+                                    className="text-white text-2xl font-bold hover:text-gray-400 focus:outline-none p-2"
+                                    aria-label="Close"
+                                    style={{ zIndex: 10 }}
+                                >
+                                    &times;
+                                </button>
+                            </div>
+                            <div className="flex flex-col items-center justify-center h-full !mt-10">
+                                {errorText}
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     )
