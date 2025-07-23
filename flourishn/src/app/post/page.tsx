@@ -8,7 +8,7 @@ import Navbar from "@/components/layout/navbar"
 import dynamic from "next/dynamic"
 import { components } from "react-select"
 import { X } from "lucide-react"
-import type { CSSObjectWithLabel, ControlProps, MultiValueRemoveProps } from 'react-select';
+import type { CSSObjectWithLabel, ControlProps, MultiValueRemoveProps, OptionProps } from 'react-select';
 
 interface PostValues {
     title: string
@@ -74,7 +74,7 @@ const customSelectStyles = {
         fontWeight: 400,
         minHeight: 56,
         boxShadow: 'none',
-        flexWrap: 'wrap',
+        flexWrap: 'wrap' as const,
         '&:hover': {
             border: state.isFocused ? '1px solid #1f98f4' : '1px solid #2f3542',
         },
@@ -87,7 +87,7 @@ const customSelectStyles = {
         borderRadius: 8,
         zIndex: 20,
     }),
-    option: (provided: CSSObjectWithLabel, state: ControlProps) => ({
+    option: (provided: CSSObjectWithLabel, state: OptionProps<unknown, boolean>) => ({
         ...provided,
         backgroundColor: state.isFocused ? '#181c23' : '#0B0809',
         color: 'white',
@@ -365,7 +365,6 @@ export default function PostPage() {
                                     name="status"
                                     value={postValues.status}
                                     onChange={handleChange}
-                                    placeholder="Select Status"
                                     className="w-full p-2 border rounded bg-[#0B0809] text-white"
                                 >
                                     <option value="active">Active</option>
@@ -378,7 +377,6 @@ export default function PostPage() {
                                     name="difficulty"
                                     value={postValues.difficulty}
                                     onChange={handleChange}
-                                    placeholder="Select Difficulty"
                                     className="w-full p-2 border rounded bg-[#0B0809] text-white"
                                 >
                                     <option value="Easy">Easy</option>

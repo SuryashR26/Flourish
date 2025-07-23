@@ -8,7 +8,7 @@ import { X } from 'lucide-react'
 import FilterIcon from '@/components/ui/FilterIcon'
 import dynamic from "next/dynamic"
 import { components } from "react-select"
-import type { CSSObjectWithLabel, ControlProps, MultiValueRemoveProps } from 'react-select';
+import type { CSSObjectWithLabel, ControlProps, MultiValueRemoveProps, OptionProps } from 'react-select';
 
 
 const Select = dynamic(() => import("react-select"), { ssr: false });
@@ -32,7 +32,7 @@ const customSelectStyles = {
         fontWeight: 400,
         minHeight: 48,
         boxShadow: 'none',
-        flexWrap: 'wrap',
+        flexWrap: 'wrap' as const,
         '&:hover': {
             border: state.isFocused ? '1px solid #1f98f4' : '1px solid #2f3542',
         },
@@ -45,7 +45,7 @@ const customSelectStyles = {
         borderRadius: 8,
         zIndex: 20,
     }),
-    option: (provided: CSSObjectWithLabel, state: ControlProps) => ({
+    option: (provided: CSSObjectWithLabel, state: OptionProps<unknown, boolean>) => ({
         ...provided,
         backgroundColor: state.isFocused ? '#181c23' : '#0B0809',
         color: 'white',
