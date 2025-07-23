@@ -121,7 +121,7 @@ export default function ContactUsPage() {
     }
 
     const validateForm = () => {
-        let tempErrors: FormErrors = {};
+        const tempErrors: FormErrors = {};
         let isValid = true;
 
         if (!formValues.firstName.trim()) {

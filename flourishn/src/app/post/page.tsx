@@ -1,13 +1,14 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import FormCard from "@/components/cards/formCards"
 import Navbar from "@/components/layout/navbar"
-import { on } from "events"
+// import { on } from "events"
 import dynamic from "next/dynamic"
 import { components } from "react-select"
 import { X } from "lucide-react"
+import type { CSSObjectWithLabel, ControlProps, MultiValueRemoveProps } from 'react-select';
 
 interface PostValues {
     title: string
@@ -64,7 +65,7 @@ const SKILL_DIRECTORY = [
 const TagSelect = dynamic(() => import("react-select/creatable"), { ssr: false })
 
 const customSelectStyles = {
-    control: (provided: any, state: any) => ({
+    control: (provided: CSSObjectWithLabel, state: ControlProps) => ({
         ...provided,
         backgroundColor: '#0B0809',
         border: state.isFocused ? '1px solid #1f98f4' : '1px solid #2f3542',
@@ -78,7 +79,7 @@ const customSelectStyles = {
             border: state.isFocused ? '1px solid #1f98f4' : '1px solid #2f3542',
         },
     }),
-    menu: (provided: any) => ({
+    menu: (provided: CSSObjectWithLabel) => ({
         ...provided,
         backgroundColor: '#0B0809',
         color: 'white',
@@ -86,24 +87,24 @@ const customSelectStyles = {
         borderRadius: 8,
         zIndex: 20,
     }),
-    option: (provided: any, state: any) => ({
+    option: (provided: CSSObjectWithLabel, state: ControlProps) => ({
         ...provided,
         backgroundColor: state.isFocused ? '#181c23' : '#0B0809',
         color: 'white',
         fontWeight: 400,
         cursor: 'pointer',
     }),
-    input: (provided: any) => ({
+    input: (provided: CSSObjectWithLabel) => ({
         ...provided,
         color: 'white',
         fontWeight: 400,
     }),
-    singleValue: (provided: any) => ({
+    singleValue: (provided: CSSObjectWithLabel) => ({
         ...provided,
         color: 'white',
         fontWeight: 400,
     }),
-    multiValue: (provided: any) => ({
+    multiValue: (provided: CSSObjectWithLabel) => ({
         ...provided,
         backgroundColor: '#181c23',
         color: 'white',
@@ -118,7 +119,7 @@ const customSelectStyles = {
         marginTop: 4,
         marginBottom: 4,
     }),
-    multiValueLabel: (provided: any) => ({
+    multiValueLabel: (provided: CSSObjectWithLabel) => ({
         ...provided,
         color: 'white',
         fontWeight: 400,
@@ -127,7 +128,7 @@ const customSelectStyles = {
         display: 'flex',
         alignItems: 'center',
     }),
-    multiValueRemove: (provided: any) => ({
+    multiValueRemove: (provided: CSSObjectWithLabel) => ({
         ...provided,
         color: 'white',
         fontSize: 20,
@@ -138,14 +139,14 @@ const customSelectStyles = {
             color: 'white',
         },
     }),
-    placeholder: (provided: any) => ({
+    placeholder: (provided: CSSObjectWithLabel) => ({
         ...provided,
         color: '#b0b8c1',
         fontWeight: 400,
     }),
 };
 
-const CustomMultiValueRemove = (props: any) => (
+const CustomMultiValueRemove = (props: MultiValueRemoveProps) => (
     <components.MultiValueRemove {...props}>
         <svg
             width={24} height={24} viewBox="0 0 24 24"
@@ -180,7 +181,7 @@ export default function PostPage() {
 
     const [viewPost, setViewPost] = useState(false)
 
-    const [scrollProgress, setScrollProgress] = useState(0)
+    // const [scrollProgress, setScrollProgress] = useState(0)
 
 
     const validateForm = (): boolean => {
@@ -209,7 +210,7 @@ export default function PostPage() {
         return isValid
     }
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target
         setPostValues({
             ...postValues,
@@ -257,7 +258,7 @@ export default function PostPage() {
             <Navbar />
             <div
                 className="scroll-progress-bar"
-                style={{ width: `${scrollProgress}%` }}
+            // style={{ width: `${scrollProgress}%` }}
             />
             <div className="min-h-screen py-10 !mt-[80px] w-full flex justify-center items-start">
                 <div className="w-full max-w-[700px] mx-auto" style={{ transform: 'translateX(-15.5px)' }}>
@@ -461,7 +462,7 @@ export default function PostPage() {
                                                 postValues.roleDescription[i] || ""
                                             )
                                         });
-                                        on
+
                                     }}
                                     className="w-20 p-2 border rounded"
                                 />

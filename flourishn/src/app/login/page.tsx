@@ -1,9 +1,9 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import Link from "next/link"
-import { usePathname, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { FaLightbulb, FaEye, FaEyeSlash, FaGoogle, FaGraduationCap } from "react-icons/fa"
 import FormCard from "@/components/cards/formCards"
 import "@/styles/login.css"
@@ -28,7 +28,6 @@ export default function LoginPage() {
     const [errors, setErrors] = useState<LoginErrors>({})
     const [showPassword, setShowPassword] = useState(false)
     const [showPasswordField, setShowPasswordField] = useState(true)
-    const [passwordTouched, setPasswordTouched] = useState(false)
     const [errorMessage, setErrorMessage] = useState(false)
     const [errorText, setErrorText] = useState<string>("");
     const router = useRouter()
@@ -83,15 +82,6 @@ export default function LoginPage() {
 
             })
 
-    }
-
-    const handleShowPasswordField = (e: React.FormEvent) => {
-        e.preventDefault()
-        setShowPasswordField(true)
-    }
-
-    const handlePasswordBlur = () => {
-        setPasswordTouched(true);
     }
 
     const validateForm = (): boolean => {
@@ -196,7 +186,6 @@ export default function LoginPage() {
                                         id="password"
                                         value={loginValues.password}
                                         onChange={handleChange}
-                                        onBlur={handlePasswordBlur}
                                         className={errors.password ? 'error' : ''}
                                         name="password"
                                         placeholder="Password"
@@ -248,7 +237,7 @@ export default function LoginPage() {
                         <div className="login-separator" />
                         <div className="login-bottom-text">
                             <span>
-                                Don't have an account?{" "}
+                                Don`&apos;`t have an account?{" "}
                                 <Link href="/signup">
                                     Sign Up
                                 </Link>

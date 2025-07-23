@@ -18,11 +18,11 @@ export default function NotesApp() {
     const handleSave = () => {
         if (noteContent.trim() || noteTitle.trim()) {
             let noteId = currentNoteId;
-            let isNew = false;
+            // let isNew = false;
 
             if (!noteId) {
                 noteId = Date.now();
-                isNew = true;
+                // isNew = true;
             }
 
             const newNote: Note = {

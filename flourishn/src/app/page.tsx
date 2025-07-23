@@ -2,14 +2,11 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import Image from "next/image"
 import Button from "@/components/ui/button"
 import Cards from "@/components/cards/cards"
 import gsap from "gsap"
 import { SplitText } from "gsap/SplitText"
 import Navbar from "@/components/layout/navbar"
-import AnimatedStars from "@/components/ui/AnimatedStars"
-
 // Register the SplitText plugin
 gsap.registerPlugin(SplitText)
 

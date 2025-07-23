@@ -7,7 +7,7 @@ import "@/styles/login.css";
 import { FaEye, FaEyeSlash, FaLightbulb, FaGoogle, FaGraduationCap, FaEnvelope, FaExclamationCircle } from 'react-icons/fa';
 import FormCard from "@/components/cards/formCards";
 import { signup } from "@/api/apiClient"; // 
-import { sign } from 'crypto';
+// import { sign } from 'crypto';
 interface SignUpForm {
     firstName: string;
     lastName: string;
@@ -55,7 +55,7 @@ export default function SignUp() {
         verificationCode: '', // Optional for the first step
     });
 
-    const [dayValue, setDayValue] = useState(0);
+    // const [dayValue, setDayValue] = useState(0);
     const [currentStep, setCurrentStep] = useState(1);
     const [errors, setErrors] = useState<FormErrors>({});
     const [showPassword, setShowPassword] = useState(false);
@@ -64,11 +64,12 @@ export default function SignUp() {
     const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
     const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
     const [timer, setTimer] = useState(0);
-    const [timer2, setTimer2] = useState(0);
     const [errorMessage, setErrorMessage] = useState(false)
     const [errorText, setErrorText] = useState<string>("");
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     const timer2Ref = useRef<NodeJS.Timeout | null>(null);
+    const timer2Value = useRef(300);
+
 
 
 
@@ -86,7 +87,7 @@ export default function SignUp() {
         setShowPassword2(!showPassword2);
     };
 
-    const handleDayChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    /*const handleDayChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const { name, value } = e.target;
         if (value === "01" || value === "03" || value === "05" || value === "07" ||
             value === "08" || value === "10" || value === "12") {
@@ -101,6 +102,7 @@ export default function SignUp() {
             [name]: value
         }));
     };
+   */
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -174,18 +176,16 @@ export default function SignUp() {
                             return prev - 1;
                         });
                     }, 1000);
-                    setTimer2(300);
+                    timer2Value.current = 300;
                     if (timer2Ref.current) clearInterval(timer2Ref.current);
                     timer2Ref.current = setInterval(() => {
-                        setTimer2(prev => {
-                            if (prev <= 1) {
-                                clearInterval(timer2Ref.current!);
-                                signup(signUpValues.email, signUpValues.firstName, signUpValues.lastName, signUpValues.password, 'Failed')
-                                return 0;
-                            }
-                            return prev - 1;
-                        });
+                        timer2Value.current -= 1;
+                        if (timer2Value.current <= 0) {
+                            clearInterval(timer2Ref.current!);
+                            signup(signUpValues.email, signUpValues.firstName, signUpValues.lastName, signUpValues.password, 'Failed');
+                        }
                     }, 1000);
+
                 }
             })
             .catch(error => {
@@ -198,7 +198,7 @@ export default function SignUp() {
 
     const handleSignUp = (e: React.FormEvent) => {
         e.preventDefault();
-        let tempErrors: FormErrors = {};
+        const tempErrors: FormErrors = {};
         if (!signUpValues.firstName.trim()) tempErrors.firstName = "First name is required";
         if (!signUpValues.lastName.trim()) tempErrors.lastName = "Last name is required";
         if (!signUpValues.password.trim()) tempErrors.password = "Password is required";
@@ -312,7 +312,7 @@ export default function SignUp() {
             setCurrentStep(3);
         } else if (currentStep === 3) {
             // 3rd step: Validate first name, last name, password, confirm password
-            let tempErrors: FormErrors = {};
+            const tempErrors: FormErrors = {};
             if (!signUpValues.firstName.trim()) tempErrors.firstName = "First name is required";
             if (!signUpValues.lastName.trim()) tempErrors.lastName = "Last name is required";
             if (!signUpValues.password.trim()) tempErrors.password = "Password is required";
@@ -345,10 +345,11 @@ export default function SignUp() {
         }
     };
 
-    const handleBack = () => {
-        setCurrentStep(1);
-        setErrors({});
-    };
+    /* const handleBack = () => {
+         setCurrentStep(1);
+         setErrors({});
+     };
+     */
 
     return (
         <>

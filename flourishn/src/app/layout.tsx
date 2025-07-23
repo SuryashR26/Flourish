@@ -1,6 +1,6 @@
 import type React from "react"
 import { figtree } from "@/styles/fonts"
-import Footer from "@/components/layout/footer"
+// import Footer from "@/components/layout/footer"
 import "@/styles/globals.css"
 import "@/styles/footer.css"
 import "@/styles/navbar.css"

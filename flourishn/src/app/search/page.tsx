@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useRef, useLayoutEffect, useState, useCallback, useEffect } from 'react'
+import React, { useRef, useLayoutEffect, useState, useEffect } from 'react'
 import Navbar from '@/components/layout/navbar'
 import { Pagination } from '@/components/ui/pagination'
 import { ChevronDownIcon } from "lucide-react"
@@ -8,19 +8,11 @@ import { X } from 'lucide-react'
 import FilterIcon from '@/components/ui/FilterIcon'
 import dynamic from "next/dynamic"
 import { components } from "react-select"
+import type { CSSObjectWithLabel, ControlProps, MultiValueRemoveProps } from 'react-select';
+
 
 const Select = dynamic(() => import("react-select"), { ssr: false });
 
-const TAG_DIRECTORY = [
-    { value: "Web Development", label: "Web Development" },
-    { value: "JavaScript", label: "JavaScript" },
-    { value: "React", label: "React" },
-    { value: "Node.js", label: "Node.js" },
-    { value: "UI Design", label: "UI Design" },
-    { value: "TypeScript", label: "TypeScript" },
-    { value: "Python", label: "Python" },
-    // ...add more as needed
-]
 const SKILL_DIRECTORY = [
     { value: "React", label: "React" },
     { value: "Node.js", label: "Node.js" },
@@ -31,7 +23,7 @@ const SKILL_DIRECTORY = [
 ]
 
 const customSelectStyles = {
-    control: (provided: any, state: any) => ({
+    control: (provided: CSSObjectWithLabel, state: ControlProps) => ({
         ...provided,
         backgroundColor: '#0B0809',
         border: state.isFocused ? '1px solid #1f98f4' : '1px solid #2f3542',
@@ -45,7 +37,7 @@ const customSelectStyles = {
             border: state.isFocused ? '1px solid #1f98f4' : '1px solid #2f3542',
         },
     }),
-    menu: (provided: any) => ({
+    menu: (provided: CSSObjectWithLabel) => ({
         ...provided,
         backgroundColor: '#0B0809',
         color: 'white',
@@ -53,19 +45,19 @@ const customSelectStyles = {
         borderRadius: 8,
         zIndex: 20,
     }),
-    option: (provided: any, state: any) => ({
+    option: (provided: CSSObjectWithLabel, state: ControlProps) => ({
         ...provided,
         backgroundColor: state.isFocused ? '#181c23' : '#0B0809',
         color: 'white',
         fontWeight: 400,
         cursor: 'pointer',
     }),
-    input: (provided: any) => ({
+    input: (provided: CSSObjectWithLabel) => ({
         ...provided,
         color: 'white',
         fontWeight: 400,
     }),
-    multiValue: (provided: any) => ({
+    multiValue: (provided: CSSObjectWithLabel) => ({
         ...provided,
         backgroundColor: '#181c23',
         color: 'white',
@@ -80,7 +72,7 @@ const customSelectStyles = {
         marginTop: 4,
         marginBottom: 4,
     }),
-    multiValueLabel: (provided: any) => ({
+    multiValueLabel: (provided: CSSObjectWithLabel) => ({
         ...provided,
         color: 'white',
         fontWeight: 400,
@@ -89,7 +81,7 @@ const customSelectStyles = {
         display: 'flex',
         alignItems: 'center',
     }),
-    multiValueRemove: (provided: any) => ({
+    multiValueRemove: (provided: CSSObjectWithLabel) => ({
         ...provided,
         color: 'white',
         fontSize: 18,
@@ -100,14 +92,14 @@ const customSelectStyles = {
             color: 'white',
         },
     }),
-    placeholder: (provided: any) => ({
+    placeholder: (provided: CSSObjectWithLabel) => ({
         ...provided,
         color: '#b0b8c1',
         fontWeight: 400,
     }),
 };
 
-const CustomMultiValueRemove = (props: any) => (
+const CustomMultiValueRemove = (props: MultiValueRemoveProps) => (
     <components.MultiValueRemove {...props}>
         <svg
             width={20} height={20} viewBox="0 0 24 24"
@@ -253,7 +245,7 @@ function SkillsRow({ skills = [] }: { skills: string[] }) {
     );
 }
 
-function page() {
+function Page() {
     const [searchFilter, setSearchFilter] = useState<SearchFilter>({
         LocationS: { remote: false, inPerson: false },
         LocationL: '',
@@ -263,7 +255,7 @@ function page() {
     const [scrollProgress, setScrollProgress] = useState(0)
     const [currentPage, setCurrentPage] = useState(1)
     const [locationDropdownOpen, setLocationDropdownOpen] = useState(true)
-    const [projectTagsDrop, setProjectTagsDrop] = useState(true)
+    // const [projectTagsDrop, setProjectTagsDrop] = useState(true)
     const [skillTagsDrop, setSkillTagsDrop] = useState(true)
     const [sortDropdownOpen, setSortDropdownOpen] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
@@ -710,7 +702,7 @@ function page() {
             >
                 <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 !mb-6">
                     <p className="text-gray-400 text-lg lg:text-xl font-medium">
-                        Showing {projectCards.length} results for "{searchQuery || 'all projects'}"
+                        Showing {projectCards.length} results for `&quot;`{searchQuery || 'all projects'}`&quot;`
                     </p>
                     <div className="relative">
                         <button
@@ -739,15 +731,16 @@ function page() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 mt-8">
                     {projectCards.map((project, idx) => {
                         const category = getProjectCategory(project.tags);
-                        const categoryClass = category === 'Tech'
+                        /*const categoryClass = category === 'Tech'
                             ? 'bg-blue-900/10 text-blue-400 border border-blue-400/20'
                             : category === 'Creative'
                                 ? 'bg-pink-600/10 text-pink-300 border border-pink-300/20'
                                 : 'bg-green-900/10 text-green-400 border border-green-400/20';
+                            */
                         const isRemote = project.remote;
-                        const locationBadgeClass = isRemote ? 'bg-indigo-900 text-indigo-200' : 'bg-green-900 text-green-300';
+                        // const locationBadgeClass = isRemote ? 'bg-indigo-900 text-indigo-200' : 'bg-green-900 text-green-300';
                         const locationBadgeText = isRemote ? 'Remote' : 'In Person';
-                        const locationText = isRemote ? 'Open to remote collaboration' : project.location;
+                        // const locationText = isRemote ? 'Open to remote collaboration' : project.location;
                         const timePosted = project.createdAt ? timeAgo(new Date(project.createdAt)) : 'recently';
 
                         return (
@@ -1020,4 +1013,4 @@ function page() {
     )
 }
 
-export default page
+export default Page

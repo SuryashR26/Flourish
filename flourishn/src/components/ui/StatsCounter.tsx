@@ -10,12 +10,12 @@ interface StatsCounterProps {
     decimals?: number;
 }
 
-const StatsCounter: React.FC<StatsCounterProps> = ({ 
-    target, 
-    duration = 2000, 
-    className, 
-    suffix = '', 
-    decimals = 0 
+const StatsCounter: React.FC<StatsCounterProps> = ({
+    target,
+    duration = 2000,
+    className,
+    suffix = '',
+    decimals = 0
 }) => {
     const [count, setCount] = useState(0);
     const ref = useRef<HTMLSpanElement>(null);
@@ -50,14 +50,14 @@ const StatsCounter: React.FC<StatsCounterProps> = ({
 
     useEffect(() => {
         if (isIntersecting) {
-            let start = 0;
+            const start = 0;
             const end = target;
             if (start === end) return;
 
             // Calculate total steps based on smallest decimal
             const totalSteps = Math.max(100, Math.ceil(duration / 15));
             const increment = (end - start) / totalSteps;
-            
+
             let currentStep = 0;
 
             const timer = setInterval(() => {

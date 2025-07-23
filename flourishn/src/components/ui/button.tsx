@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useRef, useState, useLayoutEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 
 type ButtonProps = {
@@ -136,8 +136,8 @@ const Button = ({
     const borderRadius = buttonSize === 'btn--large' ? 24 : 18; // px
 
     if (animatedBorder) {
-        const BUTTON_WIDTH = 170;
-        const BUTTON_HEIGHT = 56;
+        const BUTTON_WIDTH = dimensions.width || 170;
+        const BUTTON_HEIGHT = dimensions.height || 56;
         const BORDER_RADIUS = 10;
         const borderDash = 2 * (BUTTON_WIDTH - 3) + 2 * (BUTTON_HEIGHT - 3);
         const animatedContent = (

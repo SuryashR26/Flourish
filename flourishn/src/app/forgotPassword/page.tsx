@@ -88,7 +88,7 @@ export default function ForgetPassword() {
             <div className="login-content">
                 <FormCard title="Reset your Password" onSubmit={handleSubmit} style={{ width: '500px' }}>
                     <p className="text-white text-base leading-normal my-3 text-center">
-                        Enter your email address and we'll send you a link to reset your password.
+                        Enter your email address and we`&apos;`ll send you a link to reset your password.
                     </p>
                     <div className="login-form-group">
                         <input
