@@ -53,3 +53,21 @@ export function resetPass(email: string) {
             return response.json();
         })
 }
+
+export async function getPresignedUrl(filename: string, filetype: string) {
+    const res = await fetch('http://localhost:8080/dashboard', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            type: 'uploadProfilePhoto', // Add this
+            filename,
+            filetype,
+        }),
+    });
+
+    if (!res.ok) {
+        throw new Error('Failed to get presigned URL');
+    }
+
+    return await res.json();
+}

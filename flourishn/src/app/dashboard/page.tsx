@@ -2,6 +2,7 @@
 import { useState } from "react"
 import Navbar from "@/components/layout/navbar"
 import NotesApp from "./notes"
+import ProfileUploader from "../signup/profileUploader";
 
 // Dashboard Sidebar Activity Feed Styles
 const dashboardStyles = `
@@ -637,6 +638,9 @@ export default function DashboardPage() {
                 {/* Notes Section */}
                 <div className="mt-16">
                     <NotesApp />
+                </div>
+                <div>
+                    <ProfileUploader></ProfileUploader>
                 </div>
             </div>
         </>

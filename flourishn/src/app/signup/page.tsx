@@ -6,7 +6,8 @@ import Link from 'next/link';
 import "@/styles/login.css";
 import { FaEye, FaEyeSlash, FaLightbulb, FaGoogle, FaGraduationCap, FaEnvelope, FaExclamationCircle } from 'react-icons/fa';
 import FormCard from "@/components/cards/formCards";
-import { signup } from "@/api/apiClient"; // 
+import { signup } from "@/api/apiClient";
+
 // import { sign } from 'crypto';
 interface SignUpForm {
     firstName: string;

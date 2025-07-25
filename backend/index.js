@@ -4,6 +4,7 @@ const { signup } = require('./auth/signup');
 const { login } = require('./auth/login');
 const { contactUs } = require('./inquiries/contactUs');
 const { resetPass } = require('./inquiries/resetPass');
+const { getPresignedUrl } = require('./auth/getPresignedUrl')
 require('dotenv').config();
 const cors = require('cors');
 
@@ -36,6 +37,22 @@ app.post('/login', login);
 app.post('/contactUs', contactUs);
 
 app.post('/forgotPassword', resetPass);
+
+app.post('/dashboard', async (req, res) => {
+    const { type } = req.body;
+
+    switch (type) {
+        case 'uploadProfilePhoto':
+            return getPresignedUrl(req, res);
+
+        // Add more actions here
+        // case 'someOtherAction':
+        //     return someOtherFunction(req, res);
+
+        default:
+            return res.status(400).json({ error: 'Unknown dashboard action type' });
+    }
+});
 
 app.listen(PORT, '127.0.0.1', () => {
     console.log(`Server running on port ${PORT}`);
