@@ -73,6 +73,18 @@ export default function SignUp() {
 
 
 
+    useEffect(() => {
+        async function checkSession() {
+            const res = await fetch('http://localhost:8080/check-session', {
+                credentials: 'include',
+            });
+            const data = await res.json();
+            if (!data.success) {
+                router.push('/dashboard');
+            }
+        }
+        checkSession();
+    }, []);
 
     useEffect(() => {
         return () => {

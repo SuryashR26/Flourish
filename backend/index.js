@@ -5,16 +5,33 @@ const { login } = require('./auth/login');
 const { contactUs } = require('./inquiries/contactUs');
 const { resetPass } = require('./inquiries/resetPass');
 const { getPresignedUrl } = require('./auth/getPresignedUrl')
+const session = require('express-session');
+const { checkAlreadyLoggedIn } = require('./auth/checkSession')
 require('dotenv').config();
 const cors = require('cors');
 
 
 const app = express();
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+}));
 const PORT = process.env.PORT || 8080;
 
 // Middleware
 app.use(express.json());
+
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: false, // true in production with HTTPS
+        httpOnly: true,
+        maxAge: 1000 * 60 * 60 * 24, // 1 day
+    },
+}));
+
 
 // Test database connection
 app.get('/test-db', async (req, res) => {
@@ -30,15 +47,20 @@ app.get('/test-db', async (req, res) => {
     }
 });
 
-app.post('/signup', signup);
+app.post('/signup', checkAlreadyLoggedIn, signup);
 
-app.post('/login', login);
+app.post('/login', checkAlreadyLoggedIn, login);
 
 app.post('/contactUs', contactUs);
 
 app.post('/forgotPassword', resetPass);
 
+app.get('/check-session', checkAlreadyLoggedIn)
+
 app.post('/dashboard', async (req, res) => {
+    if (!req.session.userId) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
     const { type } = req.body;
 
     switch (type) {
@@ -53,6 +75,9 @@ app.post('/dashboard', async (req, res) => {
             return res.status(400).json({ error: 'Unknown dashboard action type' });
     }
 });
+
+// app.get('/profile-photo', getProfilePhoto)
+
 
 app.listen(PORT, '127.0.0.1', () => {
     console.log(`Server running on port ${PORT}`);

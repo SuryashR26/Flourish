@@ -42,6 +42,10 @@ const login = async (req, res) => {
             [emailLower, user_id, clientIP]
         )
 
+        req.session.userId = user_id; // sets the session user ID to the user ID of the person
+
+        console.log('Session after login:', req.session);
+
         return res.status(201).json({
             success: true,
             message: 'User successfully Logged In!',

@@ -3,6 +3,7 @@
 export function signup(email: string, first_name: string, last_name: string, password: string, code: string) {
     return fetch('http://localhost:8080/signup', {
         method: 'POST',
+        credentials: 'include',
         headers: {
             'Content-Type': 'application/json',
         },
@@ -17,6 +18,7 @@ export function signup(email: string, first_name: string, last_name: string, pas
 export function login(email: string, password: string) {
     return fetch('http://localhost:8080/login', {
         method: 'POST',
+        credentials: 'include',
         headers: {
             'Content-Type': 'application/json',
         },
@@ -31,6 +33,7 @@ export function login(email: string, password: string) {
 export function contactUs(first_name: string, last_name: string, email: string, message: string) {
     return fetch('http://localhost:8080/contactUs', {
         method: 'POST',
+        credentials: 'include',
         headers: {
             'Content-Type': 'application/json',
         },
@@ -44,6 +47,7 @@ export function contactUs(first_name: string, last_name: string, email: string, 
 export function resetPass(email: string) {
     return fetch('http://localhost:8080/forgotPassword', {
         method: 'POST',
+        credentials: 'include',
         headers: {
             'Content-Type': 'application/json',
         },
@@ -57,6 +61,7 @@ export function resetPass(email: string) {
 export async function getPresignedUrl(filename: string, filetype: string) {
     const res = await fetch('http://localhost:8080/dashboard', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             type: 'uploadProfilePhoto', // Add this

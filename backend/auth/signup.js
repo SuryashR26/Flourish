@@ -134,6 +134,15 @@ const signup = async (req, res) => {
                 [emailLower, first_name, last_name, hashedPassword]
             );
 
+            const user_id = await pool.query(
+                'SELECT id from users where email = $1',
+                [emailLower]
+            )
+
+            req.session.userID = user_id.rows[0].id;
+
+            console.log('Session after signup:', req.session);
+
             return res.status(201).json({
                 success: true,
                 message: 'User successfully created!',

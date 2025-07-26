@@ -18,9 +18,11 @@ exports.getPresignedUrl = async (req, res) => {
             return res.status(400).json({ error: 'Only image uploads are allowed.' });
         }
 
+        userId = req.session.userId;
+
         const params = {
             Bucket: process.env.AWS_S3_BUCKET,
-            Key: `profile-uploads/${Date.now()}-${filename}`,
+            Key: `profile- uploads/${userId}-${filename}`,
             Expires: 60,
             ContentType: filetype,
         };

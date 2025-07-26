@@ -15,9 +15,11 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
+    "express-session": "^1.18.2",
     "multer": "^2.0.2",
     "multer-s3": "^3.0.1",
     "nodemailer": "^7.0.5",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "session": "^0.1.0"
   }
 }

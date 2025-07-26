@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from 'next/navigation'
 import { FaLightbulb, FaEye, FaEyeSlash, FaGoogle, FaGraduationCap } from "react-icons/fa"
@@ -35,6 +35,19 @@ export default function LoginPage() {
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword)
     }
+
+    useEffect(() => {
+        async function checkSession() {
+            const res = await fetch('http://localhost:8080/check-session', {
+                credentials: 'include',  // <-- add this line
+            });
+            const data = await res.json();
+            if (!data.success) {
+                router.push('/dashboard');
+            }
+        }
+        checkSession();
+    }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target
