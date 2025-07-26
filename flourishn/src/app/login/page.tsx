@@ -39,7 +39,7 @@ export default function LoginPage() {
     useEffect(() => {
         async function checkSession() {
             const res = await fetch('http://localhost:8080/check-session', {
-                credentials: 'include',  // <-- add this line
+                credentials: 'include',
             });
             const data = await res.json();
             if (!data.success) {
