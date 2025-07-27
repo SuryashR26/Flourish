@@ -59,12 +59,11 @@ export function resetPass(email: string) {
 }
 
 export async function getPresignedUrl(filename: string, filetype: string) {
-    const res = await fetch('http://localhost:8080/dashboard', {
+    const res = await fetch('http://localhost:8080/updateProfile', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            type: 'uploadProfilePhoto', // Add this
             filename,
             filetype,
         }),

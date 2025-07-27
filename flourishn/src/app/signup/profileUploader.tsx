@@ -13,9 +13,9 @@ export default function ProfileUploader() {
         setFile(selected);
 
         try {
-            const { url, key } = await getPresignedUrl(selected.name, selected.type);
+            const { new_url } = await getPresignedUrl(selected.name, selected.type);
 
-            const uploadRes = await fetch(url, {
+            const uploadRes = await fetch(new_url, {
                 method: 'PUT',
                 headers: { 'Content-Type': selected.type },
                 body: selected,
@@ -24,8 +24,6 @@ export default function ProfileUploader() {
             if (!uploadRes.ok) {
                 throw new Error('Upload failed');
             }
-
-            console.log('Uploaded to:', key);
 
         } catch (err) {
             console.error('Error uploading file:', err);
