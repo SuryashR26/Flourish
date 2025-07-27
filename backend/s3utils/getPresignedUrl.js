@@ -1,4 +1,6 @@
+
 const AWS = require('aws-sdk');
+const { duplicatePhoto } = require('./duplicateProfilePhoto');
 
 const s3 = new AWS.S3({
     region: process.env.AWS_REGION,
@@ -7,34 +9,31 @@ const s3 = new AWS.S3({
     signatureVersion: 'v4',
 });
 
-exports.getPresignedUrl = async (req, res) => {
+const getPresignedUrl = async (userId, filename, filetype) => {
     try {
-        const { filename, filetype } = req.body;
-
-        console.log('Presigned request received:', { filename, filetype });
-
         const allowedImageTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp'];
         if (!allowedImageTypes.includes(filetype)) {
-            return res.status(400).json({ error: 'Only image uploads are allowed.' });
+            throw new Error('Only image uploads are allowed.');
         }
 
-        userId = req.session.userId;
+        // Delete existing photos
+        await duplicatePhoto(userId);
 
-        const params = {
+        const key = `profile-uploads/${userId}-${filename}`;
+
+        const url = await s3.getSignedUrlPromise('putObject', {
             Bucket: process.env.AWS_S3_BUCKET,
-            Key: `profile- uploads/${userId}-${filename}`,
+            Key: key,
             Expires: 60,
             ContentType: filetype,
-        };
-
-        const url = await s3.getSignedUrlPromise('putObject', params);
-
-        res.json({
-            url,
-            key: params.Key,
         });
+
+        return { url, key };
     } catch (error) {
         console.error('Error generating presigned URL:', error);
-        res.status(500).json({ error: 'Failed to generate presigned URL' });
+        throw error;
     }
 };
+
+module.exports = { getPresignedUrl };
+

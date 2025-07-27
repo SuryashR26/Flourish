@@ -4,7 +4,7 @@ const { signup } = require('./auth/signup');
 const { login } = require('./auth/login');
 const { contactUs } = require('./inquiries/contactUs');
 const { resetPass } = require('./inquiries/resetPass');
-const { getPresignedUrl } = require('./auth/getPresignedUrl')
+const { getPresignedUrl } = require('./s3utils/getPresignedUrl')
 const session = require('express-session');
 const { checkAlreadyLoggedIn } = require('./auth/checkSession')
 require('dotenv').config();
@@ -57,24 +57,48 @@ app.post('/forgotPassword', resetPass);
 
 app.get('/check-session', checkAlreadyLoggedIn)
 
-app.post('/dashboard', async (req, res) => {
+/*(app.post('/photo-url', async (req, res) => ) {
+
+}*/
+
+//
+
+app.post('/updateProfile', async (req, res) => {
     if (!req.session.userId) {
-        return res.status(401).json({ error: 'Not authenticated' });
+        return res.status(401).json({ error: 'Not Authenticated' });
     }
-    const { type } = req.body;
 
-    switch (type) {
-        case 'uploadProfilePhoto':
-            return getPresignedUrl(req, res);
+    const userId = req.session.userId;
+    const { filename, filetype } = req.body;
 
-        // Add more actions here
-        // case 'someOtherAction':
-        //     return someOtherFunction(req, res);
+    try {
+        const { url: new_url, key: new_key } = await getPresignedUrl(userId, filename, filetype);
 
-        default:
-            return res.status(400).json({ error: 'Unknown dashboard action type' });
+        const updates = {
+            profileurl: new_url
+        };
+
+        const keys = Object.keys(updates);
+        const setClauses = keys.map((key, idx) => `${key} = $${idx + 1}`).join(', ');
+        const values = Object.values(updates);
+
+        await pool.query(
+            `UPDATE users SET ${setClauses} WHERE id = $${keys.length + 1}`,
+            [...values, userId]
+        );
+
+        res.json({
+            success: true,
+            message: 'Profile updated successfully',
+            new_url,
+            new_key
+        });
+    } catch (err) {
+        console.error('Failed to update profile:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
 
 // app.get('/profile-photo', getProfilePhoto)
 

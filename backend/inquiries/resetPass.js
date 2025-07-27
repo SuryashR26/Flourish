@@ -23,7 +23,7 @@ const transporter = nodemailer.createTransport({
 const resetPass = async (req, res) => {
     try {
         const token = crypto.randomBytes(8).toString('hex');
-        const baseUrl = 'https://localhost:3000/login';
+        const baseUrl = 'http://localhost:3000/login';
         const urlWithToken = `${baseUrl}?token=${token}`;
 
         const { email } = req.body;

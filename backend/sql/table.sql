@@ -14,6 +14,7 @@ Create Table public.users
     age         INTEGER CHECK (age >= 13),
     personal_preferences varchar(500),
     code        TEXT, 
+    profileurl varchar, 
     CONSTRAINT email_unique UNIQUE (email),
 );
 
