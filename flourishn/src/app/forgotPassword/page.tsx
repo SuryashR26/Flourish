@@ -58,16 +58,16 @@ export default function ForgetPassword() {
         e.preventDefault()
         const isValid = validateForm()
         if (isValid) {
-            setEmailValues({ email: "" })
+
             setErrors({})
             resetPass(emailValues.email)
                 .then(response => {
                     if (response.success === false) {
-                        setErrorText(response.message || "An error occurred. Please try again later.")
-                        setErrorMessage(true)
+                        setErrors(prev => ({ ...prev, email: response.message }))
                     } else {
                         setErrorText("A reset link has been sent to your email address. Please check your inbox.")
                         setErrorMessage(true)
+                        setEmailValues({ email: "" })
                     }
                 })
 

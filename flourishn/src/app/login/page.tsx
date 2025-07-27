@@ -28,8 +28,6 @@ export default function LoginPage() {
     const [errors, setErrors] = useState<LoginErrors>({})
     const [showPassword, setShowPassword] = useState(false)
     const [showPasswordField, setShowPasswordField] = useState(true)
-    const [errorMessage, setErrorMessage] = useState(false)
-    const [errorText, setErrorText] = useState<string>("");
     const router = useRouter()
 
     const togglePasswordVisibility = () => {
@@ -73,10 +71,6 @@ export default function LoginPage() {
         e.preventDefault();
         const isValid = validateForm();
         if (isValid) {
-            setLoginValues({
-                username: "",
-                password: "",
-            });
             setErrors({});
         } else {
             console.log("Login failed", errors);
@@ -85,11 +79,20 @@ export default function LoginPage() {
         login(loginValues.username, loginValues.password)
             .then(response => {
                 if (!response.success) {
-                    setErrorText(response.message || "There was an error logging.");
-                    setErrorMessage(true);
-                    return;
+                    if (response.message.includes("User")) {
+                        setErrors(prev => ({ ...prev, username: response.message }))
+                        return;
+                    } else {
+                        setErrors(prev => ({ ...prev, password: response.message }))
+                        return;
+                    }
 
                 }
+                setLoginValues({
+                    username: "",
+                    password: "",
+                });
+                setErrors({});
                 console.log("Login Successfully", response);
                 router.push('/dashboard')
 
@@ -164,7 +167,7 @@ export default function LoginPage() {
 
                 {/* Login Content */}
                 <div className="login-content">
-                    <FormCard title="Log in to Flourish" onSubmit={handleSubmit} style={{ width: '468px', marginBottom: '9rem' }} showSubmitButton={false}>
+                    <FormCard title="Log in to Flourish" onSubmit={handleLogIn} style={{ width: '468px', marginBottom: '9rem' }} showSubmitButton={false}>
                         {/* Social Login Buttons */}
                         <button type="button" className="social-login-btn google-btn">
                             <FaGoogle className="google-icon" /> Continue with Google
@@ -221,30 +224,6 @@ export default function LoginPage() {
                             Log in
                         </button>
                     </FormCard>
-                    {errorMessage && (
-                        <div
-                            className="fixed inset-0 z-50 flex items-center justify-center min-w-[300px] bg-black/40 backdrop-blur-sm"
-                            style={{ pointerEvents: 'auto' }}
-                        >
-                            <div className="relative bg-black text-white text-md p-6 min-w-[300px] min-h-[150px] max-w-2xl rounded-lg shadow-xl text-center mt-10">
-                                {/* X button overlayed above the text */}
-                                <div className="absolute left-0 top-0 w-full flex justify-end">
-                                    <button
-                                        onClick={() => setErrorMessage(false)}
-                                        className="text-white text-2xl font-bold hover:text-gray-400 focus:outline-none p-2"
-                                        aria-label="Close"
-                                        style={{ zIndex: 10 }}
-                                    >
-                                        &times;
-                                    </button>
-                                </div>
-                                <div className="flex flex-col items-center justify-center h-full !mt-10">
-                                    {errorText}
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
                     {/* Separator and Sign Up Link */}
                     <div className="login-separator-section">
                         <div className="login-separator" />

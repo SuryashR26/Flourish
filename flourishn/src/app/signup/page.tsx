@@ -65,8 +65,6 @@ export default function SignUp() {
     const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
     const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
     const [timer, setTimer] = useState(0);
-    const [errorMessage, setErrorMessage] = useState(false)
-    const [errorText, setErrorText] = useState<string>("");
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     const timer2Ref = useRef<NodeJS.Timeout | null>(null);
     const timer2Value = useRef(300);
@@ -169,12 +167,11 @@ export default function SignUp() {
             return;
         }
         setErrors({});
-        signup(signUpValues.email, signUpValues.firstName, signUpValues.lastName, signUpValues.password, signUpValues.verificationCode)
+        signup(signUpValues.email, signUpValues.firstName, signUpValues.lastName, signUpValues.password, '')
             .then(response => {
                 console.log('Signup was:', response);
                 if (response.success === false) {
-                    setErrorMessage(true);
-                    setErrorText(response.message);
+                    setErrors(prev => ({ ...prev, email: response.message }));
 
                 } else {
                     setCurrentStep(2);
@@ -196,6 +193,22 @@ export default function SignUp() {
                         if (timer2Value.current <= 0) {
                             clearInterval(timer2Ref.current!);
                             signup(signUpValues.email, signUpValues.firstName, signUpValues.lastName, signUpValues.password, 'Failed');
+                            setCurrentStep(1);
+                            setSignUpValues({
+                                firstName: '',
+                                lastName: '',
+                                email: '',
+                                username: '',
+                                password: '',
+                                confirmPassword: '',
+                                phoneNumber: '',
+                                countryCode: '+1',
+                                birthDay: '',
+                                birthMonth: '',
+                                birthYear: '',
+                                verificationCode: '',
+                            });
+                            setErrors({});
                         }
                     }, 1000);
 
@@ -203,8 +216,8 @@ export default function SignUp() {
             })
             .catch(error => {
                 console.error('Signup error:', error);
-                setErrorMessage(true);
-                setErrorText("An error occurred while sending the verification code. Please try again.");
+
+                setErrors(prev => ({ ...prev, email: "An error occurred while sending the verification code. Please try again." }));
             });
 
     }
@@ -237,6 +250,7 @@ export default function SignUp() {
                 birthYear: '',
                 verificationCode: '', // Reset verification code
             });
+            if (timer2Ref.current) clearInterval(timer2Ref.current);
             router.push('/dashboard');
             setErrors({});
 
@@ -261,7 +275,7 @@ export default function SignUp() {
         if (idx === 5 && val) {
             const enteredCode = newCode.join("");
             console.log('Entered Code:', enteredCode);
-            signUpValues.verificationCode = enteredCode;
+            setSignUpValues(prev => ({ ...prev, verificationCode: enteredCode }));
             signup(signUpValues.email, signUpValues.firstName, signUpValues.lastName, signUpValues.password, enteredCode)
                 .then(async response => {
                     console.log('Signup was:', response);
@@ -271,7 +285,7 @@ export default function SignUp() {
                         setErrors(prev => ({ ...prev, verificationCode: undefined }));
                         setCurrentStep(3);
                         if (timerRef.current) clearInterval(timerRef.current);
-                        if (timer2Ref.current) clearInterval(timer2Ref.current);
+
                     }
                 })
 
@@ -316,7 +330,7 @@ export default function SignUp() {
             const enteredCode = verificationCode.join('');
             if (enteredCode !== "333333") {
                 setErrors(prev => {
-                    const newErrors = { ...prev, verificationCode: "Incorrect Code. Please try again" };
+                    const newErrors = { ...prev, verificationCode: "Incorrect. Please try again" };
                     return newErrors;
                 });
                 return;
@@ -383,9 +397,9 @@ export default function SignUp() {
                 <div className="login-content">
                     <FormCard
                         title={currentStep === 2 ? "Verification" : "Create an Account"}
-                        onSubmit={handleSubmit}
                         style={{ width: '468px', marginBottom: '9rem' }}
                         showSubmitButton={false}
+                        onSubmit={() => { }}
                     >
                         {currentStep === 1 ? (
                             <>
@@ -411,7 +425,7 @@ export default function SignUp() {
                                     />
                                     {errors.email && <div className="error-message">{errors.email}</div>}
                                 </div>
-                                <button onClick={handleVerificationCode} type="submit" className="email-continue-btn">
+                                <button onClick={handleVerificationCode} type="button" className="email-continue-btn">
                                     <FaEnvelope />
                                     Continue with Email
                                 </button>
@@ -545,7 +559,7 @@ export default function SignUp() {
                                 </div>
                                 <button
                                     onClick={handleSignUp}
-                                    type="submit"
+                                    type="button"
                                     style={{
                                         background: "#fff",
                                         color: "#0B0809",
@@ -565,30 +579,6 @@ export default function SignUp() {
                             </>
                         )}
                     </FormCard>
-                    {errorMessage && (
-                        <div
-                            className="fixed inset-0 z-50 flex items-center justify-center min-w-[300px] bg-black/40 backdrop-blur-sm"
-                            style={{ pointerEvents: 'auto' }}
-                        >
-                            <div className="relative bg-black text-white text-md p-6 min-w-[300px] min-h-[150px] max-w-2xl rounded-lg shadow-xl text-center mt-10">
-                                {/* X button overlayed above the text */}
-                                <div className="absolute left-0 top-0 w-full flex justify-end">
-                                    <button
-                                        onClick={() => setErrorMessage(false)}
-                                        className="text-white text-2xl font-bold hover:text-gray-400 focus:outline-none p-2"
-                                        aria-label="Close"
-                                        style={{ zIndex: 10 }}
-                                    >
-                                        &times;
-                                    </button>
-                                </div>
-                                <div className="flex flex-col items-center justify-center h-full !mt-10">
-                                    {errorText}
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
                     {/* Separator and Login Link */}
                     <div className="login-separator-section">
                         <div className="login-separator" />
