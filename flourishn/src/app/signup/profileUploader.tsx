@@ -16,11 +16,13 @@ export default function ProfileUploader() {
         setFile(selected);
 
         try {
-            const { new_url } = await getPresignedUrl(selected.name, selected.type);
+            const { new_url, publicUrl } = await getPresignedUrl(selected.name, selected.type);
 
             const uploadRes = await fetch(new_url, {
                 method: 'PUT',
-                headers: { 'Content-Type': selected.type },
+                headers: {
+                    'Content-Type': selected.type,
+                },
                 body: selected,
             });
 
@@ -29,7 +31,7 @@ export default function ProfileUploader() {
             }
 
             if (user) {
-                const updatedUser = { ...user, profileurl: new_url };
+                const updatedUser = { ...user, profileurl: publicUrl };
                 setUser(updatedUser);
                 setCookie('user', JSON.stringify(updatedUser));
             }

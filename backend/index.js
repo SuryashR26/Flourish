@@ -28,7 +28,7 @@ app.use(session({
     cookie: {
         secure: false, // true in production with HTTPS
         httpOnly: true,
-        maxAge: 1000 * 60 * 60 * 24, // 1 day
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     },
 }));
 
@@ -86,9 +86,11 @@ app.post('/updateProfile', async (req, res) => {
 
     try {
         const { url: new_url, key: new_key } = await getPresignedUrl(userId, filename, filetype);
+        const encodedKey = encodeURIComponent(new_key).replace(/%2F/g, '/'); // encode key but keep slashes
+        const publicUrl = `https://${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${encodedKey}`;
 
         const updates = {
-            profileurl: new_url
+            profileurl: publicUrl,
         };
 
         const keys = Object.keys(updates);
@@ -104,7 +106,8 @@ app.post('/updateProfile', async (req, res) => {
             success: true,
             message: 'Profile updated successfully',
             new_url,
-            new_key
+            new_key,
+            publicUrl
         });
     } catch (err) {
         console.error('Failed to update profile:', err);
