@@ -60,7 +60,6 @@ Create Table public.postData
     content     TEXT NOT NULL,
     role_count  INTEGER NOT NULL DEFAULT 1,
     role_description TEXT NOT NULL,
-    image_url   TEXT,
     project_tags TEXT[],
     skill_tags   TEXT[],
     status      TEXT NOT NULL DEFAULT 'active',
@@ -69,5 +68,6 @@ Create Table public.postData
     difficulty  TEXT NOT NULL DEFAULT 'beginner',
     created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    is_active   BOOLEAN NOT NULL DEFAULT TRUE
+    is_active   BOOLEAN NOT NULL DEFAULT TRUE,
+    photourl varchar
 )

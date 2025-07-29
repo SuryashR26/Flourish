@@ -47,13 +47,15 @@ app.get('/test-db', async (req, res) => {
     }
 });
 
-app.post('/signup', checkAlreadyLoggedIn, signup);
+app.post('/signup', signup);
 
-app.post('/login', checkAlreadyLoggedIn, login);
+app.post('/login', login);
 
 app.post('/contactUs', contactUs);
 
 app.post('/forgotPassword', resetPass);
+
+// app.post('/post', post)
 
 app.get('/check-session', checkAlreadyLoggedIn)
 
@@ -62,6 +64,17 @@ app.get('/check-session', checkAlreadyLoggedIn)
 }*/
 
 //
+
+app.post('/logout', (req, res) => {
+    req.session.destroy(err => {
+        if (err) {
+            console.error('Logout error:', err);
+            return res.status(500).json({ error: 'Internal Server Error' });
+        }
+        res.clearCookie('connect.sid');
+        res.json({ success: true, message: 'Logged out successfully' });
+    });
+});
 
 app.post('/updateProfile', async (req, res) => {
     if (!req.session.userId) {

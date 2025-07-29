@@ -6,15 +6,15 @@ import Link from 'next/link';
 // import Button from "@/components/ui/button";
 import { FaLightbulb, FaBars, FaTimes, FaSearch } from "react-icons/fa";
 import "@/styles/navbar.css";
+import { useUser } from '@/context/UserContext';
 
 interface NavbarProps {
   showSearchBar?: boolean;
   showSeparator?: boolean;
   scrollThreshold?: number;
-  showDashboard?: boolean;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ showSearchBar = false, showSeparator = false, scrollThreshold = 0, showDashboard = false }) => {
+const Navbar: React.FC<NavbarProps> = ({ showSearchBar = false, showSeparator = false, scrollThreshold = 0, }) => {
   const [click, setClick] = useState<boolean>(false);
   const [button, setButton] = useState<boolean>(true);
   const [scrolled, setScrolled] = useState<boolean>(false);
@@ -22,6 +22,8 @@ const Navbar: React.FC<NavbarProps> = ({ showSearchBar = false, showSeparator = 
   const [open, setOpen] = useState(false);
   const navMenuRef = useRef<HTMLUListElement | null>(null);
   const router = useRouter();
+  const { user, logout, isLoggedIn } = useUser();
+  console.log("Navbar user profileurl:", user?.profileurl);
 
   useEffect(() => {
     if (navMenuRef.current) {
@@ -137,7 +139,7 @@ const Navbar: React.FC<NavbarProps> = ({ showSearchBar = false, showSeparator = 
                 </Link>
               </li>
               <div className="nav-separator"></div>
-              {!showDashboard &&
+              {!isLoggedIn &&
                 <li className="nav-item">
                   <Link
                     href="/login"
@@ -148,7 +150,7 @@ const Navbar: React.FC<NavbarProps> = ({ showSearchBar = false, showSeparator = 
                   </Link>
                 </li>
               }
-              {showDashboard &&
+              {isLoggedIn &&
                 <li className='nav-item'>
                   <Link
                     href="/messsages"
@@ -158,19 +160,20 @@ const Navbar: React.FC<NavbarProps> = ({ showSearchBar = false, showSeparator = 
                   </Link>
                 </li>
               }
-              {!showDashboard &&
+              {!isLoggedIn &&
                 <li className="nav-item">
                   <Link href="/signup" className="sign-up-btn-navbar">
                     Sign Up
                   </Link>
                 </li>
               }
-              {showDashboard &&
+              {isLoggedIn &&
                 <li className="">
                   <div className="relative inline-block text-left">
+
                     {/* Profile picture */}
                     <img
-                      src="/path/to/profile.jpg"
+                      src={user?.profileurl || "/default-profile.png"}
                       alt="Profile"
                       className="w-12 h-12 rounded-full object-cover cursor-pointer border-2 border-gray-300"
                       onClick={() => setOpen(!open)}
@@ -186,7 +189,7 @@ const Navbar: React.FC<NavbarProps> = ({ showSearchBar = false, showSeparator = 
                           <button className="block px-4 py-2 !mb-2 text-sm text-white">
                             Settings
                           </button>
-                          <button className="block px-4 py-2 text-sm text-red-600">
+                          <button className="block px-4 py-2 text-sm text-red-600" onClick={() => logout()}>
                             Log out
                           </button>
                         </div>

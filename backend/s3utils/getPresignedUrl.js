@@ -20,13 +20,15 @@ const getPresignedUrl = async (userId, filename, filetype) => {
         await duplicatePhoto(userId);
 
         const key = `profile-uploads/${userId}-${filename}`;
-
+        console.log("About to call getSignedUrlPromise");
         const url = await s3.getSignedUrlPromise('putObject', {
             Bucket: process.env.AWS_S3_BUCKET,
             Key: key,
             Expires: 60,
             ContentType: filetype,
+            ACL: 'public-read',
         });
+        console.log("Presigned URL generated:", url);
 
         return { url, key };
     } catch (error) {

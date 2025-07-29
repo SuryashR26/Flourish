@@ -1,8 +1,11 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Navbar from "@/components/layout/navbar"
 import NotesApp from "./notes"
 import ProfileUploader from "../signup/profileUploader";
+import { useRouter } from 'next/navigation';
+import { useUser } from "@/context/UserContext";
+
 
 // Dashboard Sidebar Activity Feed Styles
 const dashboardStyles = `
@@ -310,6 +313,14 @@ export default function DashboardPage() {
     const [showAllRecommended, setShowAllRecommended] = useState(false);
     const [showAllYour, setShowAllYour] = useState(false);
     const [showAllBookmarked, setShowAllBookmarked] = useState(false);
+    const router = useRouter();
+    const { user, isLoggedIn } = useUser();
+
+    useEffect(() => {
+        if (!isLoggedIn) {
+            router.push('/login')
+        }
+    }, [isLoggedIn, router]);
 
     return (
         <>

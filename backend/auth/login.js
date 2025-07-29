@@ -46,20 +46,26 @@ const login = async (req, res) => {
 
         console.log('Session after login:', req.session);
 
+        const user = {
+            id: user_id,
+            first_name: exisitingUser.rows[0].first_name,
+            last_name: exisitingUser.rows[0].last_name,
+            email: exisitingUser.rows[0].email,
+            profileurl: exisitingUser.rows[0].profileurl,
+            is_verified: exisitingUser.rows[0].is_verified,
+            is_admin: exisitingUser.rows[0].is_admin,
+            age: exisitingUser.rows[0].age,
+            personal_preferences: exisitingUser.rows[0].personal_preferences
+        };
+
         return res.status(201).json({
             success: true,
-            message: 'User successfully Logged In!',
+            user: user,
+            message: 'Login successful!'
         });
 
     } catch (error) {
         console.log('Login error:', error);
-
-        if (error.code === '23505') {
-            return res.status(409).json({
-                success: false,
-                message: 'Email already exists. Please try a different email.'
-            });
-        }
 
         return res.status(500).json({
             success: false,

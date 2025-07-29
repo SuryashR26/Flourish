@@ -9,6 +9,7 @@ import "@/styles/formCard.css"
 import { FooterProvider } from '@/context/FooterContext'
 import { Metadata } from 'next'
 import ClientLayout from '@/components/layout/ClientLayout'
+import { UserProvider } from "@/context/UserContext"
 
 export const metadata: Metadata = {
   title: 'Flourish',
@@ -24,9 +25,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={figtree.className}>
-        <FooterProvider>
-          <ClientLayout>{children}</ClientLayout>
-        </FooterProvider>
+        <UserProvider>
+          <FooterProvider>
+            <ClientLayout>{children}</ClientLayout>
+          </FooterProvider>
+        </UserProvider>
       </body>
     </html>
   )

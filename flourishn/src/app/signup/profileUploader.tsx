@@ -3,9 +3,12 @@
 import { useState } from 'react';
 import { getPresignedUrl } from '@/api/apiClient';
 import { FaPlus } from 'react-icons/fa';
+import { useUser } from '@/context/UserContext';
+import { setCookie } from '@/utils/cookies';
 
 export default function ProfileUploader() {
     const [file, setFile] = useState<File | null>(null);
+    const { user, setUser } = useUser();
 
     const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const selected = event.target.files?.[0];
@@ -23,6 +26,12 @@ export default function ProfileUploader() {
 
             if (!uploadRes.ok) {
                 throw new Error('Upload failed');
+            }
+
+            if (user) {
+                const updatedUser = { ...user, profileurl: new_url };
+                setUser(updatedUser);
+                setCookie('user', JSON.stringify(updatedUser));
             }
 
         } catch (err) {

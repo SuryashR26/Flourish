@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation'
 import { FaLightbulb, FaEye, FaEyeSlash, FaGoogle, FaGraduationCap } from "react-icons/fa"
 import FormCard from "@/components/cards/formCards"
 import "@/styles/login.css"
-import { login } from "@/api/apiClient"
+import { useUser } from "@/context/UserContext"
 
 interface LoginValues {
     username: string
@@ -29,23 +29,18 @@ export default function LoginPage() {
     const [showPassword, setShowPassword] = useState(false)
     const [showPasswordField, setShowPasswordField] = useState(true)
     const router = useRouter()
+    const { login, isLoggedIn } = useUser()
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword)
     }
 
     useEffect(() => {
-        async function checkSession() {
-            const res = await fetch('http://localhost:8080/check-session', {
-                credentials: 'include',
-            });
-            const data = await res.json();
-            if (!data.success) {
-                router.push('/dashboard');
-            }
+        if (isLoggedIn) {
+            console.log("User is already logged in, redirecting to dashboard");
+            router.push('/dashboard')
         }
-        checkSession();
-    }, []);
+    }, [isLoggedIn, router]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target
@@ -67,7 +62,7 @@ export default function LoginPage() {
         }
     }
 
-    const handleLogIn = (e: React.FormEvent) => {
+    const handleLogIn = async (e: React.FormEvent) => {
         e.preventDefault();
         const isValid = validateForm();
         if (isValid) {
@@ -76,28 +71,24 @@ export default function LoginPage() {
             console.log("Login failed", errors);
             return;
         }
-        login(loginValues.username, loginValues.password)
-            .then(response => {
-                if (!response.success) {
-                    if (response.message.includes("User")) {
-                        setErrors(prev => ({ ...prev, username: response.message }))
-                        return;
-                    } else {
-                        setErrors(prev => ({ ...prev, password: response.message }))
-                        return;
-                    }
+        const success = await login(loginValues.username, loginValues.password)
+        if (success !== 'Login successful!') {
+            if (success && success.includes("User")) {
+                setErrors(prev => ({ ...prev, username: success }))
+                return;
+            } else {
+                setErrors(prev => ({ ...prev, password: success }))
+                return;
+            }
 
-                }
-                setLoginValues({
-                    username: "",
-                    password: "",
-                });
-                setErrors({});
-                console.log("Login Successfully", response);
-                router.push('/dashboard')
-
-            })
-
+        }
+        setLoginValues({
+            username: "",
+            password: "",
+        });
+        setErrors({});
+        console.log("Login Successfully", success);
+        router.push('/dashboard')
     }
 
     const validateForm = (): boolean => {

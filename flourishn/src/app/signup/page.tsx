@@ -6,7 +6,7 @@ import Link from 'next/link';
 import "@/styles/login.css";
 import { FaEye, FaEyeSlash, FaLightbulb, FaGoogle, FaGraduationCap, FaEnvelope, FaExclamationCircle } from 'react-icons/fa';
 import FormCard from "@/components/cards/formCards";
-import { signup } from "@/api/apiClient";
+import { useUser } from "@/context/UserContext";
 
 // import { sign } from 'crypto';
 interface SignUpForm {
@@ -68,21 +68,16 @@ export default function SignUp() {
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     const timer2Ref = useRef<NodeJS.Timeout | null>(null);
     const timer2Value = useRef(300);
+    const { signUp, isLoggedIn } = useUser();
 
 
 
     useEffect(() => {
-        async function checkSession() {
-            const res = await fetch('http://localhost:8080/check-session', {
-                credentials: 'include',
-            });
-            const data = await res.json();
-            if (!data.success) {
-                router.push('/dashboard');
-            }
+        if (isLoggedIn) {
+            console.log("User is already logged in, redirecting to dashboard");
+            router.push('/dashboard');
         }
-        checkSession();
-    }, []);
+    }, [isLoggedIn, router]);
 
     useEffect(() => {
         return () => {
@@ -160,67 +155,58 @@ export default function SignUp() {
         setFocusedIndex(null);
     };
 
-    const handleVerificationCode = (e: React.FormEvent) => {
+    const handleVerificationCode = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!signUpValues.email.trim() || !/\S+@\S+\.\S+/.test(signUpValues.email)) {
             setErrors({ email: "Please enter a valid email address" });
             return;
         }
         setErrors({});
-        signup(signUpValues.email, signUpValues.firstName, signUpValues.lastName, signUpValues.password, '')
-            .then(response => {
-                console.log('Signup was:', response);
-                if (response.success === false) {
-                    setErrors(prev => ({ ...prev, email: response.message }));
+        const message = await signUp(signUpValues.email, signUpValues.firstName, signUpValues.lastName, signUpValues.password, '')
+        if (message && message.includes("Email")) {
+            setErrors(prev => ({ ...prev, email: message }));
 
-                } else {
-                    setCurrentStep(2);
-                    setTimer(60);
-                    if (timerRef.current) clearInterval(timerRef.current);
-                    timerRef.current = setInterval(() => {
-                        setTimer(prev => {
-                            if (prev <= 1) {
-                                clearInterval(timerRef.current!);
-                                return 0;
-                            }
-                            return prev - 1;
-                        });
-                    }, 1000);
-                    timer2Value.current = 300;
-                    if (timer2Ref.current) clearInterval(timer2Ref.current);
-                    timer2Ref.current = setInterval(() => {
-                        timer2Value.current -= 1;
-                        if (timer2Value.current <= 0) {
-                            clearInterval(timer2Ref.current!);
-                            signup(signUpValues.email, signUpValues.firstName, signUpValues.lastName, signUpValues.password, 'Failed');
-                            setCurrentStep(1);
-                            setSignUpValues({
-                                firstName: '',
-                                lastName: '',
-                                email: '',
-                                username: '',
-                                password: '',
-                                confirmPassword: '',
-                                phoneNumber: '',
-                                countryCode: '+1',
-                                birthDay: '',
-                                birthMonth: '',
-                                birthYear: '',
-                                verificationCode: '',
-                            });
-                            setErrors({});
-                        }
-                    }, 1000);
-
+        } else {
+            setCurrentStep(2);
+            setTimer(60);
+            if (timerRef.current) clearInterval(timerRef.current);
+            timerRef.current = setInterval(() => {
+                setTimer(prev => {
+                    if (prev <= 1) {
+                        clearInterval(timerRef.current!);
+                        return 0;
+                    }
+                    return prev - 1;
+                });
+            }, 1000);
+            timer2Value.current = 300;
+            if (timer2Ref.current) clearInterval(timer2Ref.current);
+            timer2Ref.current = setInterval(() => {
+                timer2Value.current -= 1;
+                if (timer2Value.current <= 0) {
+                    clearInterval(timer2Ref.current!);
+                    signUp(signUpValues.email, signUpValues.firstName, signUpValues.lastName, signUpValues.password, 'Failed');
+                    setCurrentStep(1);
+                    setSignUpValues({
+                        firstName: '',
+                        lastName: '',
+                        email: '',
+                        username: '',
+                        password: '',
+                        confirmPassword: '',
+                        phoneNumber: '',
+                        countryCode: '+1',
+                        birthDay: '',
+                        birthMonth: '',
+                        birthYear: '',
+                        verificationCode: '',
+                    });
+                    setErrors({});
                 }
-            })
-            .catch(error => {
-                console.error('Signup error:', error);
+            }, 1000);
 
-                setErrors(prev => ({ ...prev, email: "An error occurred while sending the verification code. Please try again." }));
-            });
-
-    }
+        }
+    };
 
     const handleSignUp = (e: React.FormEvent) => {
         e.preventDefault();
@@ -255,15 +241,12 @@ export default function SignUp() {
             setErrors({});
 
         }
-        signup(signUpValues.email, signUpValues.firstName, signUpValues.lastName, signUpValues.password, signUpValues.verificationCode)
-            .then(response => {
-                console.log('Signup was:', response);
-            })
+        signUp(signUpValues.email, signUpValues.firstName, signUpValues.lastName, signUpValues.password, signUpValues.verificationCode)
     }
 
 
 
-    const handleVerificationChange = (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
+    const handleVerificationChange = async (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
         const val = e.target.value.replace(/[^0-9]/g, "");
         if (!val) return;
         const newCode = [...verificationCode];
@@ -276,19 +259,15 @@ export default function SignUp() {
             const enteredCode = newCode.join("");
             console.log('Entered Code:', enteredCode);
             setSignUpValues(prev => ({ ...prev, verificationCode: enteredCode }));
-            signup(signUpValues.email, signUpValues.firstName, signUpValues.lastName, signUpValues.password, enteredCode)
-                .then(async response => {
-                    console.log('Signup was:', response);
-                    if (response.message !== 'Email verified successfully!') {
-                        setErrors(prev => ({ ...prev, verificationCode: "Incorrect Code. Please try again." }));
-                    } else {
-                        setErrors(prev => ({ ...prev, verificationCode: undefined }));
-                        setCurrentStep(3);
-                        if (timerRef.current) clearInterval(timerRef.current);
+            const message2 = await signUp(signUpValues.email, signUpValues.firstName, signUpValues.lastName, signUpValues.password, enteredCode)
+            if (message2 && message2 !== 'Email verified successfully!') {
+                setErrors(prev => ({ ...prev, verificationCode: "Incorrect Code. Please try again." }));
+            } else {
+                setErrors(prev => ({ ...prev, verificationCode: undefined }));
+                setCurrentStep(3);
+                if (timerRef.current) clearInterval(timerRef.current);
 
-                    }
-                })
-
+            }
         } else {
             // Clear error if editing before last digit
             setErrors(prev => ({ ...prev, verificationCode: undefined }));
@@ -315,62 +294,63 @@ export default function SignUp() {
     };
 
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (currentStep === 1) {
-            // Basic email validation
-            if (!signUpValues.email.trim() || !/\S+@\S+\.\S+/.test(signUpValues.email)) {
-                setErrors({ email: "Please enter a valid email address" });
-                return;
-            }
-            setErrors({});
-            setCurrentStep(2);
-        } else if (currentStep === 2) {
-            // Verification code validation
-            const enteredCode = verificationCode.join('');
-            if (enteredCode !== "333333") {
-                setErrors(prev => {
-                    const newErrors = { ...prev, verificationCode: "Incorrect. Please try again" };
-                    return newErrors;
-                });
-                return;
-            }
-            setErrors(prev => ({ ...prev, verificationCode: undefined }));
-            setCurrentStep(3);
-        } else if (currentStep === 3) {
-            // 3rd step: Validate first name, last name, password, confirm password
-            const tempErrors: FormErrors = {};
-            if (!signUpValues.firstName.trim()) tempErrors.firstName = "First name is required";
-            if (!signUpValues.lastName.trim()) tempErrors.lastName = "Last name is required";
-            if (!signUpValues.password.trim()) tempErrors.password = "Password is required";
-            else if (signUpValues.password.length < 8) tempErrors.password = "Password must be at least 8 characters";
-            if (!signUpValues.confirmPassword.trim()) tempErrors.confirmPassword = "Confirm password is required";
-            else if (signUpValues.password !== signUpValues.confirmPassword) tempErrors.confirmPassword = "Passwords must match";
-            setErrors(tempErrors);
-            if (Object.keys(tempErrors).length === 0) {
-                // Submit form or continue
-                console.log('Form submitted:', signUpValues);
-                // Reset form
-                setSignUpValues({
-                    firstName: '',
-                    lastName: '',
-                    email: '',
-                    username: '',
-                    password: '',
-                    confirmPassword: '',
-                    phoneNumber: '',
-                    countryCode: '+1',
-                    birthDay: '',
-                    birthMonth: '',
-                    birthYear: '',
-                    verificationCode: '', // Reset verification code
-                });
-                router.push('/');
-                setErrors({});
-
-            }
-        }
-    };
+    /* const handleSubmit = (e: React.FormEvent) => {
+         e.preventDefault();
+         if (currentStep === 1) {
+             // Basic email validation
+             if (!signUpValues.email.trim() || !/\S+@\S+\.\S+/.test(signUpValues.email)) {
+                 setErrors({ email: "Please enter a valid email address" });
+                 return;
+             }
+             setErrors({});
+             setCurrentStep(2);
+         } else if (currentStep === 2) {
+             // Verification code validation
+             const enteredCode = verificationCode.join('');
+             if (enteredCode !== "333333") {
+                 setErrors(prev => {
+                     const newErrors = { ...prev, verificationCode: "Incorrect. Please try again" };
+                     return newErrors;
+                 });
+                 return;
+             }
+             setErrors(prev => ({ ...prev, verificationCode: undefined }));
+             setCurrentStep(3);
+         } else if (currentStep === 3) {
+             // 3rd step: Validate first name, last name, password, confirm password
+             const tempErrors: FormErrors = {};
+             if (!signUpValues.firstName.trim()) tempErrors.firstName = "First name is required";
+             if (!signUpValues.lastName.trim()) tempErrors.lastName = "Last name is required";
+             if (!signUpValues.password.trim()) tempErrors.password = "Password is required";
+             else if (signUpValues.password.length < 8) tempErrors.password = "Password must be at least 8 characters";
+             if (!signUpValues.confirmPassword.trim()) tempErrors.confirmPassword = "Confirm password is required";
+             else if (signUpValues.password !== signUpValues.confirmPassword) tempErrors.confirmPassword = "Passwords must match";
+             setErrors(tempErrors);
+             if (Object.keys(tempErrors).length === 0) {
+                 // Submit form or continue
+                 console.log('Form submitted:', signUpValues);
+                 // Reset form
+                 setSignUpValues({
+                     firstName: '',
+                     lastName: '',
+                     email: '',
+                     username: '',
+                     password: '',
+                     confirmPassword: '',
+                     phoneNumber: '',
+                     countryCode: '+1',
+                     birthDay: '',
+                     birthMonth: '',
+                     birthYear: '',
+                     verificationCode: '', // Reset verification code
+                 });
+                 router.push('/');
+                 setErrors({});
+     
+             }
+         }
+     };
+     */
 
     /* const handleBack = () => {
          setCurrentStep(1);
@@ -446,7 +426,7 @@ export default function SignUp() {
                                     {verificationCode.map((digit, idx) => (
                                         <input
                                             key={idx}
-                                            className={`verification-digit-input ${errors.verificationCode ? 'error' : ''}`}
+                                            className={`verification - digit - input ${errors.verificationCode ? 'error' : ''} `}
                                             ref={el => { inputRefs.current[idx] = el; }}
                                             type="text"
                                             inputMode="numeric"
@@ -458,7 +438,7 @@ export default function SignUp() {
                                             onKeyDown={e => handleVerificationKeyDown(e, idx)}
                                             style={{
                                                 textAlign: 'center',
-                                                border: `2px solid ${focusedIndex === idx ? '#fff' : errors.verificationCode ? '#ff3860' : '#888'}`,
+                                                border: `2px solid ${focusedIndex === idx ? '#fff' : errors.verificationCode ? '#ff3860' : '#888'} `,
                                                 borderRadius: '8px',
                                                 background: '#0B0809',
                                                 color: '#fff',

@@ -1,14 +1,16 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import FormCard from "@/components/cards/formCards"
 import Navbar from "@/components/layout/navbar"
 // import { on } from "events"
 import dynamic from "next/dynamic"
+import { useRouter } from 'next/navigation'
 import { components } from "react-select"
 import { X } from "lucide-react"
 import type { CSSObjectWithLabel, ControlProps, MultiValueRemoveProps, OptionProps } from 'react-select';
+import { useUser } from "@/context/UserContext"
 
 interface PostValues {
     title: string
@@ -180,10 +182,18 @@ export default function PostPage() {
     const [errors, setErrors] = useState<PostValuesErrors>({})
 
     const [viewPost, setViewPost] = useState(false)
+    const router = useRouter()
+
+    const { user, isLoggedIn } = useUser()
 
     // const [scrollProgress, setScrollProgress] = useState(0)
 
 
+    useEffect(() => {
+        if (!isLoggedIn) {
+            router.push('/login')
+        }
+    }, [isLoggedIn, router]);
     const validateForm = (): boolean => {
         const tempErrors: PostValuesErrors = {}
         let isValid = true

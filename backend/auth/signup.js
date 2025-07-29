@@ -18,6 +18,17 @@ const transporter = nodemailer.createTransport({
 
 const signup = async (req, res) => {
     const { email, first_name, last_name, password, code } = req.body;
+    const emailLower = email.toLowerCase();
+    if (code == 'Failed') {
+        await pool.query(
+            'DELETE FROM users WHERE email = $1',
+            [emailLower]
+        );
+        return res.status(200).json({
+            success: true,
+            message: 'User deleted successfully!'
+        });
+    }
 
     if (email && !first_name && !last_name && !password && !code) {
         try {
@@ -79,16 +90,6 @@ const signup = async (req, res) => {
                 });
             }
             const emailLower = email.toLowerCase();
-            if (code == 'Failed') {
-                await pool.query(
-                    'DELETE FROM users WHERE email = $1',
-                    [emailLower]
-                );
-                return res.status(200).json({
-                    success: true,
-                    message: 'User deleted successfully!'
-                });
-            }
             const verified = await pool.query(
                 `SELECT * FROM users WHERE email = $1 AND code = $2 AND created_at > NOW() - INTERVAL '1 minute'`,
                 [emailLower, code]
@@ -139,13 +140,29 @@ const signup = async (req, res) => {
                 [emailLower]
             )
 
+            const exisitingUser2 = await pool.query(
+                'SELECT * FROM users WHERE email = $1',
+                [emailLower]
+            );
+
             req.session.userID = user_id.rows[0].id;
 
             console.log('Session after signup:', req.session);
 
             return res.status(201).json({
                 success: true,
-                message: 'User successfully created!',
+                user: {
+                    id: user_id,
+                    first_name: exisitingUser2.rows[0].first_name,
+                    last_name: exisitingUser2.rows[0].last_name,
+                    email: exisitingUser2.rows[0].email,
+                    profileurl: exisitingUser2.rows[0].profileurl,
+                    is_verified: exisitingUser2.rows[0].is_verified,
+                    is_admin: exisitingUser2.rows[0].is_admin,
+                    age: exisitingUser2.rows[0].age,
+                    personal_preferences: exisitingUser2.rows[0].personal_preferences
+                },
+                message: 'Signup successful! Welcome to Flourish!'
             });
 
         } catch (error) {
