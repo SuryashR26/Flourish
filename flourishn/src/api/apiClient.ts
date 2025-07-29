@@ -1,6 +1,8 @@
 // flesh out all the api calls (write all calls here)
 // can do multiple files 
-export function signup(email: string, first_name: string, last_name: string, password: string, code: string) {
+
+import { Project } from '@/app/types/projectTypes';
+/*export function signup(email: string, first_name: string, last_name: string, password: string, code: string) {
     return fetch('http://localhost:8080/signup', {
         method: 'POST',
         credentials: 'include',
@@ -12,10 +14,10 @@ export function signup(email: string, first_name: string, last_name: string, pas
         .then(async response => {
             return response.json();
         })
-}
+}*/
 
 
-export function login(email: string, password: string) {
+/*export function login(email: string, password: string) {
     return fetch('http://localhost:8080/login', {
         method: 'POST',
         credentials: 'include',
@@ -28,7 +30,7 @@ export function login(email: string, password: string) {
             return response.json();
         }
         )
-}
+}*/
 
 export function contactUs(first_name: string, last_name: string, email: string, message: string) {
     return fetch('http://localhost:8080/contactUs', {
@@ -74,4 +76,22 @@ export async function getPresignedUrl(filename: string, filetype: string) {
     }
 
     return await res.json();
+}
+
+export function search(/*query: string,*/): Promise<Project[]> {
+    const params = new URLSearchParams();
+    // params.append('query', query);
+    return fetch(`http://localhost:8080/search?${params.toString()}`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+        .then(async response => {
+            if (!response.ok) {
+                throw new Error('Failed to fetch search results');
+            }
+            return response.json();
+        });
 }

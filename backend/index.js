@@ -4,7 +4,9 @@ const { signup } = require('./auth/signup');
 const { login } = require('./auth/login');
 const { contactUs } = require('./inquiries/contactUs');
 const { resetPass } = require('./inquiries/resetPass');
-const { getPresignedUrl } = require('./s3utils/getPresignedUrl')
+const { updateProfile } = require('./profileChanges/updateProfile');
+const { logout } = require('./auth/logout');
+const { search } = require('./unfilteredPosts/search');
 const session = require('express-session');
 const { checkAlreadyLoggedIn } = require('./auth/checkSession')
 require('dotenv').config();
@@ -59,65 +61,11 @@ app.post('/forgotPassword', resetPass);
 
 app.get('/check-session', checkAlreadyLoggedIn)
 
-/*(app.post('/photo-url', async (req, res) => ) {
+app.post('/updateProfile', updateProfile);
 
-}*/
+app.post('/logout', logout);
 
-//
-
-app.post('/logout', (req, res) => {
-    req.session.destroy(err => {
-        if (err) {
-            console.error('Logout error:', err);
-            return res.status(500).json({ error: 'Internal Server Error' });
-        }
-        res.clearCookie('connect.sid');
-        res.json({ success: true, message: 'Logged out successfully' });
-    });
-});
-
-app.post('/updateProfile', async (req, res) => {
-    if (!req.session.userId) {
-        return res.status(401).json({ error: 'Not Authenticated' });
-    }
-
-    const userId = req.session.userId;
-    const { filename, filetype } = req.body;
-
-    try {
-        const { url: new_url, key: new_key } = await getPresignedUrl(userId, filename, filetype);
-        const encodedKey = encodeURIComponent(new_key).replace(/%2F/g, '/'); // encode key but keep slashes
-        const publicUrl = `https://${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${encodedKey}`;
-
-        const updates = {
-            profileurl: publicUrl,
-        };
-
-        const keys = Object.keys(updates);
-        const setClauses = keys.map((key, idx) => `${key} = $${idx + 1}`).join(', ');
-        const values = Object.values(updates);
-
-        await pool.query(
-            `UPDATE users SET ${setClauses} WHERE id = $${keys.length + 1}`,
-            [...values, userId]
-        );
-
-        res.json({
-            success: true,
-            message: 'Profile updated successfully',
-            new_url,
-            new_key,
-            publicUrl
-        });
-    } catch (err) {
-        console.error('Failed to update profile:', err);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-});
-
-
-// app.get('/profile-photo', getProfilePhoto)
-
+app.get('/search', search)
 
 app.listen(PORT, '127.0.0.1', () => {
     console.log(`Server running on port ${PORT}`);

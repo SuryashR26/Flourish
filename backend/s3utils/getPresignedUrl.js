@@ -27,7 +27,6 @@ const getPresignedUrl = async (userId, filename, filetype) => {
             Expires: 180,
             ContentType: filetype,
         });
-        console.log("Presigned URL generated:", url);
 
         return { url, key };
     } catch (error) {

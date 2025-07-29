@@ -8,6 +8,10 @@ import { X } from 'lucide-react'
 import FilterIcon from '@/components/ui/FilterIcon'
 import dynamic from "next/dynamic"
 import { components } from "react-select"
+import { search } from "@/api/apiClient"
+
+import { Project } from '@/app/types/projectTypes';
+
 import type { CSSObjectWithLabel, ControlProps, MultiValueRemoveProps, OptionProps } from 'react-select';
 
 
@@ -123,30 +127,6 @@ interface SearchFilter {
     tags: string
 }
 
-interface Project {
-    id: string | number
-    title: string
-    description: string
-    collaborators: number
-    tags: string[]
-    skills?: string[]
-    location?: string
-    remote?: boolean
-    createdAt?: string
-    updatedAt?: string
-    author?: {
-        id: string | number
-        name: string
-        avatar?: string
-        title?: string // Added for popup display
-    }
-    status?: 'active' | 'completed' | 'paused'
-    difficulty?: 'beginner' | 'intermediate' | 'advanced'
-    image?: string // Optional project image
-    urgent?: boolean // For urgent projects
-    timeCommitment?: string // Added for popup
-    fullDescription?: string // Extended description for popup
-}
 
 // SkillsRow component: only show as many skills as fit in 70% of the card width, then "+ x more skills"
 function SkillsRow({ skills = [] }: { skills: string[] }) {
@@ -258,8 +238,10 @@ function Page() {
     // const [projectTagsDrop, setProjectTagsDrop] = useState(true)
     const [skillTagsDrop, setSkillTagsDrop] = useState(true)
     const [sortDropdownOpen, setSortDropdownOpen] = useState(false)
+    const [projectCards, setProjectCards] = useState<Project[]>([]);
     const [searchQuery, setSearchQuery] = useState('')
     const [radius, setRadius] = useState(50)
+
     // Popup state
     const [selectedProject, setSelectedProject] = useState<null | Project>(null);
     // Add state for accordion sections at the top of the component:
@@ -293,6 +275,19 @@ function Page() {
     }, [])
 
     useEffect(() => {
+        async function fetchData() {
+            try {
+                const result = await search();
+                setProjectCards(result);
+            } catch (error) {
+                console.error('Search failed:', error);
+            }
+        }
+
+        fetchData();
+    }, [search, searchFilter, searchQuery]);
+
+    useEffect(() => {
         const checkMobile = () => setIsMobile(window.innerWidth < 960);
         checkMobile();
         window.addEventListener('resize', checkMobile);
@@ -310,7 +305,7 @@ function Page() {
     };
 
     // Helper function to get category from tags
-    const getProjectCategory = (tags: string[]) => {
+    const getProjectCategory = (tags: string[] = []) => {
         const tagString = tags.join(' ').toLowerCase();
         if (tagString.includes('creative') || tagString.includes('design') || tagString.includes('art')) return 'Creative';
         if (tagString.includes('business') || tagString.includes('impact') || tagString.includes('startup')) return 'Business';
@@ -346,136 +341,7 @@ function Page() {
         }
         return 'just now';
     };
-
     // Enhanced project data with images and author info
-    const projectCards: Project[] = [
-        {
-            id: 1,
-            title: "iOS Recipe Sharing App",
-            collaborators: 2,
-            description: "Looking for passionate developers to build a social recipe sharing platform. Think Instagram meets cooking! We have the design ready and need...",
-            fullDescription: "Looking for passionate developers to build a social recipe sharing platform that combines the visual appeal of Instagram with the functionality of cooking apps. We have completed the initial design phase and user research, and now need experienced developers to bring this vision to life.\n\nThe app will feature recipe sharing, social interactions, meal planning, and grocery list generation. We're particularly interested in incorporating AR features for portion visualization and cooking guidance. This is a great opportunity to work on a consumer-facing product that could make a real impact on how people cook and share food experiences.",
-            tags: ["#mobile-development", "#social-app", "#food-tech", "#consumer-product"],
-            skills: ["Swift", "UI/UX Design", "Firebase", "Core Data", "ARKit"],
-            location: "Stanford, CA",
-            remote: false,
-            status: "active",
-            difficulty: "intermediate",
-            timeCommitment: "3-4 months commitment",
-            author: {
-                id: 1,
-                name: "Sarah Martinez",
-                avatar: "/avatar1.jpg",
-                title: "Computer Science • Stanford '25"
-            },
-            image: "https://images.unsplash.com/photo-1551650975-87deedd944c3?w=400&h=200&fit=crop",
-            createdAt: "2025-06-24T10:30:00Z"
-        },
-        {
-            id: 2,
-            title: "Student Film: Digital Nomad",
-            collaborators: 3,
-            description: "Short film about remote work culture among Gen Z. Need cinematographer, sound engineer, and editor. Shooting starts next month...",
-            fullDescription: "Short film about remote work culture among Gen Z students and professionals. We're exploring themes of flexibility, isolation, community, and the future of work through personal stories and interviews. Need cinematographer, sound engineer, and editor for a 15-minute documentary-style film. Shooting starts next month with interviews scheduled around campus.",
-            tags: ["#creative", "#film", "#storytelling", "#documentary"],
-            skills: ["Cinematography", "Video Editing", "Sound Design", "Adobe Premiere"],
-            location: "Berkeley, CA",
-            remote: false,
-            status: "active",
-            difficulty: "beginner",
-            timeCommitment: "6-8 weeks",
-            author: {
-                id: 2,
-                name: "Jordan Chen",
-                title: "Film Studies • UC Berkeley '26"
-            },
-            image: "https://images.unsplash.com/photo-1489389944381-3471b5b30f04?w=400&h=200&fit=crop",
-            urgent: true,
-            createdAt: "2025-06-26T05:00:00Z"
-        },
-        {
-            id: 3,
-            title: "Campus Sustainability Initiative",
-            collaborators: 1,
-            description: "Building a comprehensive plan to reduce campus carbon footprint. Looking for environmental science students, data analysts, and marketing...",
-            fullDescription: "Building a comprehensive plan to reduce campus carbon footprint by 40% over the next 5 years. This project involves data collection, policy research, stakeholder interviews, and creating actionable recommendations for university administration. Looking for environmental science students, data analysts, and marketing specialists to help with research, analysis, and community outreach.",
-            tags: ["#impact", "#sustainability", "#research", "#policy"],
-            skills: ["Data Analysis", "Research", "Marketing", "Environmental Science", "Policy Writing"],
-            location: "Palo Alto, CA",
-            remote: false,
-            status: "active",
-            difficulty: "advanced",
-            timeCommitment: "Full semester",
-            author: {
-                id: 3,
-                name: "Alex Rivera",
-                title: "Environmental Engineering • Stanford '24"
-            },
-            createdAt: "2025-06-25T14:20:00Z"
-        },
-        {
-            id: 4,
-            title: "AI Study Group Platform",
-            collaborators: 4,
-            description: "Creating an AI-powered platform that matches students for study groups based on learning styles and schedules...",
-            fullDescription: "Creating an AI-powered platform that matches students for study groups based on learning styles, schedules, and academic goals. The platform will use machine learning to optimize group formation and track study session effectiveness. This is a full-stack project with potential for real campus deployment.",
-            tags: ["#webdevelopment", "#ai", "#education", "#machine-learning"],
-            skills: ["Machine Learning", "React", "Node.js", "Python", "TensorFlow"],
-            location: "Remote",
-            remote: true,
-            status: "active",
-            difficulty: "intermediate",
-            timeCommitment: "3-5 months",
-            author: {
-                id: 4,
-                name: "Maya Thompson",
-                title: "Computer Science • MIT '25"
-            },
-            image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=200&fit=crop",
-            createdAt: "2025-06-23T09:15:00Z"
-        },
-        {
-            id: 5,
-            title: "Campus Mental Health Podcast",
-            collaborators: 2,
-            description: "Weekly podcast discussing student mental health with expert interviews. Need audio editor, graphic designer, and social media manager...",
-            fullDescription: "Weekly podcast discussing student mental health challenges, resources, and success stories. Each episode features expert interviews, student stories, and practical advice. Need audio editor, graphic designer for episode artwork, and social media manager to build our community and reach students who need support.",
-            tags: ["#creative", "#podcast", "#mentalhealth", "#community"],
-            skills: ["Audio Editing", "Graphic Design", "Social Media", "Content Creation"],
-            location: "San Francisco, CA",
-            remote: false,
-            status: "active",
-            difficulty: "beginner",
-            timeCommitment: "Ongoing weekly",
-            author: {
-                id: 5,
-                name: "Kai Patel",
-                title: "Psychology • UCSF '25"
-            },
-            createdAt: "2025-06-20T16:45:00Z"
-        },
-        {
-            id: 6,
-            title: "Student Marketplace App",
-            collaborators: 1,
-            description: "Buy/sell platform specifically for college students. Like Facebook Marketplace but with student verification and campus-specific features...",
-            fullDescription: "Buy/sell platform specifically for college students. Like Facebook Marketplace but with student verification, campus-specific categories, and features like textbook trading, dorm furniture exchange, and ride sharing. Includes safety features, rating systems, and integration with university authentication.",
-            tags: ["#business", "#mobile", "#marketplace", "#fintech"],
-            skills: ["React Native", "Backend Development", "Product Design", "Payment Integration"],
-            location: "Mountain View, CA",
-            remote: true,
-            status: "active",
-            difficulty: "intermediate",
-            timeCommitment: "4-6 months",
-            author: {
-                id: 6,
-                name: "Lisa Wang",
-                title: "Business & Computer Science • Stanford '24"
-            },
-            image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=200&fit=crop",
-            createdAt: "2025-06-19T11:30:00Z"
-        },
-    ];
 
     return (
         <div className="search-page-wrapper">
@@ -730,18 +596,18 @@ function Page() {
                 {/* Enhanced Responsive grid layout */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 mt-8">
                     {projectCards.map((project, idx) => {
-                        const category = getProjectCategory(project.tags);
+                        const category = getProjectCategory(project.project_tags);
                         /*const categoryClass = category === 'Tech'
                             ? 'bg-blue-900/10 text-blue-400 border border-blue-400/20'
                             : category === 'Creative'
                                 ? 'bg-pink-600/10 text-pink-300 border border-pink-300/20'
                                 : 'bg-green-900/10 text-green-400 border border-green-400/20';
                             */
-                        const isRemote = project.remote;
+                        const isRemote = project.location_preference;
                         // const locationBadgeClass = isRemote ? 'bg-indigo-900 text-indigo-200' : 'bg-green-900 text-green-300';
                         const locationBadgeText = isRemote ? 'Remote' : 'In Person';
                         // const locationText = isRemote ? 'Open to remote collaboration' : project.location;
-                        const timePosted = project.createdAt ? timeAgo(new Date(project.createdAt)) : 'recently';
+                        const timePosted = project.created_at ? timeAgo(new Date(project.created_at)) : 'recently';
 
                         return (
                             <div
@@ -750,16 +616,16 @@ function Page() {
                                 onClick={() => setSelectedProject(project)}
                             >
                                 {/* Urgent indicator */}
-                                {project.urgent && (
+                                {/*{project.urgent && (
                                     <div className="absolute top-3 right-3 bg-red-600 text-white px-2 py-1 rounded text-[10px] font-bold uppercase z-10">
                                         Due Soon
                                     </div>
-                                )}
+                                )}*/}
 
                                 {/* Project Image or Placeholder */}
-                                {project.image ? (
+                                {project.photourl ? (
                                     <img
-                                        src={project.image}
+                                        src={project.photourl}
                                         alt={project.title}
                                         className="w-full h-32 object-cover"
                                     />
@@ -793,23 +659,31 @@ function Page() {
                                     {/* Description */}
                                     <div className="!mb-4 flex-1">
                                         <p className="!text-gray-300 !text-sm leading-snug line-clamp-3">
-                                            {project.description}
+                                            {project.content}
                                         </p>
                                     </div>
 
                                     {/* Skills Section */}
                                     <div className="!mb-4">
-                                        <SkillsRow skills={project.skills || []} />
+                                        <SkillsRow skills={project.skill_tags || []} />
                                     </div>
 
                                     {/* Footer */}
                                     <div className="flex justify-between items-center !gap-3 !mt-auto">
                                         <div className="flex items-center !gap-2">
-                                            <div className="w-7 h-7 !rounded-full bg-indigo-900 flex items-center justify-center !text-indigo-200 !text-xs !font-semibold flex-shrink-0">
-                                                {getInitials(project.author?.name || 'Unknown')}
+                                            <div className="w-7 h-7 rounded-full bg-indigo-900 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                                <img
+                                                    src={project.user_image || '/images/defaultProfile.jpg'}
+                                                    alt={project.user_name || 'User'}
+                                                    className="w-full h-full object-cover rounded-full"
+                                                    onError={(e) => {
+                                                        e.currentTarget.onerror = null; // prevents infinite loop if fallback fails
+                                                        e.currentTarget.src = '/images/defaultProfile.jpg';
+                                                    }}
+                                                />
                                             </div>
                                             <span className="!text-[#888] !text-sm !font-medium">
-                                                {project.author?.name || 'Unknown Author'}
+                                                {project.user_name || 'Unknown Author'}
                                             </span>
                                         </div>
                                         <span className="!text-[13px] !text-gray-400">
@@ -844,16 +718,25 @@ function Page() {
                                 </h1>
 
                                 <div className="flex items-center !gap-3 !mb-4">
-                                    <div className="!w-10 !h-10 !rounded-full !bg-indigo-900 flex items-center justify-center !text-indigo-200 !text-sm !font-semibold">
-                                        {getInitials(selectedProject.author?.name || 'Unknown')}
+                                    <div className="w-7 h-7 rounded-full bg-indigo-900 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                        <img
+                                            src={selectedProject.user_image || '/images/defaultProfile.jpg'}
+                                            alt={selectedProject.user_name || 'User'}
+                                            className="w-full h-full object-cover rounded-full"
+                                            onError={(e) => {
+                                                e.currentTarget.onerror = null;
+                                                e.currentTarget.src = '/images/defaultProfile.jpg';
+                                            }}
+                                        />
+
                                     </div>
                                     <div className="flex flex-col">
                                         <div className="!text-white !font-medium">
-                                            {selectedProject.author?.name || 'Unknown Author'}
+                                            {selectedProject.user_name || 'Unknown Author'}
                                         </div>
-                                        <div className="!text-[#888] !text-sm">
+                                        { /* <div className="!text-[#888] !text-sm">
                                             {selectedProject.author?.title || 'Student'}
-                                        </div>
+                                        </div> */}
                                     </div>
                                 </div>
 
@@ -866,9 +749,9 @@ function Page() {
                                             {selectedProject.status}
                                         </span>
                                     )}
-                                    <span className={`!px-3 !py-1 !text-sm !font-medium !rounded-full ${selectedProject.remote ? '!bg-indigo-900 !text-indigo-200' : '!bg-green-900 !text-green-300'
+                                    <span className={`!px-3 !py-1 !text-sm !font-medium !rounded-full ${selectedProject.location_preference ? '!bg-indigo-900 !text-indigo-200' : '!bg-green-900 !text-green-300'
                                         }`}>
-                                        {selectedProject.remote ? 'Remote' : 'In Person'}
+                                        {selectedProject.location_preference ? 'Remote' : 'In Person'}
                                     </span>
                                     {selectedProject.urgent && (
                                         <span className="!px-3 !py-1 !text-sm !font-medium !rounded-full !bg-red-600 !text-white">
@@ -886,7 +769,7 @@ function Page() {
                                             <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
                                         <span className="!text-[#ccc] !text-sm">
-                                            {selectedProject.collaborators || 0} collaborator{selectedProject.collaborators !== 1 ? 's' : ''} needed
+                                            {selectedProject.role_count || 0} collaborator{selectedProject.role_count !== 1 ? 's' : ''} needed
                                         </span>
                                     </div>
 
@@ -906,7 +789,7 @@ function Page() {
                                             <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                                         </svg>
                                         <span className="!text-[#ccc] !text-sm">
-                                            {selectedProject.remote ? 'Remote collaboration' : selectedProject.location}
+                                            {selectedProject.location_preference ? 'Remote collaboration' : selectedProject.location}
                                         </span>
                                     </div>
 
@@ -929,19 +812,19 @@ function Page() {
                                         Project Description
                                     </h3>
                                     <p className="!text-[#ccc] !leading-relaxed !text-[15px] !whitespace-pre-line">
-                                        {selectedProject.fullDescription || selectedProject.description || 'No description available'}
+                                        {selectedProject.fullDescription || selectedProject.content || 'No description available'}
                                     </p>
                                 </div>
 
                                 {/* Required Skills */}
-                                {selectedProject.skills && selectedProject.skills.length > 0 && (
+                                {selectedProject.skill_tags && selectedProject.skill_tags.length > 0 && (
                                     <div className="!mb-8">
                                         <h3 className="!text-lg !font-semibold !text-white !mb-3 flex items-center !gap-2">
                                             <div className="!w-1 !h-5 !bg-[#1f98f4] !rounded"></div>
                                             Required Skills
                                         </h3>
                                         <div className="flex flex-wrap !gap-2">
-                                            {selectedProject.skills.map((skill, i) => (
+                                            {selectedProject.skill_tags.map((skill, i) => (
                                                 <span
                                                     key={i}
                                                     className="!bg-[#1f2937] !text-[#1f98f4] !px-3 !py-2 !rounded-lg !text-sm !font-medium !border !border-[#1f98f4]/20"
@@ -954,14 +837,14 @@ function Page() {
                                 )}
 
                                 {/* Project Tags */}
-                                {selectedProject.tags && selectedProject.tags.length > 0 && (
+                                {selectedProject.project_tags && selectedProject.project_tags.length > 0 && (
                                     <div className="!mb-8">
                                         <h3 className="!text-lg !font-semibold !text-white !mb-3 flex items-center !gap-2">
                                             <div className="!w-1 !h-5 !bg-[#1f98f4] !rounded"></div>
                                             Project Tags
                                         </h3>
                                         <div className="flex flex-wrap !gap-2">
-                                            {selectedProject.tags.map((tag, i) => (
+                                            {selectedProject.project_tags.map((tag, i) => (
                                                 <span
                                                     key={i}
                                                     className="!bg-[#0B0809] !text-gray-300 !px-3 !py-2 !rounded-lg !text-sm !border !border-[#2f3542]"
@@ -989,11 +872,11 @@ function Page() {
                                         className="flex-1 !bg-transparent !text-[#1f98f4] !border !border-[#1f98f4] !px-6 !py-3 !rounded-xl !font-medium hover:!bg-[#1f98f4] hover:!text-white !transition-colors"
                                         onClick={() => {
                                             // Handle contact author action
-                                            console.log('Contacting author:', selectedProject.author?.name);
+                                            console.log('Contacting author:', selectedProject.user_name);
                                             setSelectedProject(null);
                                         }}
                                     >
-                                        Contact {selectedProject.author?.name?.split(' ')[0] || 'Author'}
+                                        Contact {selectedProject.user_name?.split(' ')[0] || 'Author'}
                                     </button>
                                 </div>
                             </div>
