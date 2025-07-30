@@ -2,8 +2,10 @@
 
 import type React from "react"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import FormCard from "@/components/cards/formCards"
 import Navbar from "@/components/layout/navbar"
+import { createPostWithImage, cleanupFailedPost } from "@/api/apiClient"
 // import { on } from "events"
 import dynamic from "next/dynamic"
 import { components } from "react-select"
@@ -161,6 +163,7 @@ const CustomMultiValueRemove = (props: MultiValueRemoveProps) => (
 );
 
 export default function PostPage() {
+    const router = useRouter()
     const [postValues, setPostValues] = useState<PostValues>({
         title: "",
         content: "",
@@ -178,6 +181,9 @@ export default function PostPage() {
     })
 
     const [errors, setErrors] = useState<PostValuesErrors>({})
+    const [selectedFile, setSelectedFile] = useState<File | null>(null)
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [duplicateWarning, setDuplicateWarning] = useState<{show: boolean, message: string}>({show: false, message: ""})
 
     const [viewPost, setViewPost] = useState(false)
 
@@ -224,33 +230,111 @@ export default function PostPage() {
         }
     }
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (file) {
+            setSelectedFile(file)
+        }
+    }
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        if (validateForm()) {
-            // Here you would typically send the postValues to your backend API
-            console.log("Post submitted successfully", postValues);
-            setPostValues({
-                title: "",
-                content: "",
-                tags: "",
-                locationS: false,
-                locationL: "",
-                locked: false,
-                roleCount: 1,
-                roleDescription: [""],
-                skills: "",
-                authorImage: "",
-                authorID: "",
-                status: "active",
-                difficulty: "easy"
-            });
-            console.log("Post values reset");
-            setErrors({});
-        } else {
-            // Form is invalid
+        
+        if (!validateForm()) {
             console.log("Form validation failed", errors);
+            return;
         }
 
+        setIsSubmitting(true);
+
+        try {
+            const postData = {
+                title: postValues.title,
+                content: postValues.content,
+                roleCount: postValues.roleCount,
+                roleDescription: postValues.roleDescription.join(', '),
+                projectTags: postValues.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
+                skillTags: postValues.skills.split(',').map(skill => skill.trim()).filter(skill => skill),
+                locationPreference: postValues.locationS ? 'remote' : 'in-person',
+                location: postValues.locationL,
+                difficulty: postValues.difficulty,
+                confirmDuplicate: duplicateWarning.show 
+            };
+
+
+            const response = await createPostWithImage(
+                postData, 
+                selectedFile?.name, 
+                selectedFile?.type
+            );
+
+            if (response.success) {
+                
+                if (response.uploadUrl && selectedFile) {
+                    try {
+                        
+                        const uploadRes = await fetch(response.uploadUrl, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': selectedFile.type },
+                            body: selectedFile,
+                        });
+
+                        if (!uploadRes.ok) {
+                            throw new Error('Upload failed');
+                        }
+
+                       
+                        console.log("Post created and image uploaded successfully!");
+                        router.push('/dashboard');
+                        
+                    } catch (uploadError) {
+                        console.error('Image upload failed:', uploadError);
+                        
+                        await cleanupFailedPost(response.postId);
+                        alert('Image upload failed. Post has been removed. Please try again.');
+                        setIsSubmitting(false);
+                        return;
+                    }
+                } else {
+                    
+                    console.log("Post created successfully!");
+                    router.push('/dashboard');
+                }
+
+               
+                setPostValues({
+                    title: "",
+                    content: "",
+                    tags: "",
+                    locationS: false,
+                    locationL: "",
+                    locked: false,
+                    roleCount: 1,
+                    roleDescription: [""],
+                    skills: "",
+                    authorImage: "",
+                    authorID: "",
+                    status: "active",
+                    difficulty: "easy"
+                });
+                setSelectedFile(null);
+                setErrors({});
+                setDuplicateWarning({show: false, message: ""});
+                
+            } else if (response.isDuplicate) {
+                setDuplicateWarning({show: true, message: response.message});
+                setIsSubmitting(false);
+            } else {
+                console.error("Post creation failed:", response.message);
+                alert('Failed to create post: ' + response.message);
+                setIsSubmitting(false);
+            }
+
+        } catch (error) {
+            console.error("Error creating post:", error);
+            alert('An error occurred while creating the post');
+            setIsSubmitting(false);
+        }
     }
 
     return (
@@ -545,6 +629,48 @@ export default function PostPage() {
                             )}
                         </div>
 
+                        {/* Image Upload Section */}
+                        <div>
+                            <label>Project Image (Optional)</label>
+                            <input
+                                type="file"
+                                id="imageUpload"
+                                onChange={handleFileChange}
+                                accept="image/jpeg, image/png, image/jpg, image/gif, image/webp"
+                                className="w-full p-3 border border-gray-300 rounded-lg text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                            />
+                            {selectedFile && (
+                                <div className="text-green-600 text-sm mt-1">
+                                    Selected: {selectedFile.name}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Duplicate Warning */}
+                        {duplicateWarning.show && (
+                            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                <div className="text-yellow-800 text-sm mb-3">
+                                    {duplicateWarning.message}
+                                </div>
+                                <div className="flex gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setDuplicateWarning({show: false, message: ""})}
+                                        className="px-3 py-1 bg-gray-500 text-white rounded text-sm hover:bg-gray-600"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="px-3 py-1 bg-yellow-600 text-white rounded text-sm hover:bg-yellow-700"
+                                        disabled={isSubmitting}
+                                    >
+                                        {isSubmitting ? 'Creating...' : 'Post Anyway'}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
                         <div className="mt-4 flex">
                             <button
                                 className="flex-1 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
@@ -737,14 +863,20 @@ export default function PostPage() {
                             <button
                                 type="button"
                                 className="flex-1 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+                                disabled={isSubmitting}
                             >
                                 Save Draft
                             </button>
                             <button
                                 type="submit"
-                                className="flex-1 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+                                className={`flex-1 py-2 text-white rounded-lg transition-colors ${
+                                    isSubmitting 
+                                        ? 'bg-gray-400 cursor-not-allowed' 
+                                        : 'bg-blue-500 hover:bg-blue-600'
+                                }`}
+                                disabled={isSubmitting}
                             >
-                                Submit Post
+                                {isSubmitting ? 'Creating Post...' : 'Submit Post'}
                             </button>
                         </div>
                     </FormCard>

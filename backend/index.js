@@ -5,6 +5,7 @@ const { login } = require('./auth/login');
 const { contactUs } = require('./inquiries/contactUs');
 const { resetPass } = require('./inquiries/resetPass');
 const { getPresignedUrl } = require('./s3utils/getPresignedUrl')
+const { createPost, getUserPosts, getAllPosts, cleanupFailedPost } = require('./post/post');
 const session = require('express-session');
 const { checkAlreadyLoggedIn } = require('./auth/checkSession')
 require('dotenv').config();
@@ -57,6 +58,14 @@ app.post('/forgotPassword', resetPass);
 
 app.get('/check-session', checkAlreadyLoggedIn)
 
+app.post('/posts', createPost);
+
+app.get('/posts/user', getUserPosts);
+
+app.get('/posts', getAllPosts);
+
+app.post('/posts/cleanup', cleanupFailedPost);
+
 /*(app.post('/photo-url', async (req, res) => ) {
 
 }*/
@@ -103,6 +112,6 @@ app.post('/updateProfile', async (req, res) => {
 // app.get('/profile-photo', getProfilePhoto)
 
 
-app.listen(PORT, '127.0.0.1', () => {
+app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });

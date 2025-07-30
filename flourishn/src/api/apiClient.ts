@@ -75,3 +75,40 @@ export async function getPresignedUrl(filename: string, filetype: string) {
 
     return await res.json();
 }
+
+export async function createPostWithImage(postData: any, filename?: string, filetype?: string) {
+    const requestData = {
+        ...postData,
+        hasImage: filename && filetype ? true : false,
+        filename,
+        filetype,
+    };
+
+    const res = await fetch('http://localhost:8080/posts', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestData),
+    });
+
+    if (!res.ok) {
+        throw new Error('Failed to create post');
+    }
+
+    return await res.json();
+}
+
+export async function cleanupFailedPost(postId: string) {
+    const res = await fetch('http://localhost:8080/posts/cleanup', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ postId }),
+    });
+
+    if (!res.ok) {
+        throw new Error('Failed to cleanup post');
+    }
+
+    return await res.json();
+}

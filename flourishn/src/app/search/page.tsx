@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useRef, useLayoutEffect, useState, useEffect } from 'react'
+import React, { useRef, useLayoutEffect, useState, useCallback, useEffect } from 'react'
 import Navbar from '@/components/layout/navbar'
 import { Pagination } from '@/components/ui/pagination'
 import { ChevronDownIcon } from "lucide-react"
@@ -8,11 +8,20 @@ import { X } from 'lucide-react'
 import FilterIcon from '@/components/ui/FilterIcon'
 import dynamic from "next/dynamic"
 import { components } from "react-select"
-import type { CSSObjectWithLabel, ControlProps, MultiValueRemoveProps, OptionProps } from 'react-select';
 
 
 const Select = dynamic(() => import("react-select"), { ssr: false });
 
+const TAG_DIRECTORY = [
+    { value: "Web Development", label: "Web Development" },
+    { value: "JavaScript", label: "JavaScript" },
+    { value: "React", label: "React" },
+    { value: "Node.js", label: "Node.js" },
+    { value: "UI Design", label: "UI Design" },
+    { value: "TypeScript", label: "TypeScript" },
+    { value: "Python", label: "Python" },
+    // ...add more as needed
+]
 const SKILL_DIRECTORY = [
     { value: "React", label: "React" },
     { value: "Node.js", label: "Node.js" },
@@ -23,7 +32,7 @@ const SKILL_DIRECTORY = [
 ]
 
 const customSelectStyles = {
-    control: (provided: CSSObjectWithLabel, state: ControlProps) => ({
+    control: (provided: any, state: any) => ({
         ...provided,
         backgroundColor: '#0B0809',
         border: state.isFocused ? '1px solid #1f98f4' : '1px solid #2f3542',
@@ -32,12 +41,12 @@ const customSelectStyles = {
         fontWeight: 400,
         minHeight: 48,
         boxShadow: 'none',
-        flexWrap: 'wrap' as const,
+        flexWrap: 'wrap',
         '&:hover': {
             border: state.isFocused ? '1px solid #1f98f4' : '1px solid #2f3542',
         },
     }),
-    menu: (provided: CSSObjectWithLabel) => ({
+    menu: (provided: any) => ({
         ...provided,
         backgroundColor: '#0B0809',
         color: 'white',
@@ -45,19 +54,19 @@ const customSelectStyles = {
         borderRadius: 8,
         zIndex: 20,
     }),
-    option: (provided: CSSObjectWithLabel, state: OptionProps<unknown, boolean>) => ({
+    option: (provided: any, state: any) => ({
         ...provided,
         backgroundColor: state.isFocused ? '#181c23' : '#0B0809',
         color: 'white',
         fontWeight: 400,
         cursor: 'pointer',
     }),
-    input: (provided: CSSObjectWithLabel) => ({
+    input: (provided: any) => ({
         ...provided,
         color: 'white',
         fontWeight: 400,
     }),
-    multiValue: (provided: CSSObjectWithLabel) => ({
+    multiValue: (provided: any) => ({
         ...provided,
         backgroundColor: '#181c23',
         color: 'white',
@@ -72,7 +81,7 @@ const customSelectStyles = {
         marginTop: 4,
         marginBottom: 4,
     }),
-    multiValueLabel: (provided: CSSObjectWithLabel) => ({
+    multiValueLabel: (provided: any) => ({
         ...provided,
         color: 'white',
         fontWeight: 400,
@@ -81,7 +90,7 @@ const customSelectStyles = {
         display: 'flex',
         alignItems: 'center',
     }),
-    multiValueRemove: (provided: CSSObjectWithLabel) => ({
+    multiValueRemove: (provided: any) => ({
         ...provided,
         color: 'white',
         fontSize: 18,
@@ -92,14 +101,14 @@ const customSelectStyles = {
             color: 'white',
         },
     }),
-    placeholder: (provided: CSSObjectWithLabel) => ({
+    placeholder: (provided: any) => ({
         ...provided,
         color: '#b0b8c1',
         fontWeight: 400,
     }),
 };
 
-const CustomMultiValueRemove = (props: MultiValueRemoveProps) => (
+const CustomMultiValueRemove = (props: any) => (
     <components.MultiValueRemove {...props}>
         <svg
             width={20} height={20} viewBox="0 0 24 24"
@@ -245,7 +254,7 @@ function SkillsRow({ skills = [] }: { skills: string[] }) {
     );
 }
 
-function Page() {
+function page() {
     const [searchFilter, setSearchFilter] = useState<SearchFilter>({
         LocationS: { remote: false, inPerson: false },
         LocationL: '',
@@ -255,7 +264,7 @@ function Page() {
     const [scrollProgress, setScrollProgress] = useState(0)
     const [currentPage, setCurrentPage] = useState(1)
     const [locationDropdownOpen, setLocationDropdownOpen] = useState(true)
-    // const [projectTagsDrop, setProjectTagsDrop] = useState(true)
+    const [projectTagsDrop, setProjectTagsDrop] = useState(true)
     const [skillTagsDrop, setSkillTagsDrop] = useState(true)
     const [sortDropdownOpen, setSortDropdownOpen] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
@@ -309,20 +318,86 @@ function Page() {
             .slice(0, 2);
     };
 
-    // Helper function to get category from tags
+    // Enhanced category colors with updated palette for project cards
+    const getCategoryColor = (category: string) => {
+        switch (category.toLowerCase()) {
+            case 'tech':
+                return {
+                    primary: '#00D4FF', // Bright cyan
+                    bgColor: '#00B8E620',
+                    gradient: 'linear-gradient(135deg, #0891B2 0%, #00D4FF 50%, #67E8F9 100%)',
+                    gradientOverlay: 'linear-gradient(135deg, rgba(8, 145, 178, 0.8) 0%, rgba(0, 212, 255, 0.6) 50%, rgba(103, 232, 249, 0.4) 100%)',
+                    textColor: '#E0F7FA'
+                };
+            case 'creative':
+                return {
+                    primary: '#A855F7', // Vibrant purple
+                    bgColor: '#9333EA20',
+                    gradient: 'linear-gradient(135deg, #7C3AED 0%, #A855F7 50%, #C084FC 100%)',
+                    gradientOverlay: 'linear-gradient(135deg, rgba(124, 58, 237, 0.8) 0%, rgba(168, 85, 247, 0.6) 50%, rgba(192, 132, 252, 0.4) 100%)',
+                    textColor: '#F3E8FF'
+                };
+            case 'business':
+                return {
+                    primary: '#1E40AF', // Navy blue
+                    bgColor: '#1D4ED820',
+                    gradient: 'linear-gradient(135deg, #1E3A8A 0%, #1E40AF 50%, #3B82F6 100%)',
+                    gradientOverlay: 'linear-gradient(135deg, rgba(30, 58, 138, 0.8) 0%, rgba(30, 64, 175, 0.6) 50%, rgba(59, 130, 246, 0.4) 100%)',
+                    textColor: '#DBEAFE'
+                };
+            case 'environment':
+                return {
+                    primary: '#059669', // Forest green
+                    bgColor: '#047857F20',
+                    gradient: 'linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%)',
+                    gradientOverlay: 'linear-gradient(135deg, rgba(6, 78, 59, 0.8) 0%, rgba(5, 150, 105, 0.6) 50%, rgba(16, 185, 129, 0.4) 100%)',
+                    textColor: '#D1FAE5'
+                };
+            case 'research':
+                return {
+                    primary: '#EA580C', // Bold deep orange
+                    bgColor: '#DC2626F20',
+                    gradient: 'linear-gradient(135deg, #C2410C 0%, #EA580C 50%, #FB923C 100%)',
+                    gradientOverlay: 'linear-gradient(135deg, rgba(194, 65, 12, 0.8) 0%, rgba(234, 88, 12, 0.6) 50%, rgba(251, 146, 60, 0.4) 100%)',
+                    textColor: '#FED7AA'
+                };
+            default:
+                return {
+                    primary: '#6B7280',
+                    bgColor: '#4B556320',
+                    gradient: 'linear-gradient(135deg, #4B5563 0%, #6B7280 50%, #9CA3AF 100%)',
+                    gradientOverlay: 'linear-gradient(135deg, rgba(75, 85, 99, 0.8) 0%, rgba(107, 114, 128, 0.6) 50%, rgba(156, 163, 175, 0.4) 100%)',
+                    textColor: '#F3F4F6'
+                };
+        }
+    };
+
     const getProjectCategory = (tags: string[]) => {
         const tagString = tags.join(' ').toLowerCase();
-        if (tagString.includes('creative') || tagString.includes('design') || tagString.includes('art')) return 'Creative';
-        if (tagString.includes('business') || tagString.includes('impact') || tagString.includes('startup')) return 'Business';
+        if (tagString.includes('creative') || tagString.includes('design') || tagString.includes('art') ||
+            tagString.includes('film') || tagString.includes('podcast') || tagString.includes('storytelling')) {
+            return 'Creative';
+        }
+        if (tagString.includes('business') || tagString.includes('impact') || tagString.includes('startup') ||
+            tagString.includes('marketplace') || tagString.includes('fintech')) {
+            return 'Business';
+        }
+        if (tagString.includes('sustainability') || tagString.includes('environment') || tagString.includes('policy')) {
+            return 'Environment';
+        }
+        if (tagString.includes('research') || tagString.includes('study') || tagString.includes('analysis')) {
+            return 'Research';
+        }
         return 'Tech';
     };
 
-    // Helper function to get placeholder based on category
     const getCategoryPlaceholder = (category: string) => {
         switch (category) {
-            case 'Creative': return '🎨 Creative Project';
-            case 'Business': return '💼 Business Project';
-            default: return '💻 Tech Project';
+            case 'Creative': return 'Creative';
+            case 'Business': return 'Business';
+            case 'Environment': return 'Environment';
+            case 'Research': return 'Research';
+            default: return 'Tech';
         }
     };
 
@@ -348,6 +423,7 @@ function Page() {
     };
 
     // Enhanced project data with images and author info
+    const MAX_PROJECTS = 15;
     const projectCards: Project[] = [
         {
             id: 1,
@@ -431,7 +507,6 @@ function Page() {
                 name: "Maya Thompson",
                 title: "Computer Science • MIT '25"
             },
-            image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=200&fit=crop",
             createdAt: "2025-06-23T09:15:00Z"
         },
         {
@@ -475,6 +550,153 @@ function Page() {
             image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=200&fit=crop",
             createdAt: "2025-06-19T11:30:00Z"
         },
+        {
+            id: 7,
+            title: "Open Source Campus Map",
+            collaborators: 3,
+            description: "Interactive map for campus navigation and events. Need frontend and backend devs.",
+            fullDescription: "Build an open source, interactive map for campus navigation, events, and accessibility info. Looking for frontend (React/Leaflet) and backend (Node.js, MongoDB) devs.",
+            tags: ["#webdevelopment", "#opensource", "#campus"],
+            skills: ["React", "Leaflet", "Node.js", "MongoDB"],
+            location: "Remote",
+            remote: true,
+            status: "active",
+            difficulty: "intermediate",
+            timeCommitment: "2-3 months",
+            author: { id: 7, name: "Priya Singh", title: "Geography • UCLA '25" },
+            image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=400&h=200&fit=crop",
+            createdAt: "2025-06-18T10:00:00Z"
+        },
+        {
+            id: 8,
+            title: "Sustainable Food Waste Tracker",
+            collaborators: 2,
+            description: "App to track and reduce food waste in dorms. Need mobile dev and data viz.",
+            fullDescription: "Create a mobile app to help students track and reduce food waste in dorms. Looking for mobile dev (Flutter/React Native) and data visualization skills.",
+            tags: ["#environment", "#sustainability", "#mobile"],
+            skills: ["Flutter", "React Native", "Data Visualization"],
+            location: "Davis, CA",
+            remote: false,
+            status: "active",
+            difficulty: "beginner",
+            timeCommitment: "1 semester",
+            author: { id: 8, name: "Miguel Torres", title: "Environmental Science • UC Davis '26" },
+            createdAt: "2025-06-17T09:00:00Z"
+        },
+        {
+            id: 9,
+            title: "Campus Art Walk AR Experience",
+            collaborators: 4,
+            description: "Augmented reality app for campus art installations. Need AR dev and 3D artist.",
+            fullDescription: "Develop an AR app to guide users through campus art installations. Need AR developer (Unity/ARKit/ARCore) and 3D artist.",
+            tags: ["#creative", "#ar", "#art", "#mobile"],
+            skills: ["Unity", "ARKit", "3D Modeling"],
+            location: "Remote",
+            remote: true,
+            status: "active",
+            difficulty: "advanced",
+            timeCommitment: "2 months",
+            author: { id: 9, name: "Emily Zhao", title: "Art & CS • NYU '25" },
+            image: "https://images.unsplash.com/photo-1464983953574-0892a716854b?w=400&h=200&fit=crop",
+            createdAt: "2025-06-16T08:00:00Z"
+        },
+        {
+            id: 10,
+            title: "Peer Tutoring Platform",
+            collaborators: 2,
+            description: "Web app for peer-to-peer tutoring. Need full stack dev and UI designer.",
+            fullDescription: "Build a web app for peer-to-peer tutoring with scheduling, chat, and rating features. Need full stack dev (React/Node.js) and UI designer.",
+            tags: ["#tech", "#education", "#webapp"],
+            skills: ["React", "Node.js", "UI Design"],
+            location: "Boston, MA",
+            remote: false,
+            status: "active",
+            difficulty: "intermediate",
+            timeCommitment: "Ongoing",
+            author: { id: 10, name: "Samir Gupta", title: "Education • Harvard '26" },
+            createdAt: "2025-06-15T07:00:00Z"
+        },
+        {
+            id: 11,
+            title: "Climate Data Visualization Portal",
+            collaborators: 3,
+            description: "Portal for visualizing climate data. Need data scientist and frontend dev.",
+            fullDescription: "Create a portal for visualizing climate and weather data. Need data scientist (Python, Pandas) and frontend dev (D3.js, React).",
+            tags: ["#environment", "#data", "#visualization"],
+            skills: ["Python", "D3.js", "React", "Pandas"],
+            location: "Remote",
+            remote: true,
+            status: "active",
+            difficulty: "advanced",
+            timeCommitment: "3 months",
+            author: { id: 11, name: "Olivia Brown", title: "Climate Science • UCSD '24" },
+            createdAt: "2025-06-14T06:00:00Z"
+        },
+        {
+            id: 12,
+            title: "Student Wellness App",
+            collaborators: 2,
+            description: "Mobile app for student wellness tracking. Need mobile dev and UI/UX.",
+            fullDescription: "Develop a mobile app for tracking student wellness, habits, and mental health. Need mobile dev (Kotlin/Swift) and UI/UX designer.",
+            tags: ["#tech", "#wellness", "#mobile"],
+            skills: ["Kotlin", "Swift", "UI/UX"],
+            location: "Austin, TX",
+            remote: false,
+            status: "active",
+            difficulty: "beginner",
+            timeCommitment: "2 months",
+            author: { id: 12, name: "Lucas Kim", title: "Health Tech • UT Austin '25" },
+            createdAt: "2025-06-13T05:00:00Z"
+        },
+        {
+            id: 13,
+            title: "Financial Literacy Game",
+            collaborators: 3,
+            description: "Game to teach financial literacy to students. Need game dev and content writer.",
+            fullDescription: "Create a fun, interactive game to teach financial literacy to students. Need game dev (Unity/Unreal) and content writer.",
+            tags: ["#business", "#game", "#education"],
+            skills: ["Unity", "Content Writing", "Game Design"],
+            location: "Remote",
+            remote: true,
+            status: "active",
+            difficulty: "beginner",
+            timeCommitment: "1 month",
+            author: { id: 13, name: "Ava Lee", title: "Finance • Columbia '25" },
+            image: "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?w=400&h=200&fit=crop",
+            createdAt: "2025-06-12T04:00:00Z"
+        },
+        {
+            id: 14,
+            title: "Campus News Aggregator",
+            collaborators: 2,
+            description: "Aggregator for campus news and events. Need backend dev and scraper expert.",
+            fullDescription: "Build an aggregator for campus news and events with web scraping and notification features. Need backend dev (Python/Node.js) and scraper expert.",
+            tags: ["#tech", "#news", "#scraping"],
+            skills: ["Python", "Node.js", "Web Scraping"],
+            location: "Seattle, WA",
+            remote: false,
+            status: "active",
+            difficulty: "intermediate",
+            timeCommitment: "2 months",
+            author: { id: 14, name: "Noah Smith", title: "Journalism • UW '24" },
+            createdAt: "2025-06-11T03:00:00Z"
+        },
+        {
+            id: 15,
+            title: "Student Art Magazine",
+            collaborators: 4,
+            description: "Online magazine for student art and writing. Need web dev and editors.",
+            fullDescription: "Launch an online magazine for student art and writing. Need web dev (Next.js), editors, and social media manager.",
+            tags: ["#creative", "#magazine", "#writing"],
+            skills: ["Next.js", "Editing", "Social Media"],
+            location: "Remote",
+            remote: true,
+            status: "active",
+            difficulty: "beginner",
+            timeCommitment: "Ongoing",
+            author: { id: 15, name: "Sophia Martinez", title: "English • Princeton '26" },
+            createdAt: "2025-06-10T02:00:00Z"
+        },
     ];
 
     return (
@@ -494,7 +716,7 @@ function Page() {
                 </button>
             )}
             <div className={`
-                filters-sidebar !w-[300px] !bg-black !border-r !border-[#2f3542] !p-5 h-screen z-10000 flex flex-col
+                filters-sidebar !w-[300px] !bg-black !border-r !border-[#2f3542] !p-5 h-screen z-10 flex flex-col
                 ${isMobile
                     ? `fixed top-0 left-0 transform transition-transform duration-300 ${mobileFiltersOpen ? 'translate-x-0' : '-translate-x-full'}`
                     : 'fixed top-[80px] left-0'
@@ -700,22 +922,22 @@ function Page() {
                     paddingRight: "4rem",
                 }}
             >
-                <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 !mb-6">
-                    <p className="text-gray-400 text-lg lg:text-xl font-medium">
-                        Showing {projectCards.length} results for `&quot;`{searchQuery || 'all projects'}`&quot;`
+                <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 !mb-4">
+                    <p className="text-gray-400 text-lg lg:text-lg font-medium">
+                        Showing {projectCards.length} results for "{searchQuery || 'all projects'}"
                     </p>
                     <div className="relative">
                         <button
                             onClick={() => setSortDropdownOpen(prev => !prev)}
-                            className="flex items-center gap-2 text-white bg-[#181c23] border border-[#2f3542] px-4 py-2 rounded-md hover:bg-[#272727] transition-colors"
+                            className="flex items-center gap-2 !text-white !bg-[#181c23] !border !border-[#2f3542] !px-2 !py-1 !rounded-md hover:!bg-[#272727] !transition-colors"
                         >
                             Sort by <ChevronDownIcon size={16} />
                         </button>
                         {sortDropdownOpen && (
-                            <div className="absolute right-0 mt-2 w-48 bg-[#181c23] border border-[#2f3542] rounded-md shadow-lg z-10">
-                                <a href="#" className="block px-4 py-2 text-sm text-white hover:bg-[#272727]">Relevance</a>
-                                <a href="#" className="block px-4 py-2 text-sm text-white hover:bg-[#272727]">Newest</a>
-                                <a href="#" className="block px-4 py-2 text-sm text-white hover:bg-[#272727]">Oldest</a>
+                            <div className="absolute right-0 mt-2 w-48 !bg-[#181c23] !border !border-[#2f3542] !rounded-md !shadow-lg z-10">
+                                <a href="#" className="block !px-4 !py-2 !text-sm !text-white hover:!bg-[#272727]">Relevance</a>
+                                <a href="#" className="block !px-4 !py-2 !text-sm !text-white hover:!bg-[#272727]">Newest</a>
+                                <a href="#" className="block !px-4 !py-2 !text-sm !text-white hover:!bg-[#272727]">Oldest</a>
                             </div>
                         )}
                     </div>
@@ -729,18 +951,13 @@ function Page() {
 
                 {/* Enhanced Responsive grid layout */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 mt-8">
-                    {projectCards.map((project, idx) => {
+                    {projectCards.slice(0, MAX_PROJECTS).map((project, idx) => {
                         const category = getProjectCategory(project.tags);
-                        /*const categoryClass = category === 'Tech'
-                            ? 'bg-blue-900/10 text-blue-400 border border-blue-400/20'
-                            : category === 'Creative'
-                                ? 'bg-pink-600/10 text-pink-300 border border-pink-300/20'
-                                : 'bg-green-900/10 text-green-400 border border-green-400/20';
-                            */
+                        const categoryColors = getCategoryColor(category);
                         const isRemote = project.remote;
-                        // const locationBadgeClass = isRemote ? 'bg-indigo-900 text-indigo-200' : 'bg-green-900 text-green-300';
+                        const locationBadgeClass = isRemote ? 'bg-indigo-900 text-indigo-200' : 'bg-green-900 text-green-300';
                         const locationBadgeText = isRemote ? 'Remote' : 'In Person';
-                        // const locationText = isRemote ? 'Open to remote collaboration' : project.location;
+                        const locationText = isRemote ? 'Open to remote collaboration' : project.location;
                         const timePosted = project.createdAt ? timeAgo(new Date(project.createdAt)) : 'recently';
 
                         return (
@@ -756,16 +973,27 @@ function Page() {
                                     </div>
                                 )}
 
-                                {/* Project Image or Placeholder */}
+                                {/* Project Image or Category Gradient Background */}
                                 {project.image ? (
                                     <img
                                         src={project.image}
                                         alt={project.title}
-                                        className="w-full h-32 object-cover"
+                                        className="w-full h-32 object-cover rounded-none"
                                     />
                                 ) : (
-                                    <div className="w-full h-32 bg-gradient-to-br from-[#2a2a2a] to-[#1a1a1a] flex items-center justify-center">
-                                        <span className="text-[#666] text-xs uppercase tracking-wider">
+                                    <div 
+                                        className="w-full h-32 flex items-center justify-center relative overflow-hidden"
+                                        style={{ background: categoryColors.gradient }}
+                                    >
+                                        {/* Optional overlay for better text readability */}
+                                        <div 
+                                            className="absolute inset-0"
+                                            style={{ background: categoryColors.gradientOverlay }}
+                                        />
+                                        <span 
+                                            className="relative text-xs uppercase tracking-wider font-semibold drop-shadow-lg z-10"
+                                            style={{ color: categoryColors.textColor }}
+                                        >
                                             {getCategoryPlaceholder(category)}
                                         </span>
                                     </div>
@@ -774,15 +1002,27 @@ function Page() {
                                 {/* Card Content */}
                                 <div className="!p-5 flex flex-col flex-1">
                                     {/* Card Header */}
-                                    <div className="flex justify-between items-start !gap-3 !mb-3">
+                                    <div className="flex justify-between items-start !gap-3 !mb-3 !mt-2">
                                         <h3 className="text-lg font-semibold text-white leading-tight flex-1">
                                             {project.title}
                                         </h3>
-                                        <span className={`!py-1 !px-2 !rounded !text-[13px] !font-medium flex-shrink-0 ${category === 'Tech' ? 'bg-[#1d4ed8] text-[#dbeafe]' : category === 'Creative' ? 'bg-[#2a2a2a] text-[#e5e5e5]' : 'bg-[#2a2a2a] text-[#e5e5e5]'}`}>{category}</span>
+                                        <span
+                                            className="!py-1 !px-2 !rounded !text-[13px] !font-medium flex-shrink-0"
+                                            style={{
+                                                backgroundColor: categoryColors.bgColor,
+                                                color: categoryColors.primary,
+                                                border: `1px solid ${categoryColors.primary}20`
+                                            }}
+                                        >
+                                            {category}
+                                        </span>
                                     </div>
+                                    
                                     {/* In Person/Remote tag and location */}
                                     <div className="flex items-center !gap-2 !mb-3">
-                                        <span className={`!py-1 !px-2 !rounded !text-[13px] !font-medium ${isRemote ? 'bg-[#1d4ed8] text-[#dbeafe]' : 'bg-[#2a2a2a] text-[#e5e5e5]'}`}>{locationBadgeText}</span>
+                                        <span className={`!py-1 !px-2 !rounded !text-[13px] !font-medium ${isRemote ? 'bg-[#1d4ed8] text-[#dbeafe]' : 'bg-[#2a2a2a] text-[#e5e5e5]'}`}>
+                                            {locationBadgeText}
+                                        </span>
                                         {!isRemote && (
                                             <span className="!text-[13px] !text-gray-400">
                                                 {project.location}
@@ -790,19 +1030,19 @@ function Page() {
                                         )}
                                     </div>
 
-                                    {/* Description */}
-                                    <div className="!mb-4 flex-1">
+                                    {/* Description - Remove flex-1 and reduce margin */}
+                                    <div className="!mb-3">
                                         <p className="!text-gray-300 !text-sm leading-snug line-clamp-3">
                                             {project.description}
                                         </p>
                                     </div>
 
-                                    {/* Skills Section */}
-                                    <div className="!mb-4">
+                                    {/* Skills Section with conditional margin based on title length */}
+                                    <div className={`flex-1 ${project.title.length < 30 ? '!mb-6' : '!mb-4'}`}>
                                         <SkillsRow skills={project.skills || []} />
                                     </div>
 
-                                    {/* Footer */}
+                                    {/* Footer - This will stick to bottom */}
                                     <div className="flex justify-between items-center !gap-3 !mt-auto">
                                         <div className="flex items-center !gap-2">
                                             <div className="w-7 h-7 !rounded-full bg-indigo-900 flex items-center justify-center !text-indigo-200 !text-xs !font-semibold flex-shrink-0">
@@ -1013,4 +1253,4 @@ function Page() {
     )
 }
 
-export default Page
+export default page
