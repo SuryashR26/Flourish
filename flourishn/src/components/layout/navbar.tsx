@@ -173,10 +173,14 @@ const Navbar: React.FC<NavbarProps> = ({ showSearchBar = false, showSeparator = 
 
                     {/* Profile picture */}
                     <img
-                      src={user?.profileurl || "/default-profile.png"}
+                      src={user?.profileurl || "/images/defaultProfile.jpg"}
                       alt="Profile"
                       className="w-12 h-12 rounded-full object-cover cursor-pointer border-2 border-gray-300"
                       onClick={() => setOpen(!open)}
+                      onError={(e) => {
+                        e.currentTarget.onerror = null; // prevents infinite loop if fallback fails
+                        e.currentTarget.src = '/images/defaultProfile.jpg';
+                      }}
                     />
 
                     {/* Dropdown menu */}

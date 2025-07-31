@@ -145,7 +145,7 @@ const signup = async (req, res) => {
                 [emailLower]
             );
 
-            req.session.userID = user_id.rows[0].id;
+            req.session.userId = user_id.rows[0].id;
 
             console.log('Session after signup:', req.session);
 

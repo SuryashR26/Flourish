@@ -325,7 +325,7 @@ export default function DashboardPage() {
     return (
         <>
             <style dangerouslySetInnerHTML={{ __html: dashboardStyles }} />
-            <Navbar showSearchBar={true} showDashboard={true} showSeparator={true} />
+            <Navbar showSearchBar={true} showSeparator={true} />
             {/* New Dashboard Sidebar */}
             <div className="!w-[320px] !bg-black !border-r !border-[#2f3542] !p-6 fixed top-[80px] left-0 z-40 flex flex-col overflow-y-auto" style={{ height: 'calc(100vh - 80px)' }}>
                 {/* Post Project Button */}
