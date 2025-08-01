@@ -2,11 +2,12 @@
 
 import type React from "react"
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import FormCard from "@/components/cards/formCards"
 import Navbar from "@/components/layout/navbar"
+import { createPostWithImage, cleanupFailedPost } from "@/api/apiClient"
 // import { on } from "events"
 import dynamic from "next/dynamic"
-import { useRouter } from 'next/navigation'
 import { components } from "react-select"
 import { X } from "lucide-react"
 import type { CSSObjectWithLabel, ControlProps, MultiValueRemoveProps, OptionProps } from 'react-select';
@@ -15,33 +16,35 @@ import { useUser } from "@/context/UserContext"
 interface PostValues {
     title: string
     content: string
-    tags: string
+    tags: string[]
     locationS: boolean
     locationL: string
     locked: boolean
     roleCount: number
     roleDescription: string[]
-    skills: string
+    skills: string[]
     authorImage: string
     authorID: string
     status: string
     difficulty: string
+    is_draft: boolean
 }
 
 interface PostValuesErrors {
     title?: string
     content?: string
-    tags?: string
+    tags?: string[]
     locationS?: boolean
     locationL?: string
     locked?: boolean
     roleCount?: number
     roleDescription?: string[]
-    skills?: string
+    skills?: string[]
     authorImage?: string
     authorID?: string
     status?: string
     difficulty?: string
+    is_draft?: boolean
 }
 
 const TAG_DIRECTORY = [
@@ -163,26 +166,30 @@ const CustomMultiValueRemove = (props: MultiValueRemoveProps) => (
 );
 
 export default function PostPage() {
+    const router = useRouter()
     const [postValues, setPostValues] = useState<PostValues>({
         title: "",
         content: "",
-        tags: "",
+        tags: [""],
         locationS: false,
         locationL: "",
         locked: false,
         roleCount: 1,
         roleDescription: [""],
-        skills: "",
+        skills: [""],
         authorImage: "",
         authorID: "",
         status: "active",
-        difficulty: "easy"
+        difficulty: "easy",
+        is_draft: false
     })
 
     const [errors, setErrors] = useState<PostValuesErrors>({})
+    const [selectedFile, setSelectedFile] = useState<File | null>(null)
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [duplicateWarning, setDuplicateWarning] = useState<{ show: boolean, message: string }>({ show: false, message: "" })
 
     const [viewPost, setViewPost] = useState(false)
-    const router = useRouter()
 
     const { user, isLoggedIn } = useUser()
 
@@ -220,6 +227,21 @@ export default function PostPage() {
         return isValid
     }
 
+    const validateForm2 = (): boolean => {
+        const tempErrors: PostValuesErrors = {}
+        let isValid = true
+        if (!postValues.title.trim()) {
+            tempErrors.title = "Title is required"
+            isValid = false
+        }
+        if (!postValues.content.trim()) {
+            tempErrors.content = "Content is required"
+            isValid = false
+        }
+        setErrors(tempErrors)
+        return isValid
+    }
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target
         setPostValues({
@@ -234,34 +256,223 @@ export default function PostPage() {
         }
     }
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (file) {
+            setSelectedFile(file)
+        }
+    }
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        if (validateForm()) {
-            // Here you would typically send the postValues to your backend API
-            console.log("Post submitted successfully", postValues);
-            setPostValues({
-                title: "",
-                content: "",
-                tags: "",
-                locationS: false,
-                locationL: "",
-                locked: false,
-                roleCount: 1,
-                roleDescription: [""],
-                skills: "",
-                authorImage: "",
-                authorID: "",
-                status: "active",
-                difficulty: "easy"
-            });
-            console.log("Post values reset");
-            setErrors({});
-        } else {
-            // Form is invalid
+
+        if (!validateForm()) {
             console.log("Form validation failed", errors);
+            return;
         }
 
+        setIsSubmitting(true);
+
+        try {
+            const postData = {
+                title: postValues.title,
+                content: postValues.content,
+                role_count: postValues.roleCount,
+                role_description: postValues.roleDescription,
+                project_tags: postValues.tags,
+                skill_tags: postValues.skills,
+                location_preference: postValues.locationS ? 'remote' : 'in-person',
+                location: postValues.locationL,
+                difficulty: postValues.difficulty,
+                confirmDuplicate: duplicateWarning.show,
+                status: postValues.status,
+            };
+
+
+            const response = await createPostWithImage(
+                postData,
+                selectedFile?.name,
+                selectedFile?.type
+            );
+
+            if (response.success) {
+
+                if (response.uploadUrl && selectedFile) {
+                    try {
+                        console.log('Uploading to:', response.uploadUrl);
+                        console.log('Content-Type:', selectedFile.type);
+                        const uploadRes = await fetch(response.uploadUrl, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': selectedFile.type },
+                            body: selectedFile,
+                        });
+
+                        if (!uploadRes.ok) {
+                            const errorText = await uploadRes.text(); // 🔍 get actual XML error
+                            console.error('Upload failed:', errorText);
+                            throw new Error('Upload failed');
+                        }
+
+                        console.log("Post created and image uploaded successfully!");
+                        router.push('/dashboard');
+
+                    } catch (uploadError) {
+                        console.error('Image upload failed:', uploadError);
+
+                        await cleanupFailedPost(response.postId);
+                        alert('Image upload failed. Post has been removed. Please try again.');
+                        setIsSubmitting(false);
+                        return;
+                    }
+                } else {
+
+                    console.log("Post created successfully!");
+                    router.push('/dashboard');
+                }
+
+
+                setPostValues({
+                    title: "",
+                    content: "",
+                    tags: [""],
+                    locationS: false,
+                    locationL: "",
+                    locked: false,
+                    roleCount: 1,
+                    roleDescription: [""],
+                    skills: [""],
+                    authorImage: "",
+                    authorID: "",
+                    status: "active",
+                    difficulty: "easy",
+                    is_draft: false
+                });
+                setSelectedFile(null);
+                setErrors({});
+                setDuplicateWarning({ show: false, message: "" });
+
+            } else if (response.isDuplicate) {
+                setDuplicateWarning({ show: true, message: response.message });
+                setIsSubmitting(false);
+            } else {
+                console.error("Post creation failed:", response.message);
+                alert('Failed to create post: ' + response.message);
+                setIsSubmitting(false);
+            }
+
+        } catch (error) {
+            console.error("Error creating post:", error);
+            alert('An error occurred while creating the post');
+            setIsSubmitting(false);
+        }
     }
+
+    const handleDraftSave = async (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault()
+
+        if (!validateForm2()) {
+            console.log("Form validation failed", errors);
+            return;
+        }
+
+        setIsSubmitting(true);
+
+        try {
+            const postData = {
+                title: postValues.title,
+                content: postValues.content,
+                role_count: postValues.roleCount,
+                role_description: postValues.roleDescription,
+                project_tags: postValues.tags,
+                skill_tags: postValues.skills,
+                location_preference: postValues.locationS ? 'remote' : 'in-person',
+                location: postValues.locationL,
+                difficulty: postValues.difficulty,
+                confirmDuplicate: duplicateWarning.show,
+                status: postValues.status,
+                is_draft: true
+            };
+
+
+            const response = await createPostWithImage(
+                postData,
+                selectedFile?.name,
+                selectedFile?.type
+            );
+
+            if (response.success) {
+
+                if (response.uploadUrl && selectedFile) {
+                    try {
+                        console.log('Uploading to:', response.uploadUrl);
+                        console.log('Content-Type:', selectedFile.type);
+                        const uploadRes = await fetch(response.uploadUrl, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': selectedFile.type },
+                            body: selectedFile,
+                        });
+
+                        if (!uploadRes.ok) {
+                            const errorText = await uploadRes.text(); // 🔍 get actual XML error
+                            console.error('Upload failed:', errorText);
+                            throw new Error('Upload failed');
+                        }
+
+                        console.log("Draft created and image uploaded successfully!");
+                        router.push('/dashboard');
+
+                    } catch (uploadError) {
+                        console.error('Image upload failed:', uploadError);
+
+                        await cleanupFailedPost(response.postId);
+                        alert('Image upload failed. Post has been removed. Please try again.');
+                        setIsSubmitting(false);
+                        return;
+                    }
+                } else {
+
+                    console.log("Draft created successfully!");
+                    router.push('/dashboard');
+                }
+
+
+                setPostValues({
+                    title: "",
+                    content: "",
+                    tags: [""],
+                    locationS: false,
+                    locationL: "",
+                    locked: false,
+                    roleCount: 1,
+                    roleDescription: [""],
+                    skills: [""],
+                    authorImage: "",
+                    authorID: "",
+                    status: "active",
+                    difficulty: "easy",
+                    is_draft: false
+                });
+                setSelectedFile(null);
+                setErrors({});
+                setDuplicateWarning({ show: false, message: "" });
+
+            } else if (response.isDuplicate) {
+                setDuplicateWarning({ show: true, message: response.message });
+                setIsSubmitting(false);
+            } else {
+                console.error("Post creation failed:", response.message);
+                alert('Failed to create post: ' + response.message);
+                setIsSubmitting(false);
+            }
+
+        } catch (error) {
+            console.error("Error creating post:", error);
+            alert('An error occurred while creating the post');
+            setIsSubmitting(false);
+        }
+    }
+
+
 
     return (
         <>
@@ -401,16 +612,14 @@ export default function PostPage() {
                             <label> Project Tags (up to 5)</label>
                             <TagSelect
                                 isMulti
-                                options={postValues.tags.split(",").filter((tag) => tag.trim()).length >= 5 ? [] : TAG_DIRECTORY}
+                                options={postValues.tags.length >= 5 ? [] : TAG_DIRECTORY}
                                 value={postValues.tags
-                                    .split(",")
                                     .filter((tag) => tag.trim())
                                     .map((tag) => ({ value: tag.trim(), label: tag.trim() }))}
                                 onChange={(selected) => {
                                     const tags = (selected as { value: string; label: string }[])
-                                        .map((option) => option.value)
-                                        .slice(0, 5)
-                                        .join(",");
+                                        .map((option) => option.value.trim())
+                                        .slice(0, 5);
                                     setPostValues({ ...postValues, tags });
                                 }}
                                 placeholder="Add tags to define your idea"
@@ -420,8 +629,9 @@ export default function PostPage() {
                                 components={{ MultiValueRemove: CustomMultiValueRemove }}
                                 noOptionsMessage={() => null}
                             />
+
                             <div className="text-sm text-gray-400 mt-1">
-                                {postValues.tags.split(",").filter((tag) => tag.trim()).length}/5 tags
+                                {postValues.tags.length}/5 tags
                             </div>
                         </div>
 
@@ -429,16 +639,14 @@ export default function PostPage() {
                             <label> Skill Tags (up to 5)</label>
                             <TagSelect
                                 isMulti
-                                options={postValues.skills.split(",").filter((skill) => skill.trim()).length >= 5 ? [] : SKILL_DIRECTORY}
+                                options={postValues.skills.length >= 5 ? [] : SKILL_DIRECTORY}
                                 value={postValues.skills
-                                    .split(",")
                                     .filter((skill) => skill.trim())
                                     .map((skill) => ({ value: skill.trim(), label: skill.trim() }))}
                                 onChange={(selected) => {
                                     const skills = (selected as { value: string; label: string }[])
-                                        .map((option) => option.value)
-                                        .slice(0, 5)
-                                        .join(",");
+                                        .map((option) => option.value.trim())
+                                        .slice(0, 5);
                                     setPostValues({ ...postValues, skills });
                                 }}
                                 placeholder="Add tags to define the skills needed for your idea"
@@ -448,9 +656,11 @@ export default function PostPage() {
                                 components={{ MultiValueRemove: CustomMultiValueRemove }}
                                 noOptionsMessage={() => null}
                             />
+
                             <div className="text-sm text-gray-400 mt-1">
-                                {postValues.skills.split(",").filter((skill) => skill.trim()).length}/5 tags
+                                {postValues.skills.length}/5 tags
                             </div>
+
                         </div>
 
                         <div className="mt-4 flex gap-8">
@@ -479,81 +689,91 @@ export default function PostPage() {
                             {postValues.roleCount > 0 && (
                                 <div className="w-3/4">
                                     <label className="block !-mb-0">Define Your Roles</label>
-                                    {postValues.roleCount === 4 ? (
-                                        <div className="w-full !mt-8">
-                                            <textarea
-                                                value={postValues.roleDescription[0] || ""}
-                                                onChange={(e) => {
-                                                    setPostValues({
-                                                        ...postValues,
-                                                        roleDescription: [e.target.value]
-                                                    });
-                                                    const newErrors = [...(errors.roleDescription || [])];
-                                                    newErrors[0] = e.target.value.trim() ? "" : "Description is required";
-                                                    setErrors({
-                                                        ...errors,
-                                                        roleDescription: newErrors
-                                                    });
-                                                }}
-                                                maxLength={400}
-                                                placeholder="Define all your roles here (maximum 400 characters)"
-                                                className={`w-full !min-h-[200px] resize-none p-4 border rounded text-base ${errors.roleDescription?.[0] ? "!border-red-500" : ""
-                                                    }`}
-                                                rows={8}
-                                            />
-                                            {errors.roleDescription?.[0] && (
-                                                <div className="text-red-500 text-sm mt-1">
-                                                    {errors.roleDescription[0]}
-                                                </div>
-                                            )}
-                                            <div className="text-sm text-gray-400 text-right mt-1">
-                                                {(postValues.roleDescription[0] || "").length}/400 characters
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="flex flex-col !-gap-5">
-                                            {Array.from({ length: postValues.roleCount }).map((_, index) => (
-                                                <div key={index} className="w-full">
-                                                    <label className="text-sm text-gray-600 block mb-1">
-                                                        Role {index + 1}
-                                                    </label>
-                                                    <textarea
-                                                        value={postValues.roleDescription[index] || ""}
-                                                        onChange={(e) => {
-                                                            const newDescriptions = [...postValues.roleDescription];
-                                                            newDescriptions[index] = e.target.value;
-                                                            setPostValues({
-                                                                ...postValues,
-                                                                roleDescription: newDescriptions
-                                                            });
-                                                            const newErrors = [...(errors.roleDescription || [])];
-                                                            newErrors[index] = e.target.value.trim() ? "" : "Description is required";
-                                                            setErrors({
-                                                                ...errors,
-                                                                roleDescription: newErrors
-                                                            });
-                                                        }}
-                                                        maxLength={200}
-                                                        placeholder={`Describe role ${index + 1}`}
-                                                        className={`w-full !min-h-[50px] resize-none p-4 border rounded text-base ${errors.roleDescription?.[index] ? "!border-red-500" : ""
-                                                            }`}
-                                                        rows={6}
-                                                    />
-                                                    {errors.roleDescription?.[index] && (
-                                                        <div className="text-red-500 text-sm mt-1">
-                                                            {errors.roleDescription[index]}
-                                                        </div>
-                                                    )}
-                                                    <div className="text-sm text-gray-400 text-right mt-1">
-                                                        {(postValues.roleDescription[index] || "").length}/200 characters
+                                    <div className="flex flex-col !-gap-5">
+                                        {Array.from({ length: postValues.roleCount }).map((_, index) => (
+                                            <div key={index} className="w-full">
+                                                <label className="text-sm text-gray-600 block mb-1">
+                                                    Role {index + 1}
+                                                </label>
+                                                <textarea
+                                                    value={postValues.roleDescription[index] || ""}
+                                                    onChange={(e) => {
+                                                        const newDescriptions = [...postValues.roleDescription];
+                                                        newDescriptions[index] = e.target.value;
+                                                        setPostValues({
+                                                            ...postValues,
+                                                            roleDescription: newDescriptions
+                                                        });
+                                                        const newErrors = [...(errors.roleDescription || [])];
+                                                        newErrors[index] = e.target.value.trim() ? "" : "Description is required";
+                                                        setErrors({
+                                                            ...errors,
+                                                            roleDescription: newErrors
+                                                        });
+                                                    }}
+                                                    maxLength={200}
+                                                    placeholder={`Describe role ${index + 1}`}
+                                                    className={`w-full !min-h-[50px] resize-none p-4 border rounded text-base ${errors.roleDescription?.[index] ? "!border-red-500" : ""
+                                                        }`}
+                                                    rows={6}
+                                                />
+                                                {errors.roleDescription?.[index] && (
+                                                    <div className="text-red-500 text-sm mt-1">
+                                                        {errors.roleDescription[index]}
                                                     </div>
+                                                )}
+                                                <div className="text-sm text-gray-400 text-right mt-1">
+                                                    {(postValues.roleDescription[index] || "").length}/200 characters
                                                 </div>
-                                            ))}
-                                        </div>
-                                    )}
+                                            </div>
+                                        ))}
+                                    </div>
+
                                 </div>
                             )}
                         </div>
+
+                        {/* Image Upload Section */}
+                        <div>
+                            <label>Project Image (Optional)</label>
+                            <input
+                                type="file"
+                                id="imageUpload"
+                                onChange={handleFileChange}
+                                accept="image/jpeg, image/png, image/jpg, image/gif, image/webp"
+                                className="w-full p-3 border border-gray-300 rounded-lg text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                            />
+                            {selectedFile && (
+                                <div className="text-green-600 text-sm mt-1">
+                                    Selected: {selectedFile.name}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Duplicate Warning */}
+                        {duplicateWarning.show && (
+                            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                <div className="text-yellow-800 text-sm mb-3">
+                                    {duplicateWarning.message}
+                                </div>
+                                <div className="flex gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setDuplicateWarning({ show: false, message: "" })}
+                                        className="px-3 py-1 bg-gray-500 text-white rounded text-sm hover:bg-gray-600"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="px-3 py-1 bg-yellow-600 text-white rounded text-sm hover:bg-yellow-700"
+                                        disabled={isSubmitting}
+                                    >
+                                        {isSubmitting ? 'Creating...' : 'Post Anyway'}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
 
                         <div className="mt-4 flex">
                             <button
@@ -670,21 +890,16 @@ export default function PostPage() {
                                                     Required Skills
                                                 </h3>
                                                 <div className="flex flex-wrap !gap-2">
-                                                    {(() => {
-                                                        const skillArr = postValues.skills.split(",").filter(s => s.trim());
-                                                        const skillSpans = [];
-                                                        for (let i = 0; i < skillArr.length; i++) {
-                                                            skillSpans.push(
-                                                                <span
-                                                                    key={i}
-                                                                    className="!bg-[#1f2937] !text-[#1f98f4] !px-3 !py-2 !rounded-lg !text-sm !font-medium !border !border-[#1f98f4]/20"
-                                                                >
-                                                                    {skillArr[i]}
-                                                                </span>
-                                                            );
-                                                        }
-                                                        return skillSpans;
-                                                    })()}
+                                                    {postValues.skills
+                                                        .filter((s) => s.trim())
+                                                        .map((skill, i) => (
+                                                            <span
+                                                                key={i}
+                                                                className="!bg-[#1f2937] !text-[#1f98f4] !px-3 !py-2 !rounded-lg !text-sm !font-medium !border !border-[#1f98f4]/20"
+                                                            >
+                                                                {skill}
+                                                            </span>
+                                                        ))}
                                                 </div>
                                             </div>
                                         )}
@@ -697,21 +912,16 @@ export default function PostPage() {
                                                     Project Tags
                                                 </h3>
                                                 <div className="flex flex-wrap !gap-2">
-                                                    {(() => {
-                                                        const tagArr = postValues.tags.split(",").filter(t => t.trim());
-                                                        const tagSpans = [];
-                                                        for (let i = 0; i < tagArr.length; i++) {
-                                                            tagSpans.push(
-                                                                <span
-                                                                    key={i}
-                                                                    className="!bg-[#0B0809] !text-gray-300 !px-3 !py-2 !rounded-lg !text-sm !border !border-[#2f3542]"
-                                                                >
-                                                                    {tagArr[i]}
-                                                                </span>
-                                                            );
-                                                        }
-                                                        return tagSpans;
-                                                    })()}
+                                                    {postValues.tags
+                                                        .filter((t) => t.trim())
+                                                        .map((tags, i) => (
+                                                            <span
+                                                                key={i}
+                                                                className="!bg-[#1f2937] !text-[#1f98f4] !px-3 !py-2 !rounded-lg !text-sm !font-medium !border !border-[#1f98f4]/20"
+                                                            >
+                                                                {tags}
+                                                            </span>
+                                                        ))}
                                                 </div>
                                             </div>
                                         )}
@@ -747,14 +957,22 @@ export default function PostPage() {
                             <button
                                 type="button"
                                 className="flex-1 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+                                onClick={(e) => {
+                                    console.log('Viewing post');
+                                    handleDraftSave(e);
+                                }}
                             >
                                 Save Draft
                             </button>
                             <button
                                 type="submit"
-                                className="flex-1 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+                                className={`flex-1 py-2 text-white rounded-lg transition-colors ${isSubmitting
+                                    ? 'bg-gray-400 cursor-not-allowed'
+                                    : 'bg-blue-500 hover:bg-blue-600'
+                                    }`}
+                                disabled={isSubmitting}
                             >
-                                Submit Post
+                                {isSubmitting ? 'Creating Post...' : 'Submit Post'}
                             </button>
                         </div>
                     </FormCard>

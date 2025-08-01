@@ -68,6 +68,6 @@ Create Table public.postData
     difficulty  TEXT NOT NULL DEFAULT 'beginner',
     created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    is_active   BOOLEAN NOT NULL DEFAULT TRUE,
     photourl varchar
+    is_draft    BOOLEAN NOT NULL DEFAULT FALSE,
 )

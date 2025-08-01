@@ -6,7 +6,8 @@ const { contactUs } = require('./inquiries/contactUs');
 const { resetPass } = require('./inquiries/resetPass');
 const { updateProfile } = require('./profileChanges/updateProfile');
 const { logout } = require('./auth/logout');
-const { search } = require('./unfilteredPosts/search');
+const { search } = require('./post/search');
+const { createPost, getUserPosts, cleanupFailedPost } = require('./post/post');
 const session = require('express-session');
 const { checkAlreadyLoggedIn } = require('./auth/checkSession')
 require('dotenv').config();
@@ -61,12 +62,18 @@ app.post('/forgotPassword', resetPass);
 
 app.get('/check-session', checkAlreadyLoggedIn)
 
+app.post('/posts', createPost);
+
+app.get('/posts/user', getUserPosts);
+
+app.post('/posts/cleanup', cleanupFailedPost);
+
 app.post('/updateProfile', updateProfile);
 
 app.post('/logout', logout);
 
 app.get('/search', search)
 
-app.listen(PORT, '127.0.0.1', () => {
+app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });

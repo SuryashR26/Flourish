@@ -12,7 +12,7 @@ const pool = new Pool({
     },
     max: 20,
     idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 2000,
+    connectionTimeoutMillis: 10000, // Increased from 2000 to 10000 (10 seconds)
 });
 
 

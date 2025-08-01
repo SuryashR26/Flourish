@@ -28,6 +28,11 @@ const updateProfile = async (req, res) => {
             [...values, userId]
         );
 
+        await pool.query(
+            'UPDATE postData SET user_image = $1 WHERE user_id = $2',
+            [publicUrl, userId]
+        )
+
         res.json({
             success: true,
             message: 'Profile updated successfully',
