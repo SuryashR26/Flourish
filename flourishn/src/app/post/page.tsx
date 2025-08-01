@@ -26,6 +26,7 @@ interface PostValues {
     authorID: string
     status: string
     difficulty: string
+    is_draft: boolean
 }
 
 interface PostValuesErrors {
@@ -42,6 +43,7 @@ interface PostValuesErrors {
     authorID?: string
     status?: string
     difficulty?: string
+    is_draft?: boolean
 }
 
 const TAG_DIRECTORY = [
@@ -177,7 +179,8 @@ export default function PostPage() {
         authorImage: "",
         authorID: "",
         status: "active",
-        difficulty: "easy"
+        difficulty: "easy",
+        is_draft: false
     })
 
     const [errors, setErrors] = useState<PostValuesErrors>({})
@@ -212,6 +215,21 @@ export default function PostPage() {
             isValid = false
         }
 
+        setErrors(tempErrors)
+        return isValid
+    }
+
+    const validateForm2 = (): boolean => {
+        const tempErrors: PostValuesErrors = {}
+        let isValid = true
+        if (!postValues.title.trim()) {
+            tempErrors.title = "Title is required"
+            isValid = false
+        }
+        if (!postValues.content.trim()) {
+            tempErrors.content = "Content is required"
+            isValid = false
+        }
         setErrors(tempErrors)
         return isValid
     }
@@ -318,7 +336,8 @@ export default function PostPage() {
                     authorImage: "",
                     authorID: "",
                     status: "active",
-                    difficulty: "easy"
+                    difficulty: "easy",
+                    is_draft: false
                 });
                 setSelectedFile(null);
                 setErrors({});
@@ -339,6 +358,113 @@ export default function PostPage() {
             setIsSubmitting(false);
         }
     }
+
+    const handleDraftSave = async (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault()
+
+        if (!validateForm2()) {
+            console.log("Form validation failed", errors);
+            return;
+        }
+
+        setIsSubmitting(true);
+
+        try {
+            const postData = {
+                title: postValues.title,
+                content: postValues.content,
+                role_count: postValues.roleCount,
+                role_description: postValues.roleDescription,
+                project_tags: postValues.tags,
+                skill_tags: postValues.skills,
+                location_preference: postValues.locationS ? 'remote' : 'in-person',
+                location: postValues.locationL,
+                difficulty: postValues.difficulty,
+                confirmDuplicate: duplicateWarning.show,
+                status: postValues.status,
+                is_draft: true
+            };
+
+
+            const response = await createPostWithImage(
+                postData,
+                selectedFile?.name,
+                selectedFile?.type
+            );
+
+            if (response.success) {
+
+                if (response.uploadUrl && selectedFile) {
+                    try {
+                        console.log('Uploading to:', response.uploadUrl);
+                        console.log('Content-Type:', selectedFile.type);
+                        const uploadRes = await fetch(response.uploadUrl, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': selectedFile.type },
+                            body: selectedFile,
+                        });
+
+                        if (!uploadRes.ok) {
+                            const errorText = await uploadRes.text(); // 🔍 get actual XML error
+                            console.error('Upload failed:', errorText);
+                            throw new Error('Upload failed');
+                        }
+
+                        console.log("Draft created and image uploaded successfully!");
+                        router.push('/dashboard');
+
+                    } catch (uploadError) {
+                        console.error('Image upload failed:', uploadError);
+
+                        await cleanupFailedPost(response.postId);
+                        alert('Image upload failed. Post has been removed. Please try again.');
+                        setIsSubmitting(false);
+                        return;
+                    }
+                } else {
+
+                    console.log("Draft created successfully!");
+                    router.push('/dashboard');
+                }
+
+
+                setPostValues({
+                    title: "",
+                    content: "",
+                    tags: [""],
+                    locationS: false,
+                    locationL: "",
+                    locked: false,
+                    roleCount: 1,
+                    roleDescription: [""],
+                    skills: [""],
+                    authorImage: "",
+                    authorID: "",
+                    status: "active",
+                    difficulty: "easy",
+                    is_draft: false
+                });
+                setSelectedFile(null);
+                setErrors({});
+                setDuplicateWarning({ show: false, message: "" });
+
+            } else if (response.isDuplicate) {
+                setDuplicateWarning({ show: true, message: response.message });
+                setIsSubmitting(false);
+            } else {
+                console.error("Post creation failed:", response.message);
+                alert('Failed to create post: ' + response.message);
+                setIsSubmitting(false);
+            }
+
+        } catch (error) {
+            console.error("Error creating post:", error);
+            alert('An error occurred while creating the post');
+            setIsSubmitting(false);
+        }
+    }
+
+
 
     return (
         <>
@@ -823,7 +949,10 @@ export default function PostPage() {
                             <button
                                 type="button"
                                 className="flex-1 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
-                                disabled={isSubmitting}
+                                onClick={(e) => {
+                                    console.log('Viewing post');
+                                    handleDraftSave(e);
+                                }}
                             >
                                 Save Draft
                             </button>

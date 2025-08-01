@@ -7,6 +7,8 @@ const createPost = async (req, res) => {
     }
 
     const userId = req.session.userId;
+    let { is_draft } = req.body;
+    is_draft = is_draft ?? false;
     const {
         title,
         content,
@@ -21,7 +23,7 @@ const createPost = async (req, res) => {
         hasImage,
         filename,
         filetype,
-        confirmDuplicate
+        confirmDuplicate,
     } = req.body;
 
 
@@ -99,11 +101,12 @@ const createPost = async (req, res) => {
                          status,
                          location_preference,
                          location,
-                         difficulty
+                         difficulty,
+                         is_draft
                     ) VALUES (
                          $1, $2, $3, $4, $5, $6,
                          $7, $8, $9, $10,
-                         $11, $12, $13, $14
+                         $11, $12, $13, $14, $15
                     ) RETURNING *;
                 `;
 
@@ -122,6 +125,7 @@ const createPost = async (req, res) => {
                 location_preference,
                 location,
                 difficulty,
+                is_draft
             ];
 
             const result = await pool.query(query, values);
