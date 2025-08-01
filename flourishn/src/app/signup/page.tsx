@@ -240,8 +240,9 @@ export default function SignUp() {
             router.push('/dashboard');
             setErrors({});
 
+            signUp(signUpValues.email, signUpValues.firstName, signUpValues.lastName, signUpValues.password, signUpValues.verificationCode)
+
         }
-        signUp(signUpValues.email, signUpValues.firstName, signUpValues.lastName, signUpValues.password, signUpValues.verificationCode)
     }
 
 
