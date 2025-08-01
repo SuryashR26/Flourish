@@ -710,7 +710,6 @@ function page() {
                                         className="w-full h-32 flex items-center justify-center relative overflow-hidden"
                                         style={{ background: getCategoryColor(category).gradient }}
                                     >
-                                        {/* Optional overlay for better text readability */}
                                         <div
                                             className="absolute inset-0"
                                             style={{ background: getCategoryColor(category).gradientOverlay }}
