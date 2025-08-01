@@ -252,7 +252,7 @@ export default function PostPage() {
                 title: postValues.title,
                 content: postValues.content,
                 role_count: postValues.roleCount,
-                role_description: postValues.roleDescription.join(', '),
+                role_description: postValues.roleDescription,
                 project_tags: postValues.tags,
                 skill_tags: postValues.skills,
                 location_preference: postValues.locationS ? 'remote' : 'in-person',
@@ -273,7 +273,8 @@ export default function PostPage() {
 
                 if (response.uploadUrl && selectedFile) {
                     try {
-
+                        console.log('Uploading to:', response.uploadUrl);
+                        console.log('Content-Type:', selectedFile.type);
                         const uploadRes = await fetch(response.uploadUrl, {
                             method: 'PUT',
                             headers: { 'Content-Type': selectedFile.type },
@@ -281,9 +282,10 @@ export default function PostPage() {
                         });
 
                         if (!uploadRes.ok) {
+                            const errorText = await uploadRes.text(); // 🔍 get actual XML error
+                            console.error('Upload failed:', errorText);
                             throw new Error('Upload failed');
                         }
-
 
                         console.log("Post created and image uploaded successfully!");
                         router.push('/dashboard');
@@ -553,78 +555,46 @@ export default function PostPage() {
                             {postValues.roleCount > 0 && (
                                 <div className="w-3/4">
                                     <label className="block !-mb-0">Define Your Roles</label>
-                                    {postValues.roleCount === 4 ? (
-                                        <div className="w-full !mt-8">
-                                            <textarea
-                                                value={postValues.roleDescription[0] || ""}
-                                                onChange={(e) => {
-                                                    setPostValues({
-                                                        ...postValues,
-                                                        roleDescription: [e.target.value]
-                                                    });
-                                                    const newErrors = [...(errors.roleDescription || [])];
-                                                    newErrors[0] = e.target.value.trim() ? "" : "Description is required";
-                                                    setErrors({
-                                                        ...errors,
-                                                        roleDescription: newErrors
-                                                    });
-                                                }}
-                                                maxLength={400}
-                                                placeholder="Define all your roles here (maximum 400 characters)"
-                                                className={`w-full !min-h-[200px] resize-none p-4 border rounded text-base ${errors.roleDescription?.[0] ? "!border-red-500" : ""
-                                                    }`}
-                                                rows={8}
-                                            />
-                                            {errors.roleDescription?.[0] && (
-                                                <div className="text-red-500 text-sm mt-1">
-                                                    {errors.roleDescription[0]}
-                                                </div>
-                                            )}
-                                            <div className="text-sm text-gray-400 text-right mt-1">
-                                                {(postValues.roleDescription[0] || "").length}/400 characters
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="flex flex-col !-gap-5">
-                                            {Array.from({ length: postValues.roleCount }).map((_, index) => (
-                                                <div key={index} className="w-full">
-                                                    <label className="text-sm text-gray-600 block mb-1">
-                                                        Role {index + 1}
-                                                    </label>
-                                                    <textarea
-                                                        value={postValues.roleDescription[index] || ""}
-                                                        onChange={(e) => {
-                                                            const newDescriptions = [...postValues.roleDescription];
-                                                            newDescriptions[index] = e.target.value;
-                                                            setPostValues({
-                                                                ...postValues,
-                                                                roleDescription: newDescriptions
-                                                            });
-                                                            const newErrors = [...(errors.roleDescription || [])];
-                                                            newErrors[index] = e.target.value.trim() ? "" : "Description is required";
-                                                            setErrors({
-                                                                ...errors,
-                                                                roleDescription: newErrors
-                                                            });
-                                                        }}
-                                                        maxLength={200}
-                                                        placeholder={`Describe role ${index + 1}`}
-                                                        className={`w-full !min-h-[50px] resize-none p-4 border rounded text-base ${errors.roleDescription?.[index] ? "!border-red-500" : ""
-                                                            }`}
-                                                        rows={6}
-                                                    />
-                                                    {errors.roleDescription?.[index] && (
-                                                        <div className="text-red-500 text-sm mt-1">
-                                                            {errors.roleDescription[index]}
-                                                        </div>
-                                                    )}
-                                                    <div className="text-sm text-gray-400 text-right mt-1">
-                                                        {(postValues.roleDescription[index] || "").length}/200 characters
+                                    <div className="flex flex-col !-gap-5">
+                                        {Array.from({ length: postValues.roleCount }).map((_, index) => (
+                                            <div key={index} className="w-full">
+                                                <label className="text-sm text-gray-600 block mb-1">
+                                                    Role {index + 1}
+                                                </label>
+                                                <textarea
+                                                    value={postValues.roleDescription[index] || ""}
+                                                    onChange={(e) => {
+                                                        const newDescriptions = [...postValues.roleDescription];
+                                                        newDescriptions[index] = e.target.value;
+                                                        setPostValues({
+                                                            ...postValues,
+                                                            roleDescription: newDescriptions
+                                                        });
+                                                        const newErrors = [...(errors.roleDescription || [])];
+                                                        newErrors[index] = e.target.value.trim() ? "" : "Description is required";
+                                                        setErrors({
+                                                            ...errors,
+                                                            roleDescription: newErrors
+                                                        });
+                                                    }}
+                                                    maxLength={200}
+                                                    placeholder={`Describe role ${index + 1}`}
+                                                    className={`w-full !min-h-[50px] resize-none p-4 border rounded text-base ${errors.roleDescription?.[index] ? "!border-red-500" : ""
+                                                        }`}
+                                                    rows={6}
+                                                />
+                                                {errors.roleDescription?.[index] && (
+                                                    <div className="text-red-500 text-sm mt-1">
+                                                        {errors.roleDescription[index]}
                                                     </div>
+                                                )}
+                                                <div className="text-sm text-gray-400 text-right mt-1">
+                                                    {(postValues.roleDescription[index] || "").length}/200 characters
                                                 </div>
-                                            ))}
-                                        </div>
-                                    )}
+                                            </div>
+                                        ))}
+                                    </div>
+
                                 </div>
                             )}
                         </div>

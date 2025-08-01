@@ -136,7 +136,7 @@ const createPost = async (req, res) => {
                 try {
                     const { url: presignedUrl, key: imageKey } = await getPostImageUrl(
                         userId,
-                        postId,
+                        postId.id,
                         filename,
                         filetype
                     );
@@ -144,14 +144,14 @@ const createPost = async (req, res) => {
 
                     const baseImageUrl = presignedUrl.split('?')[0];
                     await pool.query(
-                        'UPDATE postData SET image_url = $1 WHERE id = $2',
-                        [baseImageUrl, postId]
+                        'UPDATE postData SET photourl = $1 WHERE id = $2',
+                        [baseImageUrl, postId.id]
                     );
 
                     return res.status(201).json({
                         success: true,
                         message: 'Post created successfully',
-                        postId: postId,
+                        postId: postId.id,
                         uploadUrl: presignedUrl,
                         imageKey: imageKey
                     });
@@ -161,14 +161,14 @@ const createPost = async (req, res) => {
                     return res.status(505).json({
                         success: false,
                         message: 'Post created but image upload failed. Please try again.',
-                        postId: postId
+                        postId: postId.id
                     });
                 }
             } else {
                 return res.status(201).json({
                     success: true,
                     message: 'Post created successfully',
-                    postId: postId
+                    postId: postId.id
                 });
             }
 
