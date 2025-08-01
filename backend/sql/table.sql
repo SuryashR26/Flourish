@@ -53,13 +53,13 @@ Create Table public.postData
 (
     id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id     UUID REFERENCES users(id) ON DELETE CASCADE,
-    user_name TEXT,
-    user_email TEXT,
+    user_name TEXT NOT NULL,
+    user_email TEXT NOT NULL,
     user_image TEXT,
     title       TEXT NOT NULL,
     content     TEXT NOT NULL,
-    role_count  INTEGER NOT NULL DEFAULT 1,
-    role_description TEXT NOT NULL,
+    role_count  INTEGER  DEFAULT 1,
+    role_description TEXT,
     image_url   TEXT,
     project_tags TEXT[],
     skill_tags   TEXT[],
@@ -69,5 +69,5 @@ Create Table public.postData
     difficulty  TEXT NOT NULL DEFAULT 'beginner',
     created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    is_active   BOOLEAN NOT NULL DEFAULT TRUE
+    is_draft    BOOLEAN NOT NULL DEFAULT FALSE,
 )
