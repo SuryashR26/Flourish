@@ -15,13 +15,13 @@ import type { CSSObjectWithLabel, ControlProps, MultiValueRemoveProps, OptionPro
 interface PostValues {
     title: string
     content: string
-    tags: string
+    tags: string[]
     locationS: boolean
     locationL: string
     locked: boolean
     roleCount: number
     roleDescription: string[]
-    skills: string
+    skills: string[]
     authorImage: string
     authorID: string
     status: string
@@ -31,13 +31,13 @@ interface PostValues {
 interface PostValuesErrors {
     title?: string
     content?: string
-    tags?: string
+    tags?: string[]
     locationS?: boolean
     locationL?: string
     locked?: boolean
     roleCount?: number
     roleDescription?: string[]
-    skills?: string
+    skills?: string[]
     authorImage?: string
     authorID?: string
     status?: string
@@ -167,13 +167,13 @@ export default function PostPage() {
     const [postValues, setPostValues] = useState<PostValues>({
         title: "",
         content: "",
-        tags: "",
+        tags: [""],
         locationS: false,
         locationL: "",
         locked: false,
         roleCount: 1,
         roleDescription: [""],
-        skills: "",
+        skills: [""],
         authorImage: "",
         authorID: "",
         status: "active",
@@ -183,7 +183,7 @@ export default function PostPage() {
     const [errors, setErrors] = useState<PostValuesErrors>({})
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
     const [isSubmitting, setIsSubmitting] = useState(false)
-    const [duplicateWarning, setDuplicateWarning] = useState<{show: boolean, message: string}>({show: false, message: ""})
+    const [duplicateWarning, setDuplicateWarning] = useState<{ show: boolean, message: string }>({ show: false, message: "" })
 
     const [viewPost, setViewPost] = useState(false)
 
@@ -239,7 +239,7 @@ export default function PostPage() {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        
+
         if (!validateForm()) {
             console.log("Form validation failed", errors);
             return;
@@ -251,28 +251,29 @@ export default function PostPage() {
             const postData = {
                 title: postValues.title,
                 content: postValues.content,
-                roleCount: postValues.roleCount,
-                roleDescription: postValues.roleDescription.join(', '),
-                projectTags: postValues.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
-                skillTags: postValues.skills.split(',').map(skill => skill.trim()).filter(skill => skill),
-                locationPreference: postValues.locationS ? 'remote' : 'in-person',
+                role_count: postValues.roleCount,
+                role_description: postValues.roleDescription.join(', '),
+                project_tags: postValues.tags,
+                skill_tags: postValues.skills,
+                location_preference: postValues.locationS ? 'remote' : 'in-person',
                 location: postValues.locationL,
                 difficulty: postValues.difficulty,
-                confirmDuplicate: duplicateWarning.show 
+                confirmDuplicate: duplicateWarning.show,
+                status: postValues.status,
             };
 
 
             const response = await createPostWithImage(
-                postData, 
-                selectedFile?.name, 
+                postData,
+                selectedFile?.name,
                 selectedFile?.type
             );
 
             if (response.success) {
-                
+
                 if (response.uploadUrl && selectedFile) {
                     try {
-                        
+
                         const uploadRes = await fetch(response.uploadUrl, {
                             method: 'PUT',
                             headers: { 'Content-Type': selectedFile.type },
@@ -283,35 +284,35 @@ export default function PostPage() {
                             throw new Error('Upload failed');
                         }
 
-                       
+
                         console.log("Post created and image uploaded successfully!");
                         router.push('/dashboard');
-                        
+
                     } catch (uploadError) {
                         console.error('Image upload failed:', uploadError);
-                        
+
                         await cleanupFailedPost(response.postId);
                         alert('Image upload failed. Post has been removed. Please try again.');
                         setIsSubmitting(false);
                         return;
                     }
                 } else {
-                    
+
                     console.log("Post created successfully!");
                     router.push('/dashboard');
                 }
 
-               
+
                 setPostValues({
                     title: "",
                     content: "",
-                    tags: "",
+                    tags: [""],
                     locationS: false,
                     locationL: "",
                     locked: false,
                     roleCount: 1,
                     roleDescription: [""],
-                    skills: "",
+                    skills: [""],
                     authorImage: "",
                     authorID: "",
                     status: "active",
@@ -319,10 +320,10 @@ export default function PostPage() {
                 });
                 setSelectedFile(null);
                 setErrors({});
-                setDuplicateWarning({show: false, message: ""});
-                
+                setDuplicateWarning({ show: false, message: "" });
+
             } else if (response.isDuplicate) {
-                setDuplicateWarning({show: true, message: response.message});
+                setDuplicateWarning({ show: true, message: response.message });
                 setIsSubmitting(false);
             } else {
                 console.error("Post creation failed:", response.message);
@@ -475,16 +476,14 @@ export default function PostPage() {
                             <label> Project Tags (up to 5)</label>
                             <TagSelect
                                 isMulti
-                                options={postValues.tags.split(",").filter((tag) => tag.trim()).length >= 5 ? [] : TAG_DIRECTORY}
+                                options={postValues.tags.length >= 5 ? [] : TAG_DIRECTORY}
                                 value={postValues.tags
-                                    .split(",")
                                     .filter((tag) => tag.trim())
                                     .map((tag) => ({ value: tag.trim(), label: tag.trim() }))}
                                 onChange={(selected) => {
                                     const tags = (selected as { value: string; label: string }[])
-                                        .map((option) => option.value)
-                                        .slice(0, 5)
-                                        .join(",");
+                                        .map((option) => option.value.trim())
+                                        .slice(0, 5);
                                     setPostValues({ ...postValues, tags });
                                 }}
                                 placeholder="Add tags to define your idea"
@@ -494,8 +493,9 @@ export default function PostPage() {
                                 components={{ MultiValueRemove: CustomMultiValueRemove }}
                                 noOptionsMessage={() => null}
                             />
+
                             <div className="text-sm text-gray-400 mt-1">
-                                {postValues.tags.split(",").filter((tag) => tag.trim()).length}/5 tags
+                                {postValues.tags.length}/5 tags
                             </div>
                         </div>
 
@@ -503,16 +503,14 @@ export default function PostPage() {
                             <label> Skill Tags (up to 5)</label>
                             <TagSelect
                                 isMulti
-                                options={postValues.skills.split(",").filter((skill) => skill.trim()).length >= 5 ? [] : SKILL_DIRECTORY}
+                                options={postValues.skills.length >= 5 ? [] : SKILL_DIRECTORY}
                                 value={postValues.skills
-                                    .split(",")
                                     .filter((skill) => skill.trim())
                                     .map((skill) => ({ value: skill.trim(), label: skill.trim() }))}
                                 onChange={(selected) => {
                                     const skills = (selected as { value: string; label: string }[])
-                                        .map((option) => option.value)
-                                        .slice(0, 5)
-                                        .join(",");
+                                        .map((option) => option.value.trim())
+                                        .slice(0, 5);
                                     setPostValues({ ...postValues, skills });
                                 }}
                                 placeholder="Add tags to define the skills needed for your idea"
@@ -522,9 +520,11 @@ export default function PostPage() {
                                 components={{ MultiValueRemove: CustomMultiValueRemove }}
                                 noOptionsMessage={() => null}
                             />
+
                             <div className="text-sm text-gray-400 mt-1">
-                                {postValues.skills.split(",").filter((skill) => skill.trim()).length}/5 tags
+                                {postValues.skills.length}/5 tags
                             </div>
+
                         </div>
 
                         <div className="mt-4 flex gap-8">
@@ -655,7 +655,7 @@ export default function PostPage() {
                                 <div className="flex gap-2">
                                     <button
                                         type="button"
-                                        onClick={() => setDuplicateWarning({show: false, message: ""})}
+                                        onClick={() => setDuplicateWarning({ show: false, message: "" })}
                                         className="px-3 py-1 bg-gray-500 text-white rounded text-sm hover:bg-gray-600"
                                     >
                                         Cancel
@@ -786,21 +786,16 @@ export default function PostPage() {
                                                     Required Skills
                                                 </h3>
                                                 <div className="flex flex-wrap !gap-2">
-                                                    {(() => {
-                                                        const skillArr = postValues.skills.split(",").filter(s => s.trim());
-                                                        const skillSpans = [];
-                                                        for (let i = 0; i < skillArr.length; i++) {
-                                                            skillSpans.push(
-                                                                <span
-                                                                    key={i}
-                                                                    className="!bg-[#1f2937] !text-[#1f98f4] !px-3 !py-2 !rounded-lg !text-sm !font-medium !border !border-[#1f98f4]/20"
-                                                                >
-                                                                    {skillArr[i]}
-                                                                </span>
-                                                            );
-                                                        }
-                                                        return skillSpans;
-                                                    })()}
+                                                    {postValues.skills
+                                                        .filter((s) => s.trim())
+                                                        .map((skill, i) => (
+                                                            <span
+                                                                key={i}
+                                                                className="!bg-[#1f2937] !text-[#1f98f4] !px-3 !py-2 !rounded-lg !text-sm !font-medium !border !border-[#1f98f4]/20"
+                                                            >
+                                                                {skill}
+                                                            </span>
+                                                        ))}
                                                 </div>
                                             </div>
                                         )}
@@ -813,21 +808,16 @@ export default function PostPage() {
                                                     Project Tags
                                                 </h3>
                                                 <div className="flex flex-wrap !gap-2">
-                                                    {(() => {
-                                                        const tagArr = postValues.tags.split(",").filter(t => t.trim());
-                                                        const tagSpans = [];
-                                                        for (let i = 0; i < tagArr.length; i++) {
-                                                            tagSpans.push(
-                                                                <span
-                                                                    key={i}
-                                                                    className="!bg-[#0B0809] !text-gray-300 !px-3 !py-2 !rounded-lg !text-sm !border !border-[#2f3542]"
-                                                                >
-                                                                    {tagArr[i]}
-                                                                </span>
-                                                            );
-                                                        }
-                                                        return tagSpans;
-                                                    })()}
+                                                    {postValues.tags
+                                                        .filter((t) => t.trim())
+                                                        .map((tags, i) => (
+                                                            <span
+                                                                key={i}
+                                                                className="!bg-[#1f2937] !text-[#1f98f4] !px-3 !py-2 !rounded-lg !text-sm !font-medium !border !border-[#1f98f4]/20"
+                                                            >
+                                                                {tags}
+                                                            </span>
+                                                        ))}
                                                 </div>
                                             </div>
                                         )}
@@ -869,11 +859,10 @@ export default function PostPage() {
                             </button>
                             <button
                                 type="submit"
-                                className={`flex-1 py-2 text-white rounded-lg transition-colors ${
-                                    isSubmitting 
-                                        ? 'bg-gray-400 cursor-not-allowed' 
-                                        : 'bg-blue-500 hover:bg-blue-600'
-                                }`}
+                                className={`flex-1 py-2 text-white rounded-lg transition-colors ${isSubmitting
+                                    ? 'bg-gray-400 cursor-not-allowed'
+                                    : 'bg-blue-500 hover:bg-blue-600'
+                                    }`}
                                 disabled={isSubmitting}
                             >
                                 {isSubmitting ? 'Creating Post...' : 'Submit Post'}

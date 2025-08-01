@@ -5,7 +5,7 @@ const { login } = require('./auth/login');
 const { contactUs } = require('./inquiries/contactUs');
 const { resetPass } = require('./inquiries/resetPass');
 const { getPresignedUrl } = require('./s3utils/getPresignedUrl')
-const { createPost, getUserPosts, getAllPosts, cleanupFailedPost } = require('./post/post');
+const { createPost, getUserPosts, cleanupFailedPost } = require('./post/post');
 const session = require('express-session');
 const { checkAlreadyLoggedIn } = require('./auth/checkSession')
 require('dotenv').config();
@@ -61,8 +61,6 @@ app.get('/check-session', checkAlreadyLoggedIn)
 app.post('/posts', createPost);
 
 app.get('/posts/user', getUserPosts);
-
-app.get('/posts', getAllPosts);
 
 app.post('/posts/cleanup', cleanupFailedPost);
 
