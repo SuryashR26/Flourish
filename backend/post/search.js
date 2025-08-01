@@ -10,7 +10,7 @@ const search = async (req, res) => {
     try {
         // const searchQuery = `%${query}%`;
         const result = await pool.query(
-            `SELECT * FROM postdata`,
+            `SELECT * FROM postdata where is_draft = false`,
             // [searchQuery]
         );
 
