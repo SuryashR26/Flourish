@@ -285,6 +285,7 @@ function page() {
             try {
                 const result = await search(searchFilter);
                 setProjectCards(result);
+                setCurrentPage(1);
             } catch (error) {
                 console.error('Search failed:', error);
             }
@@ -381,6 +382,16 @@ function page() {
             return 'Research';
         }
         return 'Tech';
+    };
+
+    const filteredSearch = async (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        try {
+            const result = await search(searchFilter);
+            setProjectCards(result);
+        } catch (error) {
+            console.error('Search failed:', error);
+        }
     };
 
     const pageCount = Math.ceil(projectCards.length / projectPerPage);
@@ -663,7 +674,8 @@ function page() {
                     style={!isMobile ? { zIndex: 10001, background: "#000" } : {}}
                 >
                     <button className="btn btn-clear flex-1 !bg-transparent !text-[#888] !border !border-[#2f3542] !px-4 !py-2 !rounded-lg !text-[14px] !font-medium hover:!bg-[#2f3542] hover:!text-white">Clear All</button>
-                    <button className="btn btn-apply flex-1 !bg-[#1f98f4] !text-white !px-4 !py-2 !rounded-lg !text-[14px] !font-medium hover:!bg-[#1a7bc8]">Apply</button>
+                    <button className="btn btn-apply flex-1 !bg-[#1f98f4] !text-white !px-4 !py-2 !rounded-lg !text-[14px] !font-medium hover:!bg-[#1a7bc8]" onClick={(e) => { filteredSearch(e); }}>
+                        Apply</button>
                 </div>
             </div>
             {isMobile && mobileFiltersOpen && (
@@ -722,8 +734,9 @@ function page() {
                                 : 'bg-green-900/10 text-green-400 border border-green-400/20';
                             */
                         const isRemote = project.location_preference;
+
                         // const locationBadgeClass = isRemote ? 'bg-indigo-900 text-indigo-200' : 'bg-green-900 text-green-300';
-                        const locationBadgeText = isRemote ? 'Remote' : 'In Person';
+                        const locationBadgeText = isRemote === 'remote' ? 'Remote' : 'In Person';
                         // const locationText = isRemote ? 'Open to remote collaboration' : project.location;
                         const timePosted = project.created_at ? timeAgo(new Date(project.created_at)) : 'recently';
 
@@ -786,7 +799,7 @@ function page() {
 
                                     {/* In Person/Remote tag and location */}
                                     <div className="flex items-center !gap-2 !mb-3">
-                                        <span className={`!py-1 !px-2 !rounded !text-[13px] !font-medium ${isRemote ? 'bg-[#1d4ed8] text-[#dbeafe]' : 'bg-[#2a2a2a] text-[#e5e5e5]'}`}>
+                                        <span className={`!py-1 !px-2 !rounded !text-[13px] !font-medium ${isRemote === 'remote' ? 'bg-[#1d4ed8] text-[#dbeafe]' : 'bg-[#2a2a2a] text-[#e5e5e5]'}`}>
                                             {locationBadgeText}
                                         </span>
                                         {!isRemote && (
@@ -889,9 +902,9 @@ function page() {
                                             {selectedProject.status}
                                         </span>
                                     )}
-                                    <span className={`!px-3 !py-1 !text-sm !font-medium !rounded-full ${selectedProject.location_preference ? '!bg-indigo-900 !text-indigo-200' : '!bg-green-900 !text-green-300'
+                                    <span className={`!px-3 !py-1 !text-sm !font-medium !rounded-full ${selectedProject.location_preference === 'remote' ? '!bg-indigo-900 !text-indigo-200' : '!bg-green-900 !text-green-300'
                                         }`}>
-                                        {selectedProject.location_preference ? 'Remote' : 'In Person'}
+                                        {selectedProject.location_preference === 'remote' ? 'Remote' : 'In Person'}
                                     </span>
                                     {/*selectedProject.urgent && (
                                         <span className="!px-3 !py-1 !text-sm !font-medium !rounded-full !bg-red-600 !text-white">

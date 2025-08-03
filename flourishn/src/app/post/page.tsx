@@ -958,7 +958,7 @@ export default function PostPage() {
                                 type="button"
                                 className="flex-1 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
                                 onClick={(e) => {
-                                    console.log('Viewing post');
+
                                     handleDraftSave(e);
                                 }}
                             >
