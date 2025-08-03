@@ -19,3 +19,16 @@ export interface Project {
     is_active: boolean;
     photourl?: string | null;
 }
+
+interface SearchFilter {
+    LocationS: {
+        remote: boolean
+        inPerson: boolean
+    }
+    LocationL: string
+    skills: string
+    tags: string
+    difficulty: string[]
+    time: string[]
+    radius: number
+}

@@ -10,7 +10,7 @@ import dynamic from "next/dynamic"
 import { components } from "react-select"
 import { search } from "@/api/apiClient"
 
-import { Project } from '@/app/types/projectTypes';
+import { Project, SearchFilter } from '@/app/types/projectTypes';
 
 import type { CSSObjectWithLabel, ControlProps, MultiValueRemoveProps, OptionProps } from 'react-select';
 
@@ -127,15 +127,7 @@ const CustomMultiValueRemove = (props: MultiValueRemoveProps<any>) => (
     </components.MultiValueRemove>
 );
 
-interface SearchFilter {
-    LocationS: {
-        remote: boolean
-        inPerson: boolean
-    }
-    LocationL: string
-    skills: string
-    tags: string
-}
+
 
 
 // SkillsRow component: only show as many skills as fit in 70% of the card width, then "+ x more skills"
@@ -239,8 +231,11 @@ function page() {
     const [searchFilter, setSearchFilter] = useState<SearchFilter>({
         LocationS: { remote: false, inPerson: false },
         LocationL: '',
-        skills: '',
-        tags: ''
+        skills: [],
+        tags: [],
+        difficulty: [],
+        time: [],
+        radius: 50,
     })
     const [scrollProgress, setScrollProgress] = useState(0)
     const [currentPage, setCurrentPage] = useState(1)
@@ -250,7 +245,6 @@ function page() {
     const [sortDropdownOpen, setSortDropdownOpen] = useState(false)
     const [projectCards, setProjectCards] = useState<Project[]>([]);
     const [searchQuery, setSearchQuery] = useState('')
-    const [radius, setRadius] = useState(50)
 
     // Popup state
     const [selectedProject, setSelectedProject] = useState<null | Project>(null);
@@ -483,11 +477,16 @@ function page() {
                                     type="range"
                                     min={1}
                                     max={100}
-                                    value={radius}
-                                    onChange={e => setRadius(Number(e.target.value))}
+                                    value={searchFilter.radius}
+                                    onChange={(e) =>
+                                        setSearchFilter((prev) => ({
+                                            ...prev,
+                                            radius: Number(e.target.value),
+                                        }))
+                                    }
                                     className="!w-full !h-1 !bg-[#2f3542] !rounded !mb-2 focus:!outline-none focus:!border-[#1f98f4] accent-[#1f98f4]"
                                 />
-                                <div className="radius-value !text-[12px] !text-[#1f98f4] text-center">{radius} miles</div>
+                                <div className="radius-value !text-[12px] !text-[#1f98f4] text-center">{searchFilter.radius} miles</div>
                             </div>
                         </div>
                     </div>
@@ -503,9 +502,10 @@ function page() {
                                 <Select
                                     isMulti
                                     options={SKILL_DIRECTORY}
-                                    value={searchFilter.skills.split(",").filter(skill => skill.trim()).map(skill => ({ value: skill.trim(), label: skill.trim() }))}
+                                    value={searchFilter.skills.map(skill => ({ value: skill, label: skill }))}
                                     onChange={selected => {
-                                        const skills = (selected as { value: string; label: string }[]).map(option => option.value).slice(0, 5).join(",");
+                                        // selected is array of {value,label}
+                                        const skills = (selected as { value: string; label: string }[]).map(option => option.value).slice(0, 5);
                                         setSearchFilter({ ...searchFilter, skills });
                                     }}
                                     placeholder="Search skills..."
@@ -517,20 +517,28 @@ function page() {
                                     className="tags-input !w-full !py-2.5 !px-3 !bg-[#0B0809] !border !border-[#2f3542] !rounded-lg !text-white !text-[14px] !mb-2 cursor-pointer"
                                 />
                                 <div className="selected-tags flex flex-wrap !gap-1 !mt-2 !mb-2">
-                                    {searchFilter.skills.split(",").filter(skill => skill.trim()).map((skill, i) => (
+                                    {searchFilter.skills.map((skill, i) => (
                                         <span key={i} className="tag-chip !bg-[#181c23] !text-white !px-2 !py-1 !rounded !text-[12px] flex items-center !gap-1">
                                             {skill}
-                                            <span className="tag-remove !text-[#888] !text-[14px] cursor-pointer hover:!text-white" onClick={() => {
-                                                const skillsArr = searchFilter.skills.split(",").filter(s => s.trim());
-                                                skillsArr.splice(i, 1);
-                                                setSearchFilter({ ...searchFilter, skills: skillsArr.join(",") });
-                                            }}>×</span>
+                                            <span
+                                                className="tag-remove !text-[#888] !text-[14px] cursor-pointer hover:!text-white"
+                                                onClick={() => {
+                                                    const skillsArr = [...searchFilter.skills];
+                                                    skillsArr.splice(i, 1);
+                                                    setSearchFilter({ ...searchFilter, skills: skillsArr });
+                                                }}
+                                            >
+                                                ×
+                                            </span>
                                         </span>
                                     ))}
                                 </div>
-                                <div className="tag-limit !text-[11px] !text-[#666] !mt-1">{searchFilter.skills.split(",").filter(skill => skill.trim()).length}/5 skills selected</div>
+                                <div className="tag-limit !text-[11px] !text-[#666] !mt-1">
+                                    {searchFilter.skills.length}/5 skills selected
+                                </div>
                             </div>
                         </div>
+
                     </div>
 
                     {/* Project Category Filter */}
@@ -569,20 +577,35 @@ function page() {
                         </div>
                         <div className={`filter-content !pl-2 ${difficultyOpen ? '' : 'hidden'}`}>
                             <div className="difficulty-options flex flex-col !gap-2">
-                                <label className="checkbox-option flex items-center !gap-2 cursor-pointer !py-1">
-                                    <input type="checkbox" className="custom-checkbox !w-[18px] !h-[18px] !border-2 !border-[#2f3542] !rounded !bg-transparent" />
-                                    <span className="option-label !text-[14px] !text-[#ccc] select-none">Beginner Friendly</span>
-                                </label>
-                                <label className="checkbox-option flex items-center !gap-2 cursor-pointer !py-1">
-                                    <input type="checkbox" className="custom-checkbox !w-[18px] !h-[18px] !border-2 !border-[#2f3542] !rounded !bg-transparent" />
-                                    <span className="option-label !text-[14px] !text-[#ccc] select-none">Intermediate</span>
-                                </label>
-                                <label className="checkbox-option flex items-center !gap-2 cursor-pointer !py-1">
-                                    <input type="checkbox" className="custom-checkbox !w-[18px] !h-[18px] !border-2 !border-[#2f3542] !rounded !bg-transparent" />
-                                    <span className="option-label !text-[14px] !text-[#ccc] select-none">Advanced</span>
-                                </label>
+                                {["easy", "intermediate", "hard"].map((level, idx) => {
+                                    const labels = ["Beginner Friendly", "Intermediate", "Advanced"];
+                                    return (
+                                        <label key={level} className="checkbox-option flex items-center !gap-2 cursor-pointer !py-1">
+                                            <input
+                                                type="checkbox"
+                                                className="custom-checkbox !w-[18px] !h-[18px] !border-2 !border-[#2f3542] !rounded !bg-transparent"
+                                                checked={searchFilter.difficulty.includes(level)}
+                                                onChange={() =>
+                                                    setSearchFilter((prev) => {
+                                                        const current = prev.difficulty;
+                                                        return {
+                                                            ...prev,
+                                                            difficulty: current.includes(level)
+                                                                ? current.filter((d) => d !== level)
+                                                                : [...current, level],
+                                                        };
+                                                    })
+                                                }
+                                            />
+                                            <span className="option-label !text-[14px] !text-[#ccc] select-none">
+                                                {labels[idx]}
+                                            </span>
+                                        </label>
+                                    );
+                                })}
                             </div>
                         </div>
+
                     </div>
 
                     {/* Time Commitment Filter */}
@@ -593,24 +616,32 @@ function page() {
                         </div>
                         <div className={`filter-content !pl-2 ${timeOpen ? '' : 'hidden'}`}>
                             <div className="time-options flex flex-col !gap-2">
-                                <label className="checkbox-option flex items-center !gap-2 cursor-pointer !py-1">
-                                    <input type="checkbox" className="custom-checkbox !w-[18px] !h-[18px] !border-2 !border-[#2f3542] !rounded !bg-transparent" />
-                                    <span className="option-label !text-[14px] !text-[#ccc] select-none">1-2 weeks</span>
-                                </label>
-                                <label className="checkbox-option flex items-center !gap-2 cursor-pointer !py-1">
-                                    <input type="checkbox" className="custom-checkbox !w-[18px] !h-[18px] !border-2 !border-[#2f3542] !rounded !bg-transparent" />
-                                    <span className="option-label !text-[14px] !text-[#ccc] select-none">1-3 months</span>
-                                </label>
-                                <label className="checkbox-option flex items-center !gap-2 cursor-pointer !py-1">
-                                    <input type="checkbox" className="custom-checkbox !w-[18px] !h-[18px] !border-2 !border-[#2f3542] !rounded !bg-transparent" />
-                                    <span className="option-label !text-[14px] !text-[#ccc] select-none">3-6 months</span>
-                                </label>
-                                <label className="checkbox-option flex items-center !gap-2 cursor-pointer !py-1">
-                                    <input type="checkbox" className="custom-checkbox !w-[18px] !h-[18px] !border-2 !border-[#2f3542] !rounded !bg-transparent" />
-                                    <span className="option-label !text-[14px] !text-[#ccc] select-none">6+ months</span>
-                                </label>
+                                {["1-2 weeks", "1-3 months", "3-6 months", "6+ months"].map((range) => (
+                                    <label key={range} className="checkbox-option flex items-center !gap-2 cursor-pointer !py-1">
+                                        <input
+                                            type="checkbox"
+                                            className="custom-checkbox !w-[18px] !h-[18px] !border-2 !border-[#2f3542] !rounded !bg-transparent"
+                                            checked={searchFilter.time.includes(range)}
+                                            onChange={() =>
+                                                setSearchFilter((prev) => {
+                                                    const current = prev.time;
+                                                    return {
+                                                        ...prev,
+                                                        time: current.includes(range)
+                                                            ? current.filter((t) => t !== range)
+                                                            : [...current, range],
+                                                    };
+                                                })
+                                            }
+                                        />
+                                        <span className="option-label !text-[14px] !text-[#ccc] select-none">
+                                            {range}
+                                        </span>
+                                    </label>
+                                ))}
                             </div>
                         </div>
+
                     </div>
                 </div>
                 <div
