@@ -255,6 +255,8 @@ function page() {
     const [isMobile, setIsMobile] = useState(false);
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
+    const projectPerPage = 6;
+
     useEffect(() => {
         const handleScroll = () => {
             const totalHeight = document.documentElement.scrollHeight - window.innerHeight
@@ -281,7 +283,7 @@ function page() {
     useEffect(() => {
         async function fetchData() {
             try {
-                const result = await search();
+                const result = await search(searchFilter);
                 setProjectCards(result);
             } catch (error) {
                 console.error('Search failed:', error);
@@ -380,6 +382,13 @@ function page() {
         }
         return 'Tech';
     };
+
+    const pageCount = Math.ceil(projectCards.length / projectPerPage);
+    const paginatedProjects = projectCards.slice(
+        (currentPage - 1) * projectPerPage,
+        currentPage * projectPerPage
+    );
+
 
     const getCategoryPlaceholder = (category: string) => {
         switch (category) {
@@ -549,22 +558,24 @@ function page() {
                         </div>
                         <div className={`filter-content !pl-2 ${categoryOpen ? '' : 'hidden'}`}>
                             <div className="difficulty-options flex flex-col !gap-2">
-                                <label className="checkbox-option flex items-center !gap-2 cursor-pointer !py-1">
-                                    <input type="checkbox" className="custom-checkbox !w-[18px] !h-[18px] !border-2 !border-[#2f3542] !rounded !bg-transparent" />
-                                    <span className="option-label !text-[14px] !text-[#ccc] select-none">Tech</span>
-                                </label>
-                                <label className="checkbox-option flex items-center !gap-2 cursor-pointer !py-1">
-                                    <input type="checkbox" className="custom-checkbox !w-[18px] !h-[18px] !border-2 !border-[#2f3542] !rounded !bg-transparent" />
-                                    <span className="option-label !text-[14px] !text-[#ccc] select-none">Creative</span>
-                                </label>
-                                <label className="checkbox-option flex items-center !gap-2 cursor-pointer !py-1">
-                                    <input type="checkbox" className="custom-checkbox !w-[18px] !h-[18px] !border-2 !border-[#2f3542] !rounded !bg-transparent" />
-                                    <span className="option-label !text-[14px] !text-[#ccc] select-none">Business</span>
-                                </label>
-                                <label className="checkbox-option flex items-center !gap-2 cursor-pointer !py-1">
-                                    <input type="checkbox" className="custom-checkbox !w-[18px] !h-[18px] !border-2 !border-[#2f3542] !rounded !bg-transparent" />
-                                    <span className="option-label !text-[14px] !text-[#ccc] select-none">Environment</span>
-                                </label>
+                                {['Tech', 'Creative', 'Business', 'Environment'].map((tag) => (
+                                    <label key={tag} className="checkbox-option flex items-center !gap-2 cursor-pointer !py-1">
+                                        <input
+                                            type="checkbox"
+                                            className="custom-checkbox !w-[18px] !h-[18px] !border-2 !border-[#2f3542] !rounded !bg-transparent"
+                                            checked={searchFilter.tags.includes(tag)}
+                                            onChange={() => {
+                                                setSearchFilter(prev => {
+                                                    const tags = prev.tags.includes(tag)
+                                                        ? prev.tags.filter(t => t !== tag)   // remove if checked
+                                                        : [...prev.tags, tag];                // add if unchecked
+                                                    return { ...prev, tags };
+                                                });
+                                            }}
+                                        />
+                                        <span className="option-label !text-[14px] !text-[#ccc] select-none">{tag}</span>
+                                    </label>
+                                ))}
                             </div>
                         </div>
                     </div>
@@ -702,7 +713,7 @@ function page() {
 
                 {/* Enhanced Responsive grid layout */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 mt-8">
-                    {projectCards.map((project, idx) => {
+                    {paginatedProjects.map((project, idx) => {
                         const category = getProjectCategory(project.project_tags);
                         /*const categoryClass = category === 'Tech'
                             ? 'bg-blue-900/10 text-blue-400 border border-blue-400/20'
@@ -1015,7 +1026,7 @@ function page() {
             </div>
             <div className=" bottom-0 !mb-3 left-0 w-full z-50 flex justify-center py-4 text-white">
                 <Pagination
-                    pageCount={10}
+                    pageCount={pageCount}
                     currentPage={currentPage}
                     onPageChange={(page: number) => setCurrentPage(page)}
                     className="bg-black-100 text-white"
