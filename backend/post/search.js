@@ -19,7 +19,8 @@ const search = async (req, res) => {
             skills,
             tags,
             difficulty,
-            time
+            time,
+            query
         } = req.query;
 
         console.log('Search parameters:', {
@@ -30,7 +31,8 @@ const search = async (req, res) => {
             skills,
             tags,
             difficulty,
-            time
+            time,
+            query
         });
 
         let index = 1;
@@ -85,7 +87,6 @@ const search = async (req, res) => {
         if (skills) {
             const skillsArray = Array.isArray(skills) ? skills : [skills];
 
-            // 1. Overlap condition on skill_tags array using GIN index
             const skillCondition = `skill_tags && $${index}::text[]`;
             values.push(skillsArray);
             index++;
@@ -112,6 +113,33 @@ const search = async (req, res) => {
         }
 
 
+        if (query && query.trim() !== '') {
+            const searchTerm = query.trim().toLowerCase();
+            const tsQuery = searchTerm
+                .split(/\s+/)
+                .map(token => token + ':*')
+                .join(' & ');
+            const fullTextCondition = `document_with_weights @@ to_tsquery('english', $${index})`;
+            values.push(tsQuery);
+            index++;
+
+            const fuzzyPlaceholder = `$${index}`;
+            values.push(searchTerm);
+            index++;
+            const fuzzyCondition = `
+                  EXISTS (
+                    SELECT 1 FROM unnest(skill_tags) AS skill_tag
+                    WHERE skill_tag % ${fuzzyPlaceholder}
+                  ) OR
+                  EXISTS (
+                    SELECT 1 FROM unnest(project_tags) AS project_tag
+                    WHERE project_tag % ${fuzzyPlaceholder}
+                  ) OR
+                  title % ${fuzzyPlaceholder} OR
+                  content % ${fuzzyPlaceholder}
+                `;
+            conditions.push(`(${fullTextCondition} OR ${fuzzyCondition})`);
+        }
 
 
         if (conditions.length > 0) {

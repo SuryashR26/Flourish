@@ -62,10 +62,10 @@ const Navbar: React.FC<NavbarProps> = ({ showSearchBar = false, showSeparator = 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      localStorage.setItem('searchQuery', searchQuery.trim());
-      router.push('/search');
+      router.push(`/search?query=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
+
 
   useEffect(() => {
     const handleScroll = () => {

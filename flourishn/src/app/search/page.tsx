@@ -1,6 +1,8 @@
 "use client"
 
 import React, { useRef, useLayoutEffect, useState, useCallback, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { useSearchParams } from 'next/navigation';
 import Navbar from '@/components/layout/navbar'
 import { Pagination } from '@/components/ui/pagination'
 import { ChevronDownIcon } from "lucide-react"
@@ -244,7 +246,9 @@ function page() {
     const [skillTagsDrop, setSkillTagsDrop] = useState(true)
     const [sortDropdownOpen, setSortDropdownOpen] = useState(false)
     const [projectCards, setProjectCards] = useState<Project[]>([]);
-    const [searchQuery, setSearchQuery] = useState('')
+    const searchParams = useSearchParams();
+    const query = searchParams.get('query') || '';
+    const [searchQuery, setSearchQuery] = useState(query);
 
     // Popup state
     const [selectedProject, setSelectedProject] = useState<null | Project>(null);
@@ -257,43 +261,44 @@ function page() {
 
     const projectPerPage = 10;
 
+    // Fetch function wrapped with useCallback to avoid re-creating
+    const fetchData = useCallback(async (query: string, filters: SearchFilter) => {
+        try {
+            const result = await search(query, filters);
+            setProjectCards(result);
+            setCurrentPage(1);
+        } catch (error) {
+            console.error('Search failed:', error);
+        }
+    }, [search]);
+
+
+
+
+    // Your filters state and logic remain as is on the search page
+    useEffect(() => {
+        setSearchQuery(query);
+    }, [query]);
+
+    useEffect(() => {
+        fetchData(query, searchFilter);
+    }, [query, searchFilter]);
+
+
     useEffect(() => {
         const handleScroll = () => {
-            const totalHeight = document.documentElement.scrollHeight - window.innerHeight
-            const progress = (window.scrollY / totalHeight) * 100
-            setScrollProgress(progress)
-        }
+            const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = (window.scrollY / totalHeight) * 100;
+            setScrollProgress(progress);
+        };
 
-        window.addEventListener("scroll", handleScroll)
-        handleScroll() // Initial calculation
-
-        // Get search query from localStorage
-        const storedQuery = localStorage.getItem('searchQuery');
-        if (storedQuery) {
-            setSearchQuery(storedQuery);
-            // Clear it after reading to avoid persistence
-            localStorage.removeItem('searchQuery');
-        }
+        window.addEventListener('scroll', handleScroll);
+        handleScroll(); // initial
 
         return () => {
-            window.removeEventListener("scroll", handleScroll)
-        }
-    }, [])
-
-    useEffect(() => {
-        async function fetchData() {
-            try {
-                const result = await search(searchFilter);
-
-                setProjectCards(result);
-                setCurrentPage(1);
-            } catch (error) {
-                console.error('Search failed:', error);
-            }
-        }
-
-        fetchData();
-    }, [search, searchFilter, searchQuery]);
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, []);
 
     useEffect(() => {
         const checkMobile = () => setIsMobile(window.innerWidth < 960);
@@ -388,7 +393,7 @@ function page() {
     const filteredSearch = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         try {
-            const result = await search(searchFilter);
+            const result = await search(searchQuery, searchFilter);
             setProjectCards(result);
         } catch (error) {
             console.error('Search failed:', error);

@@ -78,10 +78,10 @@ export async function getPresignedUrl(filename: string, filetype: string) {
     return await res.json();
 }
 
-export function search(/*query: string,*/ searchFilter: SearchFilter): Promise<Project[]> {
+export function search(query: string, searchFilter: SearchFilter): Promise<Project[]> {
     const params = new URLSearchParams();
 
-    // if (query) params.append('query', query);
+    if (query) params.append('query', query);
 
     params.append('remote', String(searchFilter.LocationS.remote));
     params.append('inPerson', String(searchFilter.LocationS.inPerson));
