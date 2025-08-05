@@ -55,10 +55,15 @@ const signup = async (req, res) => {
 
 
             const emailLower = email.toLowerCase();
-            const new_user = await pool.query(
+            await pool.query(
                 'INSERT INTO users (email, code) VALUES ($1, $2) ON CONFLICT(email) DO UPDATE SET code = $2, created_at = NOW() ',
                 [emailLower, verificationCode]
             )
+
+            return res.status(200).json({
+                success: true,
+                message: 'Verification code sent to your email!'
+            });
 
             await transporter.sendMail({
                 from: '"Flourish" <FlourishIdeaBoard@gmail.com>',
@@ -68,10 +73,7 @@ const signup = async (req, res) => {
                     .replace('{{placeholder}}', verificationCode),
             });
 
-            return res.status(200).json({
-                success: true,
-                message: 'Verification code sent to your email!'
-            });
+
         } catch (error) {
             console.error('Error in sending verification code:', error);
             return res.status(500).json({

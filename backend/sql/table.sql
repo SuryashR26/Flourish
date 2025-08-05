@@ -1,22 +1,33 @@
-Create Table public.users
+CREATE TABLE public.users
 (
-    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    email       TEXT NOT NULL UNIQUE,
-    password    TEXT ,
-    first_name  TEXT,
-    last_name   TEXT ,
-    created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    deleted_at  TIMESTAMPTZ,
-    is_active   BOOLEAN NOT NULL DEFAULT TRUE,
-    is_verified BOOLEAN NOT NULL DEFAULT FALSE,
-    is_admin    BOOLEAN NOT NULL DEFAULT FALSE,
-    age         INTEGER CHECK (age >= 13),
-    personal_preferences varchar(500),
-    code        TEXT, 
-    profileurl varchar, 
-    CONSTRAINT email_unique UNIQUE (email),
+    id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email               TEXT NOT NULL UNIQUE,
+    password            TEXT,
+    first_name          TEXT,
+    last_name           TEXT,
+    created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    deleted_at          TIMESTAMPTZ,
+    is_active           BOOLEAN NOT NULL DEFAULT TRUE,
+    is_verified         BOOLEAN NOT NULL DEFAULT FALSE,
+    is_admin            BOOLEAN NOT NULL DEFAULT FALSE,
+    age                 INTEGER CHECK (age >= 13),
+    personal_preferences TEXT[],        -- Changed from varchar(500) to text array
+    code                TEXT,
+    profileurl          TEXT,
+    fulltext            TSVECTOR GENERATED ALWAYS AS (
+                            to_tsvector('english', coalesce(first_name, '') || ' ' || coalesce(last_name, ''))
+                        ) STORED,
+    CONSTRAINT email_unique UNIQUE (email)
 );
+
+
+CREATE UNIQUE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_is_active ON users(is_active);
+CREATE INDEX idx_users_is_verified ON users(is_verified);
+CREATE INDEX idx_users_preferences_gin ON users USING GIN (personal_preferences);
+CREATE INDEX idx_users_fulltext ON users USING GIN (fulltext);
+
 
 Create Table public.login_attempts
 (
@@ -49,25 +60,45 @@ Create Table public.reset_password_requests
     email       TEXT NOT NULL
 );
 
-Create Table public.postData 
-(
-    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id     UUID REFERENCES users(id) ON DELETE CASCADE,
+CREATE TABLE public.postData (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
     user_name TEXT NOT NULL,
     user_email TEXT NOT NULL,
     user_image TEXT,
-    title       TEXT NOT NULL,
-    content     TEXT NOT NULL,
-    role_count  INTEGER DEFAULT 1,
-    role_description jsonb,
+    title TEXT NOT NULL,
+    content TEXT NOT NULL,
+    role_count INTEGER DEFAULT 1,
+    role_description JSONB,
     project_tags TEXT[],
-    skill_tags   TEXT[],
-    status      TEXT NOT NULL DEFAULT 'active',
+    skill_tags TEXT[],
+    status TEXT NOT NULL DEFAULT 'active',
     location_preference TEXT NOT NULL DEFAULT 'remote',
-    location     TEXT,
-    difficulty  TEXT NOT NULL DEFAULT 'beginner',
-    created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    photourl varchar
-    is_draft    BOOLEAN NOT NULL DEFAULT FALSE,
-)
+    location TEXT,
+    difficulty TEXT NOT NULL DEFAULT 'beginner',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    photourl VARCHAR,
+    is_draft BOOLEAN NOT NULL DEFAULT FALSE,
+    
+   
+    document_with_weights TSVECTOR GENERATED ALWAYS AS (
+        setweight(to_tsvector('english', coalesce(title, '')), 'A') ||
+        setweight(to_tsvector('english', coalesce(content, '')), 'B')
+    ) STORED
+);
+
+
+CREATE INDEX idx_postdata_project_tags_gin ON public.postData USING GIN (project_tags);
+CREATE INDEX idx_postdata_skill_tags_gin ON public.postData USING GIN (skill_tags);
+CREATE INDEX idx_postdata_role_description_gin ON public.postData USING GIN (role_description);
+
+
+CREATE INDEX idx_postdata_status ON public.postData (status);
+CREATE INDEX idx_postdata_location_preference ON public.postData (location_preference);
+CREATE INDEX idx_postdata_difficulty ON public.postData (difficulty);
+CREATE INDEX idx_postdata_created_at ON public.postData (created_at);
+CREATE INDEX idx_postdata_is_draft ON public.postData (is_draft);
+
+
+CREATE INDEX idx_postdata_fulltext ON public.postData USING GIN (document_with_weights);
