@@ -238,6 +238,7 @@ function page() {
         difficulty: [],
         time: [],
         radius: 50,
+        sortBy: '',
     })
     const [scrollProgress, setScrollProgress] = useState(0)
     const [currentPage, setCurrentPage] = useState(1)
@@ -731,9 +732,16 @@ function page() {
                         </button>
                         {sortDropdownOpen && (
                             <div className="absolute right-0 mt-2 w-48 !bg-[#181c23] !border !border-[#2f3542] !rounded-md !shadow-lg z-10">
-                                <a href="#" className="block !px-4 !py-2 !text-sm !text-white hover:!bg-[#272727]">Relevance</a>
-                                <a href="#" className="block !px-4 !py-2 !text-sm !text-white hover:!bg-[#272727]">Newest</a>
-                                <a href="#" className="block !px-4 !py-2 !text-sm !text-white hover:!bg-[#272727]">Oldest</a>
+                                <a href="#" className="block !px-4 !py-2 !text-sm !text-white hover:!bg-[#272727]" onClick={() => {
+                                    setSearchFilter(prev => ({ ...prev, sortBy: 'newest' }));
+                                    setSortDropdownOpen(prev => !prev);
+                                }}
+                                >Newest</a>
+                                <a href="#" className="block !px-4 !py-2 !text-sm !text-white hover:!bg-[#272727]" onClick={() => {
+                                    setSearchFilter(prev => ({ ...prev, sortBy: 'oldest' }));
+                                    setSortDropdownOpen(prev => !prev);
+                                }}
+                                >Oldest</a>
                             </div>
                         )}
                     </div>

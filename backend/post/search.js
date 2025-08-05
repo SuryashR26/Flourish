@@ -20,7 +20,8 @@ const search = async (req, res) => {
             tags,
             difficulty,
             time,
-            query
+            query,
+            sortBy
         } = req.query;
 
         console.log('Search parameters:', {
@@ -32,7 +33,8 @@ const search = async (req, res) => {
             tags,
             difficulty,
             time,
-            query
+            query,
+            sortBy
         });
 
         let index = 1;
@@ -144,6 +146,14 @@ const search = async (req, res) => {
 
         if (conditions.length > 0) {
             baseQuery += ` AND ` + conditions.join(' AND ');
+        }
+
+        if (sortBy) {
+            if (sortBy === 'newest') {
+                baseQuery += ' ORDER BY created_at DESC';
+            } else if (sortBy === 'oldest') {
+                baseQuery += ' ORDER BY created_at ASC';
+            }
         }
         console.log('Base query:', baseQuery);
         console.log('Values:', values);

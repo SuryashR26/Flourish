@@ -88,6 +88,7 @@ export function search(query: string, searchFilter: SearchFilter): Promise<Proje
 
     if (searchFilter.LocationL) params.append('location', searchFilter.LocationL);
     if (searchFilter.radius) params.append('radius', searchFilter.radius.toString());
+    if (searchFilter.sortBy) params.append('sortBy', searchFilter.sortBy);
 
     searchFilter.skills.forEach((skill) => params.append('skills', skill));
     searchFilter.tags.forEach((tag) => params.append('tags', tag));

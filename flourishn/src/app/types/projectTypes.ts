@@ -31,4 +31,5 @@ export interface SearchFilter {
     difficulty: string[]
     time: string[]
     radius: number
+    sortBy: string
 }
