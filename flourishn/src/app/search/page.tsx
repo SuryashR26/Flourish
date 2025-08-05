@@ -255,7 +255,7 @@ function page() {
     const [isMobile, setIsMobile] = useState(false);
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
-    const projectPerPage = 6;
+    const projectPerPage = 10;
 
     useEffect(() => {
         const handleScroll = () => {
@@ -284,6 +284,7 @@ function page() {
         async function fetchData() {
             try {
                 const result = await search(searchFilter);
+
                 setProjectCards(result);
                 setCurrentPage(1);
             } catch (error) {
@@ -481,11 +482,27 @@ function page() {
                         <div className={`filter-content !pl-2 ${locationDropdownOpen ? '' : 'hidden'}`}>
                             <div className="location-options flex flex-col !gap-3 !mb-4">
                                 <label className="checkbox-option flex items-center !gap-2 cursor-pointer !py-1">
-                                    <input type="checkbox" className="custom-checkbox !w-[18px] !h-[18px] !border-2 !border-[#2f3542] !rounded !bg-transparent" checked={searchFilter.LocationS.remote} onChange={() => setSearchFilter(prev => ({ ...prev, LocationS: { remote: true, inPerson: false } }))} />
+                                    <input type="checkbox" className="custom-checkbox !w-[18px] !h-[18px] !border-2 !border-[#2f3542] !rounded !bg-transparent" checked={searchFilter.LocationS.remote} onChange={() =>
+                                        setSearchFilter(prev => ({
+                                            ...prev,
+                                            LocationS: {
+                                                ...prev.LocationS,
+                                                remote: !prev.LocationS.remote,
+                                            },
+                                        }))
+                                    } />
                                     <span className="option-label !text-[14px] !text-[#ccc] select-none">Remote</span>
                                 </label>
                                 <label className="checkbox-option flex items-center !gap-2 cursor-pointer !py-1">
-                                    <input type="checkbox" className="custom-checkbox !w-[18px] !h-[18px] !border-2 !border-[#2f3542] !rounded !bg-transparent" checked={searchFilter.LocationS.inPerson} onChange={() => setSearchFilter(prev => ({ ...prev, LocationS: { remote: false, inPerson: true } }))} />
+                                    <input type="checkbox" className="custom-checkbox !w-[18px] !h-[18px] !border-2 !border-[#2f3542] !rounded !bg-transparent" checked={searchFilter.LocationS.inPerson} onChange={() =>
+                                        setSearchFilter(prev => ({
+                                            ...prev,
+                                            LocationS: {
+                                                ...prev.LocationS,
+                                                inPerson: !prev.LocationS.inPerson,
+                                            },
+                                        }))
+                                    } />
                                     <span className="option-label !text-[14px] !text-[#ccc] select-none">In Person</span>
                                 </label>
                             </div>

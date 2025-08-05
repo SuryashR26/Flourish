@@ -102,7 +102,7 @@ export function search(/*query: string,*/ searchFilter: SearchFilter): Promise<P
         },
     }).then(async (response) => {
         if (!response.ok) {
-            throw new Error('Failed to fetch search results');
+            return [];
         }
         return response.json();
     });

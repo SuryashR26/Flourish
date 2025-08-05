@@ -52,6 +52,68 @@ const search = async (req, res) => {
             values.push(location_preference);
         }
 
+        if (difficulty && Array.isArray(difficulty)) {
+            const placeholders = difficulty.map((_, i) => `$${index + i}`).join(', ');
+
+            conditions.push(`difficulty IN (${placeholders})`);
+
+            values.push(...difficulty.map(d => d.toLowerCase()));
+
+            index += difficulty.length;
+        }
+
+        if (difficulty && !Array.isArray(difficulty)) {
+            conditions.push(`difficulty = $${index++}`);
+            values.push(difficulty.toLowerCase());
+        }
+
+
+        /* if (time && Array.isArray(time)) {
+             const placeholders = time.map((_, i) => `$${index + i}`).join(', ');
+ 
+             conditions.push(`time_commitment IN (${placeholders})`);
+ 
+             values.push(...time.map(d => d.toLowerCase()));
+ 
+             index += time.length;
+         }*/
+
+        /*  if (time && !Array.isArray(time)) {
+              conditions.push(`time_commitment = $${index++}`);
+              values.push(time.toLowerCase());
+          }*/
+        if (skills) {
+            const skillsArray = Array.isArray(skills) ? skills : [skills];
+
+            // 1. Overlap condition on skill_tags array using GIN index
+            const skillCondition = `skill_tags && $${index}::text[]`;
+            values.push(skillsArray);
+            index++;
+
+            const tsQuery = skillsArray
+                .map(skill => skill.toLowerCase().split(/\s+/).join(' | '))
+                .join(' | ');
+            const fullTextCondition = `document_with_weights @@ to_tsquery('english', $${index})`;
+            values.push(tsQuery);
+            index++;
+
+            const fuzzyPlaceholders = skillsArray.map((_, i) => `$${index + i}`).join(', ');
+            values.push(...skillsArray.map(s => s.toLowerCase()));
+            index += skillsArray.length;
+
+            const fuzzyCondition = `
+                  EXISTS (
+                    SELECT 1 FROM unnest(skill_tags) AS skill_tag
+                    WHERE skill_tag % ANY(ARRAY[${fuzzyPlaceholders}])
+                  )
+                `;
+
+            conditions.push(`(${skillCondition} OR ${fullTextCondition} OR ${fuzzyCondition})`);
+        }
+
+
+
+
         if (conditions.length > 0) {
             baseQuery += ` AND ` + conditions.join(' AND ');
         }
