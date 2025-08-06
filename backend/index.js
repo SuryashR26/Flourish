@@ -8,6 +8,7 @@ const { updateProfile } = require('./profileChanges/updateProfile');
 const { logout } = require('./auth/logout');
 const { search } = require('./post/search');
 const { createPost, getUserPosts, cleanupFailedPost } = require('./post/post');
+const { sendMessage, getConversations, getMessages, markAsRead, getCurrentUser } = require('./messages/messages');
 const session = require('express-session');
 const { checkAlreadyLoggedIn } = require('./auth/checkSession')
 require('dotenv').config();
@@ -67,6 +68,17 @@ app.post('/posts', createPost);
 app.get('/posts/user', getUserPosts);
 
 app.post('/posts/cleanup', cleanupFailedPost);
+
+// Message routes
+app.post('/messages', sendMessage);
+
+app.get('/conversations', getConversations);
+
+app.get('/messages/:conversationId', getMessages);
+
+app.put('/messages/read', markAsRead);
+
+app.get('/user/current', getCurrentUser);
 
 app.post('/updateProfile', updateProfile);
 

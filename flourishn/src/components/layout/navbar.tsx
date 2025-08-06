@@ -153,7 +153,7 @@ const Navbar: React.FC<NavbarProps> = ({ showSearchBar = false, showSeparator = 
               {isLoggedIn &&
                 <li className='nav-item'>
                   <Link
-                    href="/messsages"
+                    href="/messages"
                     className={button ? "nav-links-mobile" : "nav-links"}
                   >
                     Messages
