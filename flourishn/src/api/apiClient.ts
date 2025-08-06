@@ -112,3 +112,86 @@ export async function cleanupFailedPost(postId: string) {
 
     return await res.json();
 }
+
+// Message API Functions
+export async function sendMessage(receiverId: string, content: string) {
+    const res = await fetch('http://localhost:8080/messages', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ receiverId, content }),
+    });
+
+    if (!res.ok) {
+        throw new Error('Failed to send message');
+    }
+
+    return await res.json();
+}
+
+export async function getConversations() {
+    const res = await fetch('http://localhost:8080/conversations', {
+        method: 'GET',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (res.status === 401) {
+        window.location.href = '/login';
+        throw new Error('Not authenticated');
+    }
+
+    if (!res.ok) {
+        throw new Error('Failed to get conversations');
+    }
+
+    return await res.json();
+}
+
+export async function getMessages(conversationId: string, limit = 50, offset = 0) {
+    const res = await fetch(`http://localhost:8080/messages/${conversationId}?limit=${limit}&offset=${offset}`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!res.ok) {
+        throw new Error('Failed to get messages');
+    }
+
+    return await res.json();
+}
+
+export async function markMessagesAsRead(conversationId: string) {
+    const res = await fetch('http://localhost:8080/messages/read', {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ conversationId }),
+    });
+
+    if (!res.ok) {
+        throw new Error('Failed to mark messages as read');
+    }
+
+    return await res.json();
+}
+
+export async function getCurrentUser() {
+    const res = await fetch('http://localhost:8080/user/current', {
+        method: 'GET',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (res.status === 401) {
+        window.location.href = '/login';
+        throw new Error('Not authenticated');
+    }
+
+    if (!res.ok) {
+        throw new Error('Failed to get current user');
+    }
+
+    return await res.json();
+}

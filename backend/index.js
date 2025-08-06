@@ -6,6 +6,7 @@ const { contactUs } = require('./inquiries/contactUs');
 const { resetPass } = require('./inquiries/resetPass');
 const { getPresignedUrl } = require('./s3utils/getPresignedUrl')
 const { createPost, getUserPosts, getAllPosts, cleanupFailedPost } = require('./post/post');
+const { sendMessage, getConversations, getMessages, markAsRead, getCurrentUser } = require('./messages/messages');
 const session = require('express-session');
 const { checkAlreadyLoggedIn } = require('./auth/checkSession')
 require('dotenv').config();
@@ -65,6 +66,17 @@ app.get('/posts/user', getUserPosts);
 app.get('/posts', getAllPosts);
 
 app.post('/posts/cleanup', cleanupFailedPost);
+
+// Message routes
+app.post('/messages', sendMessage);
+
+app.get('/conversations', getConversations);
+
+app.get('/messages/:conversationId', getMessages);
+
+app.put('/messages/read', markAsRead);
+
+app.get('/user/current', getCurrentUser);
 
 /*(app.post('/photo-url', async (req, res) => ) {
 

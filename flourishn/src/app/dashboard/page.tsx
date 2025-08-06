@@ -158,18 +158,86 @@ const getInitials = (name: string) => {
         .slice(0, 2);
 };
 
+// Enhanced category colors with updated palette for project cards
+const getCategoryColor = (category: string) => {
+    switch (category.toLowerCase()) {
+        case 'tech':
+            return {
+                primary: '#00D4FF', // Bright cyan
+                bgColor: '#00B8E620',
+                gradient: 'linear-gradient(135deg, #0891B2 0%, #00D4FF 50%, #67E8F9 100%)',
+                gradientOverlay: 'linear-gradient(135deg, rgba(8, 145, 178, 0.8) 0%, rgba(0, 212, 255, 0.6) 50%, rgba(103, 232, 249, 0.4) 100%)',
+                textColor: '#E0F7FA'
+            };
+        case 'creative':
+            return {
+                primary: '#A855F7', // Vibrant purple
+                bgColor: '#9333EA20',
+                gradient: 'linear-gradient(135deg, #7C3AED 0%, #A855F7 50%, #C084FC 100%)',
+                gradientOverlay: 'linear-gradient(135deg, rgba(124, 58, 237, 0.8) 0%, rgba(168, 85, 247, 0.6) 50%, rgba(192, 132, 252, 0.4) 100%)',
+                textColor: '#F3E8FF'
+            };
+        case 'business':
+            return {
+                primary: '#1E40AF', // Navy blue
+                bgColor: '#1D4ED820',
+                gradient: 'linear-gradient(135deg, #1E3A8A 0%, #1E40AF 50%, #3B82F6 100%)',
+                gradientOverlay: 'linear-gradient(135deg, rgba(30, 58, 138, 0.8) 0%, rgba(30, 64, 175, 0.6) 50%, rgba(59, 130, 246, 0.4) 100%)',
+                textColor: '#DBEAFE'
+            };
+        case 'environment':
+            return {
+                primary: '#059669', // Forest green
+                bgColor: '#047857F20',
+                gradient: 'linear-gradient(135deg, #064E3B 0%, #059669 50%, #10B981 100%)',
+                gradientOverlay: 'linear-gradient(135deg, rgba(6, 78, 59, 0.8) 0%, rgba(5, 150, 105, 0.6) 50%, rgba(16, 185, 129, 0.4) 100%)',
+                textColor: '#D1FAE5'
+            };
+        case 'research':
+            return {
+                primary: '#EA580C', // Bold deep orange
+                bgColor: '#DC2626F20',
+                gradient: 'linear-gradient(135deg, #C2410C 0%, #EA580C 50%, #FB923C 100%)',
+                gradientOverlay: 'linear-gradient(135deg, rgba(194, 65, 12, 0.8) 0%, rgba(234, 88, 12, 0.6) 50%, rgba(251, 146, 60, 0.4) 100%)',
+                textColor: '#FED7AA'
+            };
+        default:
+            return {
+                primary: '#6B7280',
+                bgColor: '#4B556320',
+                gradient: 'linear-gradient(135deg, #4B5563 0%, #6B7280 50%, #9CA3AF 100%)',
+                gradientOverlay: 'linear-gradient(135deg, rgba(75, 85, 99, 0.8) 0%, rgba(107, 114, 128, 0.6) 50%, rgba(156, 163, 175, 0.4) 100%)',
+                textColor: '#F3F4F6'
+            };
+    }
+};
+
 const getProjectCategory = (tags: string[]) => {
-    if (tags?.some((tag) => tag.toLowerCase().includes("creative"))) return "Creative";
-    else if (tags?.some((tag) => tag.toLowerCase().includes("business") || tag.toLowerCase().includes("impact"))) return "Business";
-    return "Tech";
+    const tagString = tags.join(' ').toLowerCase();
+    if (tagString.includes('creative') || tagString.includes('design') || tagString.includes('art') ||
+        tagString.includes('film') || tagString.includes('podcast') || tagString.includes('storytelling')) {
+        return 'Creative';
+    }
+    if (tagString.includes('business') || tagString.includes('impact') || tagString.includes('startup') ||
+        tagString.includes('marketplace') || tagString.includes('fintech')) {
+        return 'Business';
+    }
+    if (tagString.includes('sustainability') || tagString.includes('environment') || tagString.includes('policy')) {
+        return 'Environment';
+    }
+    if (tagString.includes('research') || tagString.includes('study') || tagString.includes('analysis')) {
+        return 'Research';
+    }
+    return 'Tech';
 };
 
 const getCategoryPlaceholder = (category: string) => {
     switch (category) {
-        case 'Tech': return 'TECH PROJECT';
-        case 'Creative': return 'CREATIVE PROJECT';
-        case 'Business': return 'BUSINESS PROJECT';
-        default: return 'PROJECT';
+        case 'Creative': return 'Creative';
+        case 'Business': return 'Business';
+        case 'Environment': return 'Environment';
+        case 'Research': return 'Research';
+        default: return 'Tech';
     }
 };
 
@@ -195,114 +263,236 @@ const timeAgo = (date: Date) => {
 };
 
 export default function DashboardPage() {
-    const projectCards: Project[] = [
+    // Recommended projects for the user
+    const recommendedProjects: Project[] = [
         {
             id: 1,
-            title: "Sample Project 1",
-            collaborators: 2,
+            title: "AI-Powered Study Group Platform",
+            collaborators: 3,
             description:
-                "This is a sample project description that provides an overview of the project goals and requirements.",
-            tags: ["#webdevelopment", "#javascript"],
-            skills: ["React", "Node.js"],
-            location: "San Francisco, CA",
+                "Creating an AI-powered platform that matches students for study groups based on learning styles and schedules. Full-stack project with machine learning integration.",
+            tags: ["#tech", "#ai", "#education", "#machine-learning"],
+            skills: ["Machine Learning", "React", "Node.js", "Python", "TensorFlow"],
+            location: "Remote",
             remote: true,
             status: "active",
             difficulty: "intermediate",
             author: {
                 id: 1,
-                name: "John Doe",
+                name: "Maya Thompson",
                 avatar: "/avatar1.jpg",
             },
+            createdAt: "2025-6-15",
         },
         {
             id: 2,
-            title: "Sample Project 2",
-            collaborators: 3,
+            title: "Campus Sustainability Initiative",
+            collaborators: 4,
             description:
-                "This is a sample project description that provides an overview of the project goals and requirements.",
-            tags: ["#webdevelopment", "#javascript"],
-            skills: ["TypeScript", "Python"],
-            location: "New York, NY",
+                "Building a comprehensive plan to reduce campus carbon footprint by 40% over the next 5 years. Looking for environmental science students and data analysts.",
+            tags: ["#environment", "#sustainability", "#research", "#policy"],
+            skills: ["Data Analysis", "Research", "Environmental Science", "Policy Writing"],
+            location: "Palo Alto, CA",
+            remote: false,
+            status: "active",
+            difficulty: "advanced",
+            author: {
+                id: 2,
+                name: "Alex Rivera",
+                avatar: "/avatar2.jpg",
+            },
+            createdAt: "2025-8-15",
+        },
+        {
+            id: 3,
+            title: "Student Film: Digital Nomad",
+            collaborators: 2,
+            description:
+                "Short film about remote work culture among Gen Z. Need cinematographer, sound engineer, and editor. Shooting starts next month.",
+            tags: ["#creative", "#film", "#storytelling", "#documentary"],
+            skills: ["Cinematography", "Video Editing", "Sound Design", "Adobe Premiere"],
+            location: "Berkeley, CA",
             remote: false,
             status: "active",
             difficulty: "beginner",
             author: {
-                id: 2,
-                name: "Jane Smith",
-                avatar: "/avatar2.jpg",
-            },
-        },
-        {
-            id: 3,
-            title: "Sample Project 3",
-            collaborators: 1,
-            description:
-                "This is a sample project description that provides an overview of the project goals and requirements.",
-            tags: ["#webdevelopment", "#javascript"],
-            skills: ["Vue.js", "MongoDB"],
-            location: "Remote",
-            remote: true,
-            status: "active",
-            difficulty: "advanced",
-            author: {
                 id: 3,
-                name: "Mike Johnson",
+                name: "Jordan Chen",
                 avatar: "/avatar3.jpg",
             },
+            createdAt: "2025-5-15",
         },
         {
             id: 4,
-            title: "Sample Project 4",
-            collaborators: 4,
+            title: "Student Marketplace App",
+            collaborators: 3,
             description:
-                "This is a sample project description that provides an overview of the project goals and requirements.",
-            tags: ["#webdevelopment", "#javascript"],
-            skills: ["Angular", "Firebase"],
-            location: "Austin, TX",
+                "Buy/sell platform specifically for college students. Like Facebook Marketplace but with student verification and campus-specific features.",
+            tags: ["#business", "#mobile", "#marketplace", "#fintech"],
+            skills: ["React Native", "Backend Development", "Product Design", "Payment Integration"],
+            location: "Mountain View, CA",
             remote: true,
             status: "active",
             difficulty: "intermediate",
             author: {
                 id: 4,
-                name: "Sarah Wilson",
+                name: "Lisa Wang",
                 avatar: "/avatar4.jpg",
             },
         },
         {
             id: 5,
-            title: "Sample Project 5",
+            title: "Climate Data Visualization Portal",
             collaborators: 2,
             description:
-                "This is a sample project description that provides an overview of the project goals and requirements.",
-            tags: ["#webdevelopment", "#javascript"],
-            skills: ["React Native", "GraphQL"],
-            location: "Seattle, WA",
-            remote: false,
+                "Create a portal for visualizing climate and weather data. Need data scientist and frontend dev for interactive charts and maps.",
+            tags: ["#environment", "#data", "#visualization", "#research"],
+            skills: ["Python", "D3.js", "React", "Pandas"],
+            location: "Remote",
+            remote: true,
             status: "active",
             difficulty: "advanced",
             author: {
                 id: 5,
-                name: "Alex Brown",
+                name: "Olivia Brown",
                 avatar: "/avatar5.jpg",
             },
         },
         {
             id: 6,
-            title: "Sample Project 6",
-            collaborators: 1,
+            title: "Campus Mental Health Podcast",
+            collaborators: 2,
             description:
-                "This is a sample project description that provides an overview of the project goals and requirements.",
-            tags: ["#webdevelopment", "#javascript"],
-            skills: ["Next.js", "Prisma"],
-            location: "Remote",
-            remote: true,
+                "Weekly podcast discussing student mental health with expert interviews. Need audio editor, graphic designer, and social media manager.",
+            tags: ["#creative", "#podcast", "#mentalhealth", "#community"],
+            skills: ["Audio Editing", "Graphic Design", "Social Media", "Content Creation"],
+            location: "San Francisco, CA",
+            remote: false,
             status: "active",
             difficulty: "beginner",
             author: {
                 id: 6,
-                name: "Emily Davis",
+                name: "Kai Patel",
                 avatar: "/avatar6.jpg",
             },
+        },
+    ]
+
+    // User's own projects
+    const userProjects: Project[] = [
+        {
+            id: 101,
+            title: "iOS Recipe App",
+            collaborators: 2,
+            description:
+                "Mobile app for sharing and discovering recipes with social features. Currently in development phase, looking for UI/UX designer and backend developer.",
+            tags: ["#business","#mobile", "#ios", "#food", "#social"],
+            skills: ["Swift", "UI/UX Design", "Backend Development", "Firebase"],
+            location: "Remote",
+            remote: true,
+            status: "active",
+            difficulty: "intermediate",
+            author: {
+                id: 101,
+                name: "You",
+                avatar: "/your-avatar.jpg",
+            },
+            createdAt: "2025-01-15",
+        },
+        {
+            id: 102,
+            title: "Campus Event Planner",
+            collaborators: 1,
+            description:
+                "Web application for organizing and managing campus events. Features include event creation, RSVP system, and calendar integration.",
+            tags: ["#web", "#events", "#campus", "#organization"],
+            skills: ["React", "Node.js", "MongoDB", "Calendar API"],
+            location: "Stanford, CA",
+            remote: false,
+            status: "active",
+            difficulty: "beginner",
+            author: {
+                id: 102,
+                name: "You",
+                avatar: "/your-avatar.jpg",
+            },
+            createdAt: "2025-01-10",
+        },
+        {
+            id: 103,
+            title: "Study Timer with Pomodoro",
+            collaborators: 0,
+            description:
+                "Simple but effective study timer app with Pomodoro technique integration. Built with React and includes statistics tracking.",
+            tags: ["#productivity", "#web", "#pomodoro", "#study"],
+            skills: ["React", "JavaScript", "CSS", "Local Storage"],
+            location: "Remote",
+            remote: true,
+            status: "completed",
+            difficulty: "beginner",
+            author: {
+                id: 103,
+                name: "You",
+                avatar: "/your-avatar.jpg",
+            },
+            createdAt: "2024-12-20",
+        },
+        {
+            id: 104,
+            title: "Local Restaurant Review Platform",
+            collaborators: 1,
+            description:
+                "Platform for reviewing local restaurants with photo uploads and rating system. Focus on student-friendly dining options.",
+            tags: ["#web", "#reviews", "#food", "#local"],
+            skills: ["React", "Express.js", "PostgreSQL", "Image Upload"],
+            location: "Palo Alto, CA",
+            remote: false,
+            status: "paused",
+            difficulty: "intermediate",
+            author: {
+                id: 104,
+                name: "You",
+                avatar: "/your-avatar.jpg",
+            },
+            createdAt: "2023-11-15",
+        },
+        {
+            id: 105,
+            title: "Weather Dashboard",
+            collaborators: 0,
+            description:
+                "Personal weather dashboard with multiple city tracking and weather alerts. Uses OpenWeatherMap API and displays data in charts.",
+            tags: ["#web", "#weather", "#api", "#dashboard"],
+            skills: ["JavaScript", "Chart.js", "API Integration", "CSS"],
+            location: "Remote",
+            remote: true,
+            status: "completed",
+            difficulty: "beginner",
+            author: {
+                id: 105,
+                name: "You",
+                avatar: "/your-avatar.jpg",
+            },
+            createdAt: "2023-10-30",
+        },
+        {
+            id: 106,
+            title: "Fitness Tracker App",
+            collaborators: 1,
+            description:
+                "Mobile app for tracking workouts and fitness goals. Includes progress charts, workout plans, and social sharing features.",
+            tags: ["#mobile", "#fitness", "#health", "#tracking"],
+            skills: ["React Native", "Firebase", "Charts", "Push Notifications"],
+            location: "Remote",
+            remote: true,
+            status: "active",
+            difficulty: "intermediate",
+            author: {
+                id: 106,
+                name: "You",
+                avatar: "/your-avatar.jpg",
+            },
+            createdAt: "2024-01-05",
         },
     ]
 
@@ -318,7 +508,7 @@ export default function DashboardPage() {
             {/* New Dashboard Sidebar */}
             <div className="!w-[320px] !bg-black !border-r !border-[#2f3542] !p-6 fixed top-[80px] left-0 z-40 flex flex-col overflow-y-auto" style={{ height: 'calc(100vh - 80px)' }}>
                 {/* Post Project Button */}
-                <button className="!w-full !bg-[#1f98f4] !text-white !border-none !rounded-xl !py-4 !px-4 !text-base !font-semibold !cursor-pointer !transition-all !duration-200 !mb-8 !flex !items-center !justify-center !gap-2 hover:!bg-[#1a7bc8] hover:!-translate-y-[1px]">
+                <button className="!w-full !bg-black !text-[#1f98f4] !border !border-[#1f98f4] !rounded-xl !py-4 !px-4 !text-base !font-semibold !cursor-pointer !transition-all !duration-200 !mb-8 !flex !items-center !justify-center !gap-2 hover:!bg-[#1f98f4] hover:!text-white">
                     <span className="!text-xl !font-bold">+</span>
                     Post New Project
                 </button>
@@ -391,8 +581,9 @@ export default function DashboardPage() {
                         </button>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 mb-12">
-                        {(showAllRecommended ? projectCards : projectCards.slice(0, 3)).map((project, idx) => {
+                        {(showAllRecommended ? recommendedProjects : recommendedProjects.slice(0, 3)).map((project, idx) => {
                             const category = getProjectCategory(project.tags);
+                            const categoryColors = getCategoryColor(category);
                             const isRemote = project.remote;
                             const locationBadgeText = isRemote ? "Remote" : "In Person";
                             const timePosted = project.createdAt ? timeAgo(new Date(project.createdAt)) : "recently";
@@ -401,9 +592,20 @@ export default function DashboardPage() {
                                     key={project.id || idx}
                                     className="bg-[#1a1a1a] border border-[#333] rounded-xl overflow-hidden cursor-pointer transition-all duration-300 relative flex flex-col hover:border-[#555] hover:-translate-y-0.5 hover:shadow-2xl min-h-[380px]"
                                 >
-                                    {/* Project Image or Placeholder */}
-                                    <div className="w-full h-32 bg-gradient-to-br from-[#2a2a2a] to-[#1a1a1a] flex items-center justify-center">
-                                        <span className="text-[#666] text-xs uppercase tracking-wider">
+                                    {/* Project Image or Category Gradient Background */}
+                                    <div 
+                                        className="w-full h-32 flex items-center justify-center relative overflow-hidden"
+                                        style={{ background: categoryColors.gradient }}
+                                    >
+                                        {/* Optional overlay for better text readability */}
+                                        <div 
+                                            className="absolute inset-0"
+                                            style={{ background: categoryColors.gradientOverlay }}
+                                        />
+                                        <span 
+                                            className="relative text-xs uppercase tracking-wider font-semibold drop-shadow-lg z-10"
+                                            style={{ color: categoryColors.textColor }}
+                                        >
                                             {getCategoryPlaceholder(category)}
                                         </span>
                                     </div>
@@ -414,7 +616,16 @@ export default function DashboardPage() {
                                             <h3 className="text-lg font-semibold text-white leading-tight flex-1">
                                                 {project.title}
                                             </h3>
-                                            <span className={`!py-1 !px-2 !rounded !text-[13px] !font-medium flex-shrink-0 ${category === "Tech" ? "bg-[#1d4ed8] text-[#dbeafe]" : category === "Creative" ? "bg-[#2a2a2a] text-[#e5e5e5]" : "bg-[#2a2a2a] text-[#e5e5e5]"}`}>{category}</span>
+                                            <span
+                                                className="!py-1 !px-2 !rounded !text-[13px] !font-medium flex-shrink-0"
+                                                style={{
+                                                    backgroundColor: categoryColors.bgColor,
+                                                    color: categoryColors.primary,
+                                                    border: `1px solid ${categoryColors.primary}20`
+                                                }}
+                                            >
+                                                {category}
+                                            </span>
                                         </div>
                                         {/* In Person/Remote tag and location */}
                                         <div className="flex items-center !gap-2 !mb-3">
@@ -468,61 +679,86 @@ export default function DashboardPage() {
                         </button>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 mb-12">
-                        {(showAllYour ? projectCards : projectCards.slice(0, 3)).map((project, idx) => (
-                            <div
-                                key={project.id || idx}
-                                className="bg-[#1a1a1a] border border-[#333] rounded-xl overflow-hidden cursor-pointer transition-all duration-300 relative flex flex-col hover:border-[#555] hover:-translate-y-0.5 hover:shadow-2xl min-h-[380px]"
-                            >
-                                {/* Project Image or Placeholder */}
-                                <div className="w-full h-32 bg-gradient-to-br from-[#2a2a2a] to-[#1a1a1a] flex items-center justify-center">
-                                    <span className="text-[#666] text-xs uppercase tracking-wider">
-                                        {getCategoryPlaceholder(getProjectCategory(project.tags))}
-                                    </span>
-                                </div>
-                                {/* Card Content */}
-                                <div className="!p-5 flex flex-col flex-1">
-                                    <div className="flex justify-between items-start !gap-3 !mb-3">
-                                        <h3 className="text-lg font-semibold text-white leading-tight flex-1">
-                                            {project.title}
-                                        </h3>
-                                        <span className={`!py-1 !px-2 !rounded !text-[13px] !font-medium flex-shrink-0 bg-[#1d4ed8] text-[#dbeafe]`}>
-                                            {getProjectCategory(project.tags)}
+                        {(showAllYour ? userProjects : userProjects.slice(0, 3)).map((project, idx) => {
+                            const category = getProjectCategory(project.tags);
+                            const categoryColors = getCategoryColor(category);
+                            const isRemote = project.remote;
+                            const locationBadgeText = isRemote ? "Remote" : "In Person";
+                            const timePosted = project.createdAt ? timeAgo(new Date(project.createdAt)) : "recently";
+                            return (
+                                <div
+                                    key={project.id || idx}
+                                    className="bg-[#1a1a1a] border border-[#333] rounded-xl overflow-hidden cursor-pointer transition-all duration-300 relative flex flex-col hover:border-[#555] hover:-translate-y-0.5 hover:shadow-2xl min-h-[380px]"
+                                >
+                                    {/* Project Image or Category Gradient Background */}
+                                    <div 
+                                        className="w-full h-32 flex items-center justify-center relative overflow-hidden"
+                                        style={{ background: categoryColors.gradient }}
+                                    >
+                                        {/* Optional overlay for better text readability */}
+                                        <div 
+                                            className="absolute inset-0"
+                                            style={{ background: categoryColors.gradientOverlay }}
+                                        />
+                                        <span 
+                                            className="relative text-xs uppercase tracking-wider font-semibold drop-shadow-lg z-10"
+                                            style={{ color: categoryColors.textColor }}
+                                        >
+                                            {getCategoryPlaceholder(category)}
                                         </span>
                                     </div>
-                                    <div className="flex items-center !gap-2 !mb-3">
-                                        <span className={`!py-1 !px-2 !rounded !text-[13px] !font-medium bg-[#1d4ed8] text-[#dbeafe]`}>
-                                            {project.remote ? "Remote" : "In Person"}
-                                        </span>
-                                        {!project.remote && (
-                                            <span className="!text-[13px] !text-gray-400">
-                                                {project.location}
-                                            </span>
-                                        )}
-                                    </div>
-                                    <div className="!mb-4 flex-1">
-                                        <p className="!text-gray-300 !text-sm leading-snug line-clamp-3">
-                                            {project.description}
-                                        </p>
-                                    </div>
-                                    <div className="!mb-4">
-                                        <SkillsRow skills={project.skills || []} />
-                                    </div>
-                                    <div className="flex justify-between items-center !gap-3 !mt-auto">
-                                        <div className="flex items-center !gap-2">
-                                            <div className="w-7 h-7 !rounded-full bg-indigo-900 flex items-center justify-center !text-indigo-200 !text-xs !font-semibold flex-shrink-0">
-                                                {getInitials(project.author?.name || "Unknown")}
-                                            </div>
-                                            <span className="!text-[#888] !text-sm !font-medium">
-                                                {project.author?.name || "Unknown Author"}
+                                    {/* Card Content */}
+                                    <div className="!p-5 flex flex-col flex-1">
+                                        <div className="flex justify-between items-start !gap-3 !mb-3">
+                                            <h3 className="text-lg font-semibold text-white leading-tight flex-1">
+                                                {project.title}
+                                            </h3>
+                                            <span
+                                                className="!py-1 !px-2 !rounded !text-[13px] !font-medium flex-shrink-0"
+                                                style={{
+                                                    backgroundColor: categoryColors.bgColor,
+                                                    color: categoryColors.primary,
+                                                    border: `1px solid ${categoryColors.primary}20`
+                                                }}
+                                            >
+                                                {category}
                                             </span>
                                         </div>
-                                        <span className="!text-[13px] !text-gray-400">
-                                            {project.createdAt ? timeAgo(new Date(project.createdAt)) : "recently"}
-                                        </span>
+                                        <div className="flex items-center !gap-2 !mb-3">
+                                            <span className={`!py-1 !px-2 !rounded !text-[13px] !font-medium ${isRemote ? "bg-[#1d4ed8] text-[#dbeafe]" : "bg-[#2a2a2a] text-[#e5e5e5]"}`}>
+                                                {locationBadgeText}
+                                            </span>
+                                            {!project.remote && (
+                                                <span className="!text-[13px] !text-gray-400">
+                                                    {project.location}
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div className="!mb-4 flex-1">
+                                            <p className="!text-gray-300 !text-sm leading-snug line-clamp-3">
+                                                {project.description}
+                                            </p>
+                                        </div>
+                                        <div className="!mb-4">
+                                            <SkillsRow skills={project.skills || []} />
+                                        </div>
+                                        <div className="flex justify-between items-center !gap-3 !mt-auto">
+                                            <div className="flex items-center !gap-2">
+                                                <div className="w-7 h-7 !rounded-full bg-indigo-900 flex items-center justify-center !text-indigo-200 !text-xs !font-semibold flex-shrink-0">
+                                                    {getInitials(project.author?.name || "Unknown")}
+                                                </div>
+                                                <span className="!text-[#888] !text-sm !font-medium">
+                                                    {project.author?.name || "Unknown Author"}
+                                                </span>
+                                            </div>
+                                            <span className="!text-[13px] !text-gray-400">
+                                                {timePosted}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
 
@@ -538,61 +774,86 @@ export default function DashboardPage() {
                         </button>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 mb-12">
-                        {(showAllBookmarked ? projectCards : projectCards.slice(0, 3)).map((project, idx) => (
-                            <div
-                                key={project.id || idx}
-                                className="bg-[#1a1a1a] border border-[#333] rounded-xl overflow-hidden cursor-pointer transition-all duration-300 relative flex flex-col hover:border-[#555] hover:-translate-y-0.5 hover:shadow-2xl min-h-[380px]"
-                            >
-                                {/* Project Image or Placeholder */}
-                                <div className="w-full h-32 bg-gradient-to-br from-[#2a2a2a] to-[#1a1a1a] flex items-center justify-center">
-                                    <span className="text-[#666] text-xs uppercase tracking-wider">
-                                        {getCategoryPlaceholder(getProjectCategory(project.tags))}
-                                    </span>
-                                </div>
-                                {/* Card Content */}
-                                <div className="!p-5 flex flex-col flex-1">
-                                    <div className="flex justify-between items-start !gap-3 !mb-3">
-                                        <h3 className="text-lg font-semibold text-white leading-tight flex-1">
-                                            {project.title}
-                                        </h3>
-                                        <span className={`!py-1 !px-2 !rounded !text-[13px] !font-medium flex-shrink-0 bg-[#1d4ed8] text-[#dbeafe]`}>
-                                            {getProjectCategory(project.tags)}
+                        {(showAllBookmarked ? recommendedProjects : recommendedProjects.slice(0, 3)).map((project, idx) => {
+                            const category = getProjectCategory(project.tags);
+                            const categoryColors = getCategoryColor(category);
+                            const isRemote = project.remote;
+                            const locationBadgeText = isRemote ? "Remote" : "In Person";
+                            const timePosted = project.createdAt ? timeAgo(new Date(project.createdAt)) : "recently";
+                            return (
+                                <div
+                                    key={project.id || idx}
+                                    className="bg-[#1a1a1a] border border-[#333] rounded-xl overflow-hidden cursor-pointer transition-all duration-300 relative flex flex-col hover:border-[#555] hover:-translate-y-0.5 hover:shadow-2xl min-h-[380px]"
+                                >
+                                    {/* Project Image or Category Gradient Background */}
+                                    <div 
+                                        className="w-full h-32 flex items-center justify-center relative overflow-hidden"
+                                        style={{ background: categoryColors.gradient }}
+                                    >
+                                        {/* Optional overlay for better text readability */}
+                                        <div 
+                                            className="absolute inset-0"
+                                            style={{ background: categoryColors.gradientOverlay }}
+                                        />
+                                        <span 
+                                            className="relative text-xs uppercase tracking-wider font-semibold drop-shadow-lg z-10"
+                                            style={{ color: categoryColors.textColor }}
+                                        >
+                                            {getCategoryPlaceholder(category)}
                                         </span>
                                     </div>
-                                    <div className="flex items-center !gap-2 !mb-3">
-                                        <span className={`!py-1 !px-2 !rounded !text-[13px] !font-medium bg-[#1d4ed8] text-[#dbeafe]`}>
-                                            {project.remote ? "Remote" : "In Person"}
-                                        </span>
-                                        {!project.remote && (
-                                            <span className="!text-[13px] !text-gray-400">
-                                                {project.location}
-                                            </span>
-                                        )}
-                                    </div>
-                                    <div className="!mb-4 flex-1">
-                                        <p className="!text-gray-300 !text-sm leading-snug line-clamp-3">
-                                            {project.description}
-                                        </p>
-                                    </div>
-                                    <div className="!mb-4">
-                                        <SkillsRow skills={project.skills || []} />
-                                    </div>
-                                    <div className="flex justify-between items-center !gap-3 !mt-auto">
-                                        <div className="flex items-center !gap-2">
-                                            <div className="w-7 h-7 !rounded-full bg-indigo-900 flex items-center justify-center !text-indigo-200 !text-xs !font-semibold flex-shrink-0">
-                                                {getInitials(project.author?.name || "Unknown")}
-                                            </div>
-                                            <span className="!text-[#888] !text-sm !font-medium">
-                                                {project.author?.name || "Unknown Author"}
+                                    {/* Card Content */}
+                                    <div className="!p-5 flex flex-col flex-1">
+                                        <div className="flex justify-between items-start !gap-3 !mb-3">
+                                            <h3 className="text-lg font-semibold text-white leading-tight flex-1">
+                                                {project.title}
+                                            </h3>
+                                            <span
+                                                className="!py-1 !px-2 !rounded !text-[13px] !font-medium flex-shrink-0"
+                                                style={{
+                                                    backgroundColor: categoryColors.bgColor,
+                                                    color: categoryColors.primary,
+                                                    border: `1px solid ${categoryColors.primary}20`
+                                                }}
+                                            >
+                                                {category}
                                             </span>
                                         </div>
-                                        <span className="!text-[13px] !text-gray-400">
-                                            {project.createdAt ? timeAgo(new Date(project.createdAt)) : "recently"}
-                                        </span>
+                                        <div className="flex items-center !gap-2 !mb-3">
+                                            <span className={`!py-1 !px-2 !rounded !text-[13px] !font-medium ${isRemote ? "bg-[#1d4ed8] text-[#dbeafe]" : "bg-[#2a2a2a] text-[#e5e5e5]"}`}>
+                                                {locationBadgeText}
+                                            </span>
+                                            {!project.remote && (
+                                                <span className="!text-[13px] !text-gray-400">
+                                                    {project.location}
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div className="!mb-4 flex-1">
+                                            <p className="!text-gray-300 !text-sm leading-snug line-clamp-3">
+                                                {project.description}
+                                            </p>
+                                        </div>
+                                        <div className="!mb-4">
+                                            <SkillsRow skills={project.skills || []} />
+                                        </div>
+                                        <div className="flex justify-between items-center !gap-3 !mt-auto">
+                                            <div className="flex items-center !gap-2">
+                                                <div className="w-7 h-7 !rounded-full bg-indigo-900 flex items-center justify-center !text-indigo-200 !text-xs !font-semibold flex-shrink-0">
+                                                    {getInitials(project.author?.name || "Unknown")}
+                                                </div>
+                                                <span className="!text-[#888] !text-sm !font-medium">
+                                                    {project.author?.name || "Unknown Author"}
+                                                </span>
+                                            </div>
+                                            <span className="!text-[13px] !text-gray-400">
+                                                {timePosted}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
 

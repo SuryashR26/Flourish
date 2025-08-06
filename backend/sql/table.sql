@@ -70,4 +70,29 @@ Create Table public.postData
     created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     is_active   BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+Create Table public.conversations 
+(
+    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    participant1_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    participant2_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    last_message_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    is_active   BOOLEAN NOT NULL DEFAULT TRUE,
+    CONSTRAINT unique_participants UNIQUE(participant1_id, participant2_id),
+    CONSTRAINT no_self_conversation CHECK (participant1_id != participant2_id)
+);
+
+Create Table public.messages 
+(
+    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    conversation_id UUID NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+    sender_id   UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    content     TEXT NOT NULL,
+    is_read     BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    is_active   BOOLEAN NOT NULL DEFAULT TRUE
 )

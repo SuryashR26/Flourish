@@ -63,12 +63,30 @@ export default function NotesApp() {
     return (
         <div className="!bg-black-900 flex">
             {/* Sidebar */}
-            <div className="w-80 bg-black-800 border-r border-white p-6 flex flex-col !-ml-20 min-h-[500px]">
+            <div className="w-80 bg-black-800 border-r border-white p-6 flex flex-col min-h-[500px]">
                 <button
-                    className="mb-4 bg-black-600 text-white px-4 py-2 rounded hover:bg-white hover:text-black transition-colors"
+                    className="mb-2 bg-black-600 text-white px-3 py-1.5 rounded text-sm hover:bg-white hover:text-black transition-colors w-fit"
                     onClick={createNewNote}
                 >
                     + New Note
+                </button>
+                <button
+                    className={`mb-4 !px-3 !py-2 !rounded-lg !text-sm !font-medium !transition-colors !border w-fit ${
+                        savedNotes.length > 0 
+                            ? '!bg-red-600 !text-white hover:!bg-red-700 !border-red-500' 
+                            : '!bg-gray-600 !text-gray-400 !border-gray-500 cursor-not-allowed'
+                    }`}
+                    onClick={e => {
+                        e.preventDefault();
+                        if (savedNotes.length > 0 && window.confirm('Are you sure you want to delete all notes? This action cannot be undone.')) {
+                            setSavedNotes([]);
+                            createNewNote();
+                        }
+                    }}
+                    title="Delete All Notes"
+                    disabled={savedNotes.length === 0}
+                >
+                    Clear All
                 </button>
                 <div className="space-y-3 mb-6 max-h-[450px] overflow-y-auto">
                     {savedNotes.length === 0 && (
@@ -100,7 +118,7 @@ export default function NotesApp() {
             </div>
 
             {/* Main Note Area */}
-            <div className="flex-1 flex flex-col max-w-[600px] !ml-10">
+            <div className="flex-1 flex flex-col max-w-[600px]">
                 <div className="flex-1 p-6">
                     <input
                         value={noteTitle}
@@ -125,16 +143,6 @@ export default function NotesApp() {
                     />
                 </div>
             </div>
-            <button
-                className="fixed bottom-4 right-4 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-colors"
-                onClick={e => {
-                    e.preventDefault();
-                    setSavedNotes([]);
-                    createNewNote();
-                }}
-            >
-                Delete All Notes
-            </button>
         </div>
     )
 }

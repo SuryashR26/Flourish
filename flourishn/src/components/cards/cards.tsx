@@ -140,11 +140,11 @@ export default function Cards() {
             <div className="w-full flex justify-center items-center py-10 px-5 bg-black relative z-20">
                 <div className="w-full max-w-6xl mx-0 flex justify-center relative">
                     <Image
-                        src="/images/dashboard1.png"
+                        src="/images/dashboard2.png"
                         alt="IdeaBoard Dashboard"
                         width={1000}
                         height={600}
-                        className="dashboard-image w-[90%] max-w-4xl h-auto rounded-2xl shadow-2xl object-contain"
+                        className="dashboard-image w-[90%] max-w-4xl h-auto rounded-2xl shadow-2xl object-contain border-3 border-[#2f3542]"
                     />
                 </div>
             </div>

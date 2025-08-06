@@ -151,7 +151,7 @@ const Navbar: React.FC<NavbarProps> = ({ showSearchBar = false, showSeparator = 
               {showDashboard &&
                 <li className='nav-item'>
                   <Link
-                    href="/messsages"
+                    href="/messages"
                     className={button ? "nav-links-mobile" : "nav-links"}
                   >
                     Messages
