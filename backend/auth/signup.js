@@ -22,16 +22,7 @@ const transporter = nodemailer.createTransport({
 const signup = async (req, res) => {
     const { email, first_name, last_name, password, code } = req.body;
     const emailLower = email.toLowerCase();
-    if (code == 'Failed') {
-        await pool.query(
-            'DELETE FROM users WHERE email = $1',
-            [emailLower]
-        );
-        return res.status(200).json({
-            success: true,
-            message: 'User deleted successfully!'
-        });
-    }
+
 
     if (email && !first_name && !last_name && !password && !code) {
         try {

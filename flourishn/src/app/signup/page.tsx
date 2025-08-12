@@ -66,8 +66,7 @@ export default function SignUp() {
     const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
     const [timer, setTimer] = useState(0);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
-    const timer2Ref = useRef<NodeJS.Timeout | null>(null);
-    const timer2Value = useRef(300);
+
     const { signUp, isLoggedIn } = useUser();
 
 
@@ -179,31 +178,6 @@ export default function SignUp() {
                     return prev - 1;
                 });
             }, 1000);
-            timer2Value.current = 300;
-            if (timer2Ref.current) clearInterval(timer2Ref.current);
-            timer2Ref.current = setInterval(() => {
-                timer2Value.current -= 1;
-                if (timer2Value.current <= 0) {
-                    clearInterval(timer2Ref.current!);
-                    signUp(signUpValues.email, signUpValues.firstName, signUpValues.lastName, signUpValues.password, 'Failed');
-                    setCurrentStep(1);
-                    setSignUpValues({
-                        firstName: '',
-                        lastName: '',
-                        email: '',
-                        username: '',
-                        password: '',
-                        confirmPassword: '',
-                        phoneNumber: '',
-                        countryCode: '+1',
-                        birthDay: '',
-                        birthMonth: '',
-                        birthYear: '',
-                        verificationCode: '',
-                    });
-                    setErrors({});
-                }
-            }, 1000);
 
         }
     };
@@ -236,7 +210,6 @@ export default function SignUp() {
                 birthYear: '',
                 verificationCode: '', // Reset verification code
             });
-            if (timer2Ref.current) clearInterval(timer2Ref.current);
             router.push('/dashboard');
             setErrors({});
 

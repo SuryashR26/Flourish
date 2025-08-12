@@ -7,6 +7,9 @@ const { resetPass } = require('./inquiries/resetPass');
 const { updateProfile } = require('./profileChanges/updateProfile');
 const { logout } = require('./auth/logout');
 const { search } = require('./post/search');
+const incompleteRegistration = require('./notifications/incompleteRegistration');
+const inactiveUsers = require('./notifications/inactiveUser');
+const cron = require('node-cron');
 const bookmarkPost = require('./post/bookmark');
 const storeViewProject = require('./post/storeView');
 const { createPost, getUserPosts, cleanupFailedPost } = require('./post/post');
@@ -53,6 +56,26 @@ app.get('/test-db', async (req, res) => {
     }
 });
 
+// runs it at 9 am every day at the server time zone
+cron.schedule('0 9 * * *', async () => {
+    console.log('Running daily incomplete registration email task...');
+    await incompleteRegistration();
+});
+
+
+// Schedule the task to run at midnight every 3 days (days divisible by 3)
+cron.schedule('0 0 */3 * *', async () => {
+    console.log('Running incomplete registration email task every 3 days...');
+    try {
+        await inactiveUsers();
+        console.log('Task completed successfully.');
+    } catch (error) {
+        console.error('Error running task:', error);
+    }
+});
+
+cron.schedule
+
 app.post('/signup', signup);
 
 app.post('/login', login);
@@ -91,6 +114,7 @@ app.get('/search', search)
 app.post('/bookmark', bookmarkPost);
 
 app.post('/storeView', storeViewProject);
+
 
 
 app.listen(PORT, () => {
