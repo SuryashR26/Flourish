@@ -61,6 +61,7 @@ export default function SignUp() {
     const [errors, setErrors] = useState<FormErrors>({});
     const [showPassword, setShowPassword] = useState(false);
     const [showPassword2, setShowPassword2] = useState(false);
+    const [firstTimeSignUp, setFirstTimeSignUp] = useState('');
     const [verificationCode, setVerificationCode] = useState(["", "", "", "", "", ""]);
     const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
     const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -210,10 +211,12 @@ export default function SignUp() {
                 birthYear: '',
                 verificationCode: '', // Reset verification code
             });
-            router.push('/dashboard');
+            setFirstTimeSignUp('true')
+            router.push(`/dashboard?query=${encodeURIComponent(firstTimeSignUp.trim())}`);
             setErrors({});
 
             signUp(signUpValues.email, signUpValues.firstName, signUpValues.lastName, signUpValues.password, signUpValues.verificationCode)
+
 
         }
     }

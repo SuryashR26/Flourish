@@ -33,3 +33,10 @@ export interface SearchFilter {
     radius: number
     sortBy: string
 }
+
+
+export interface SignUpValues2 {
+    birthday: string;
+    phoneNumber: string;
+    interest: string[];
+}

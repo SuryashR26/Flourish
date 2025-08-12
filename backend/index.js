@@ -9,6 +9,7 @@ const { logout } = require('./auth/logout');
 const { search } = require('./post/search');
 const incompleteRegistration = require('./notifications/incompleteRegistration');
 const inactiveUsers = require('./notifications/inactiveUser');
+const additionalInfo = require('./profileChanges/additionalinfo')
 const cron = require('node-cron');
 const bookmarkPost = require('./post/bookmark');
 const storeViewProject = require('./post/storeView');
@@ -114,6 +115,8 @@ app.get('/search', search)
 app.post('/bookmark', bookmarkPost);
 
 app.post('/storeView', storeViewProject);
+
+app.post('/additionalInfo', additionalInfo)
 
 
 

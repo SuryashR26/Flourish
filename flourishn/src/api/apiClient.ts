@@ -1,7 +1,7 @@
 // flesh out all the api calls (write all calls here)
 // can do multiple files 
 
-import { Project, SearchFilter } from '@/app/types/projectTypes';
+import { Project, SearchFilter, SignUpValues2 } from '@/app/types/projectTypes';
 /*export function signup(email: string, first_name: string, last_name: string, password: string, code: string) {
     return fetch('http://localhost:8080/signup', {
         method: 'POST',
@@ -253,6 +253,25 @@ export async function storeViewProject(projectId: string) {
 
     if (!res.ok) {
         throw new Error('Failed to store view');
+    }
+
+    return await res.json();
+}
+
+export async function additionalInfo(signUpValues2: SignUpValues2) {
+    const requestData = {
+        ...signUpValues2
+    };
+
+    const res = await fetch('http://localhost:8080/additionalInfo', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestData),
+    });
+
+    if (!res.ok) {
+        throw new Error('Failed to create post');
     }
 
     return await res.json();

@@ -5,6 +5,7 @@ import NotesApp from "./notes"
 import ProfileUploader from "../signup/profileUploader";
 import { useRouter } from 'next/navigation';
 import { useUser } from "@/context/UserContext";
+import { useSearchParams } from 'next/navigation';
 
 
 // Dashboard Sidebar Activity Feed Styles
@@ -389,7 +390,7 @@ export default function DashboardPage() {
             collaborators: 2,
             description:
                 "Mobile app for sharing and discovering recipes with social features. Currently in development phase, looking for UI/UX designer and backend developer.",
-            tags: ["#business","#mobile", "#ios", "#food", "#social"],
+            tags: ["#business", "#mobile", "#ios", "#food", "#social"],
             skills: ["Swift", "UI/UX Design", "Backend Development", "Firebase"],
             location: "Remote",
             remote: true,
@@ -505,10 +506,15 @@ export default function DashboardPage() {
     const [showAllBookmarked, setShowAllBookmarked] = useState(false);
     const router = useRouter();
     const { user, isLoggedIn } = useUser();
+    const [showProfileUploader, setShowProfileUploader] = useState(true);
+    const firstTimeSignUp = useSearchParams();
 
     useEffect(() => {
         if (!isLoggedIn) {
             router.push('/login')
+        }
+        if (firstTimeSignUp.get('true') === 'true') {
+            setShowProfileUploader(true);
         }
     }, [isLoggedIn, router]);
 
@@ -604,16 +610,16 @@ export default function DashboardPage() {
                                     className="bg-[#1a1a1a] border border-[#333] rounded-xl overflow-hidden cursor-pointer transition-all duration-300 relative flex flex-col hover:border-[#555] hover:-translate-y-0.5 hover:shadow-2xl min-h-[380px]"
                                 >
                                     {/* Project Image or Category Gradient Background */}
-                                    <div 
+                                    <div
                                         className="w-full h-32 flex items-center justify-center relative overflow-hidden"
                                         style={{ background: categoryColors.gradient }}
                                     >
                                         {/* Optional overlay for better text readability */}
-                                        <div 
+                                        <div
                                             className="absolute inset-0"
                                             style={{ background: categoryColors.gradientOverlay }}
                                         />
-                                        <span 
+                                        <span
                                             className="relative text-xs uppercase tracking-wider font-semibold drop-shadow-lg z-10"
                                             style={{ color: categoryColors.textColor }}
                                         >
@@ -702,16 +708,16 @@ export default function DashboardPage() {
                                     className="bg-[#1a1a1a] border border-[#333] rounded-xl overflow-hidden cursor-pointer transition-all duration-300 relative flex flex-col hover:border-[#555] hover:-translate-y-0.5 hover:shadow-2xl min-h-[380px]"
                                 >
                                     {/* Project Image or Category Gradient Background */}
-                                    <div 
+                                    <div
                                         className="w-full h-32 flex items-center justify-center relative overflow-hidden"
                                         style={{ background: categoryColors.gradient }}
                                     >
                                         {/* Optional overlay for better text readability */}
-                                        <div 
+                                        <div
                                             className="absolute inset-0"
                                             style={{ background: categoryColors.gradientOverlay }}
                                         />
-                                        <span 
+                                        <span
                                             className="relative text-xs uppercase tracking-wider font-semibold drop-shadow-lg z-10"
                                             style={{ color: categoryColors.textColor }}
                                         >
@@ -797,16 +803,16 @@ export default function DashboardPage() {
                                     className="bg-[#1a1a1a] border border-[#333] rounded-xl overflow-hidden cursor-pointer transition-all duration-300 relative flex flex-col hover:border-[#555] hover:-translate-y-0.5 hover:shadow-2xl min-h-[380px]"
                                 >
                                     {/* Project Image or Category Gradient Background */}
-                                    <div 
+                                    <div
                                         className="w-full h-32 flex items-center justify-center relative overflow-hidden"
                                         style={{ background: categoryColors.gradient }}
                                     >
                                         {/* Optional overlay for better text readability */}
-                                        <div 
+                                        <div
                                             className="absolute inset-0"
                                             style={{ background: categoryColors.gradientOverlay }}
                                         />
-                                        <span 
+                                        <span
                                             className="relative text-xs uppercase tracking-wider font-semibold drop-shadow-lg z-10"
                                             style={{ color: categoryColors.textColor }}
                                         >
@@ -912,7 +918,11 @@ export default function DashboardPage() {
                     <NotesApp />
                 </div>
                 <div>
-                    <ProfileUploader></ProfileUploader>
+                    {/* Profile Picture Uploader Modal */}
+                    {showProfileUploader && (
+                        <ProfileUploader
+                        />
+                    )}
                 </div>
             </div>
         </>
