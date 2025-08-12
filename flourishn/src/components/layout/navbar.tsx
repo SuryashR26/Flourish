@@ -61,9 +61,7 @@ const Navbar: React.FC<NavbarProps> = ({ showSearchBar = false, showSeparator = 
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/search?query=${encodeURIComponent(searchQuery.trim())}`);
-    }
+    router.push(`/search?query=${encodeURIComponent(searchQuery.trim())}`);
   };
 
 

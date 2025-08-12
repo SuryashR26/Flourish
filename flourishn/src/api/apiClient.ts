@@ -230,3 +230,30 @@ export async function getCurrentUser() {
 
     return await res.json();
 }
+
+export async function bookmarkProject(projectId: string) {
+    const res = await fetch(`http://localhost:8080/bookmark/`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ projectId }),
+    });
+
+    const data = await res.json();
+    return { status: res.status, ...data };
+}
+
+export async function storeViewProject(projectId: string) {
+    const res = await fetch('http://localhost:8080/storeView', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ projectId }),
+    });
+
+    if (!res.ok) {
+        throw new Error('Failed to store view');
+    }
+
+    return await res.json();
+}

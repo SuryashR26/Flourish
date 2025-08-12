@@ -9,11 +9,14 @@ const htmlTemplate = `
 `;
 
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
     auth: {
         user: 'FlourishIdeaBoard@gmail.com',
         pass: 'itzd ikju gkpr mudb',
     },
+    family: 4 // force IPv4
 });
 
 const signup = async (req, res) => {

@@ -1,42 +1,33 @@
 const pool = require('../sql/dB');
 
 const search = async (req, res) => {
-    // const { query } = req.query;
+    const {
+        remote,
+        inPerson,
+        location,
+        radius,
+        skills,
+        tags,
+        difficulty,
+        time,
+        query,
+        sortBy
+    } = req.query;
 
-    /* if (!query || query.trim() === '') {
-         return res.status(400).json({ error: 'Search query cannot be empty' });
-     }*/
+    console.log('Search parameters:', {
+        remote,
+        inPerson,
+        location,
+        radius,
+        skills,
+        tags,
+        difficulty,
+        time,
+        query,
+        sortBy
+    });
 
     try {
-        // const searchQuery = `%${query}%`
-        //;
-
-        const {
-            remote,
-            inPerson,
-            location,
-            radius,
-            skills,
-            tags,
-            difficulty,
-            time,
-            query,
-            sortBy
-        } = req.query;
-
-        console.log('Search parameters:', {
-            remote,
-            inPerson,
-            location,
-            radius,
-            skills,
-            tags,
-            difficulty,
-            time,
-            query,
-            sortBy
-        });
-
         let index = 1;
         const conditions = [];
         const values = [];
@@ -71,21 +62,6 @@ const search = async (req, res) => {
             values.push(difficulty.toLowerCase());
         }
 
-
-        /* if (time && Array.isArray(time)) {
-             const placeholders = time.map((_, i) => `$${index + i}`).join(', ');
- 
-             conditions.push(`time_commitment IN (${placeholders})`);
- 
-             values.push(...time.map(d => d.toLowerCase()));
- 
-             index += time.length;
-         }*/
-
-        /*  if (time && !Array.isArray(time)) {
-              conditions.push(`time_commitment = $${index++}`);
-              values.push(time.toLowerCase());
-          }*/
         if (skills) {
             const skillsArray = Array.isArray(skills) ? skills : [skills];
 
@@ -114,33 +90,87 @@ const search = async (req, res) => {
             conditions.push(`(${skillCondition} OR ${fullTextCondition} OR ${fuzzyCondition})`);
         }
 
-
         if (query && query.trim() !== '') {
             const searchTerm = query.trim().toLowerCase();
-            const tsQuery = searchTerm
-                .split(/\s+/)
-                .map(token => token + ':*')
-                .join(' & ');
-            const fullTextCondition = `document_with_weights @@ to_tsquery('english', $${index})`;
-            values.push(tsQuery);
-            index++;
 
-            const fuzzyPlaceholder = `$${index}`;
+            const tokens = searchTerm
+                .split(/\s+/)
+                .filter(token => token.length > 0)
+                .map(token => token.replace(/[':!&|]/g, ''));
+
+            const tsQuery = tokens.map(token => `${token}:*`).join(' & ');
+
+            values.push(tsQuery);
+            const tsIndex = index++;
+
             values.push(searchTerm);
-            index++;
+            const fuzzyIndex = index++;
+
+            // Push tokens array separately for author name partial matches
+            values.push(tokens.map(t => `%${t}%`)); // array of patterns
+            const authorTokensIndex = index++;
+
+            const fullTextCondition = `document_with_weights @@ to_tsquery('english', $${tsIndex})`;
+
             const fuzzyCondition = `
-                  EXISTS (
-                    SELECT 1 FROM unnest(skill_tags) AS skill_tag
-                    WHERE skill_tag % ${fuzzyPlaceholder}
-                  ) OR
-                  EXISTS (
-                    SELECT 1 FROM unnest(project_tags) AS project_tag
-                    WHERE project_tag % ${fuzzyPlaceholder}
-                  ) OR
-                  title % ${fuzzyPlaceholder} OR
-                  content % ${fuzzyPlaceholder}
-                `;
+              EXISTS (
+                SELECT 1 FROM unnest(skill_tags) AS skill_tag
+                WHERE similarity(skill_tag, $${fuzzyIndex}) > 0.2
+              )
+              OR EXISTS (
+                SELECT 1 FROM unnest(project_tags) AS project_tag
+                WHERE similarity(project_tag, $${fuzzyIndex}) > 0.2
+              )
+              OR similarity(title, $${fuzzyIndex}) > 0.2
+              OR similarity(content, $${fuzzyIndex}) > 0.2
+              OR EXISTS (
+                SELECT 1 FROM unnest($${authorTokensIndex}::text[]) AS token
+                WHERE user_name ILIKE token
+              )
+            `;
+
+            const rankExpression = `
+              (
+                -- Exact title match boost
+                CASE
+                  WHEN regexp_replace(lower(title), '\\s+', ' ', 'g') = regexp_replace(lower($${fuzzyIndex}), '\\s+', ' ', 'g') THEN 1000
+                  WHEN lower(title) ILIKE '%' || $${fuzzyIndex} || '%' THEN 500
+                  ELSE 0
+                END
+                -- Exact author name match (very high boost)
+                + CASE
+                    WHEN regexp_replace(lower(user_name), '\\s+', ' ', 'g') = regexp_replace(lower($${fuzzyIndex}), '\\s+', ' ', 'g') THEN 800
+                    ELSE 0
+                  END
+                -- Partial author name token match (medium boost)
+                + CASE
+                    WHEN EXISTS (
+                      SELECT 1 FROM unnest($${authorTokensIndex}::text[]) AS token
+                      WHERE lower(user_name) ILIKE token
+                    ) THEN 200
+                    ELSE 0
+                  END
+                -- Full text search rank
+                + ts_rank_cd(document_with_weights, to_tsquery('english', $${tsIndex})) * 100
+                -- Max similarity score among fields
+                + GREATEST(
+                    COALESCE((SELECT MAX(similarity(skill_tag, $${fuzzyIndex})) FROM unnest(skill_tags) AS skill_tag), 0),
+                    COALESCE((SELECT MAX(similarity(project_tag, $${fuzzyIndex})) FROM unnest(project_tags) AS project_tag), 0),
+                    similarity(title, $${fuzzyIndex}),
+                    similarity(content, $${fuzzyIndex}),
+                    similarity(user_name, $${fuzzyIndex})
+                  ) * 50
+                -- Token presence in title boost
+                + CASE WHEN (
+                    SELECT bool_and(lower(title) ILIKE '%' || token || '%')
+                    FROM unnest(string_to_array($${fuzzyIndex}, ' ')) AS token
+                  ) THEN 20 ELSE 0 END
+              ) AS score
+            `;
+
             conditions.push(`(${fullTextCondition} OR ${fuzzyCondition})`);
+
+            baseQuery = baseQuery.replace('SELECT *', `SELECT *, ${rankExpression}`);
         }
 
 
@@ -148,17 +178,32 @@ const search = async (req, res) => {
             baseQuery += ` AND ` + conditions.join(' AND ');
         }
 
+
         if (sortBy) {
             if (sortBy === 'newest') {
                 baseQuery += ' ORDER BY created_at DESC';
             } else if (sortBy === 'oldest') {
                 baseQuery += ' ORDER BY created_at ASC';
+            } else if (sortBy === 'relevance') {
+                if (query && query.trim() !== '') {
+                    baseQuery += ' ORDER BY score DESC';
+                } else {
+                    baseQuery += ' ORDER BY created_at DESC';
+                }
+            }
+        } else {
+            if (query && query.trim() !== '') {
+                baseQuery += ' ORDER BY score DESC';
+            } else {
+                baseQuery += ' ORDER BY created_at DESC';
             }
         }
+
         console.log('Base query:', baseQuery);
         console.log('Values:', values);
         console.log('LocationPreference:', location_preference);
         console.log('Conditions:', conditions);
+
         const result = await pool.query(baseQuery, values);
 
         if (result.rows.length === 0) {
@@ -170,6 +215,6 @@ const search = async (req, res) => {
         console.error('Error searching posts:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
-}
+};
 
 module.exports = { search };

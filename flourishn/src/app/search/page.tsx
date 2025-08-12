@@ -1,7 +1,6 @@
 "use client"
 
 import React, { useRef, useLayoutEffect, useState, useCallback, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import { useSearchParams } from 'next/navigation';
 import Navbar from '@/components/layout/navbar'
 import { Pagination } from '@/components/ui/pagination'
@@ -10,11 +9,15 @@ import { X } from 'lucide-react'
 import FilterIcon from '@/components/ui/FilterIcon'
 import dynamic from "next/dynamic"
 import { components } from "react-select"
-import { search } from "@/api/apiClient"
+import { search, bookmarkProject, storeViewProject } from "@/api/apiClient"
+
 
 import { Project, SearchFilter } from '@/app/types/projectTypes';
+import { useUser } from '@/context/UserContext';
 
 import type { CSSObjectWithLabel, ControlProps, MultiValueRemoveProps, OptionProps } from 'react-select';
+import { useRouter } from 'next/navigation';
+
 
 
 const Select = dynamic(() => import("react-select"), { ssr: false });
@@ -202,6 +205,8 @@ function SkillsRow({ skills = [] }: { skills: string[] }) {
         };
     }, [skills.length]);
 
+
+
     return (
         <div ref={containerRef} className="flex flex-wrap !gap-2">
             {visibleCount > 0 && skills.slice(0, visibleCount).map((skill, i) => (
@@ -238,8 +243,10 @@ function page() {
         difficulty: [],
         time: [],
         radius: 50,
-        sortBy: '',
+        sortBy: 'relevance',
     })
+    const { user, isLoggedIn } = useUser();
+    const router = useRouter();
     const [scrollProgress, setScrollProgress] = useState(0)
     const [currentPage, setCurrentPage] = useState(1)
     const [locationDropdownOpen, setLocationDropdownOpen] = useState(true)
@@ -285,7 +292,13 @@ function page() {
         fetchData(query, searchFilter);
     }, [query, searchFilter]);
 
-
+    useEffect(() => {
+        if (isLoggedIn) {
+            if (selectedProject) {
+                storeViewProject(selectedProject.id);
+            }
+        }
+    })
     useEffect(() => {
         const handleScroll = () => {
             const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
@@ -400,6 +413,21 @@ function page() {
             console.error('Search failed:', error);
         }
     };
+
+    function shuffleProjects(projects: Project[]) {
+        const shuffled = [...projects];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+    }
+
+    function handleShuffleClick() {
+        const shuffled = shuffleProjects(projectCards);
+        setProjectCards(shuffled);
+    }
+
 
     const pageCount = Math.ceil(projectCards.length / projectPerPage);
     const paginatedProjects = projectCards.slice(
@@ -697,8 +725,7 @@ function page() {
                     style={!isMobile ? { zIndex: 10001, background: "#000" } : {}}
                 >
                     <button className="btn btn-clear flex-1 !bg-transparent !text-[#888] !border !border-[#2f3542] !px-4 !py-2 !rounded-lg !text-[14px] !font-medium hover:!bg-[#2f3542] hover:!text-white">Clear All</button>
-                    <button className="btn btn-apply flex-1 !bg-[#1f98f4] !text-white !px-4 !py-2 !rounded-lg !text-[14px] !font-medium hover:!bg-[#1a7bc8]" onClick={(e) => { filteredSearch(e); }}>
-                        Apply</button>
+
                 </div>
             </div>
             {isMobile && mobileFiltersOpen && (
@@ -723,15 +750,30 @@ function page() {
                     <p className="text-gray-400 text-lg lg:text-lg font-medium">
                         Showing {projectCards.length} results for "{searchQuery || 'all projects'}"
                     </p>
-                    <div className="relative">
+                    <div className='relative'>
+
+                    </div>
+                    <div className="relative flex flex-row gap-2">
+                        <button
+                            onClick={() => handleShuffleClick()}
+                            className="flex items-center gap-2 !text-white !bg-[#181c23] !border !border-[#2f3542] !px-2 !py-1 !rounded-md hover:!bg-[#272727] !transition-colors"
+                        >
+                            Shuffle
+                        </button>
                         <button
                             onClick={() => setSortDropdownOpen(prev => !prev)}
                             className="flex items-center gap-2 !text-white !bg-[#181c23] !border !border-[#2f3542] !px-2 !py-1 !rounded-md hover:!bg-[#272727] !transition-colors"
                         >
-                            Sort by <ChevronDownIcon size={16} />
+                            Sort by {searchFilter.sortBy} <ChevronDownIcon size={16} />
                         </button>
+
                         {sortDropdownOpen && (
-                            <div className="absolute right-0 mt-2 w-48 !bg-[#181c23] !border !border-[#2f3542] !rounded-md !shadow-lg z-10">
+                            <div className="absolute right-0 mt-2 w-48 !bg-[#181c23] !border !border-[#2f3542] !rounded-md !shadow-lg z-50">
+                                <a href="#" className="block !px-4 !py-2 !text-sm !text-white hover:!bg-[#272727]" onClick={() => {
+                                    setSearchFilter(prev => ({ ...prev, sortBy: 'relevance' }));
+                                    setSortDropdownOpen(prev => !prev);
+                                }}
+                                >Relevance</a>
                                 <a href="#" className="block !px-4 !py-2 !text-sm !text-white hover:!bg-[#272727]" onClick={() => {
                                     setSearchFilter(prev => ({ ...prev, sortBy: 'newest' }));
                                     setSortDropdownOpen(prev => !prev);
@@ -744,6 +786,7 @@ function page() {
                                 >Oldest</a>
                             </div>
                         )}
+
                     </div>
                 </div>
 
@@ -880,13 +923,13 @@ function page() {
                 </div>
 
 
-                {selectedProject && (
+                {selectedProject && isLoggedIn && (
                     <div
                         className="fixed left-0 top-0 w-full h-full flex items-center justify-center z-[999] !p-4"
                         style={{ background: "rgba(0,0,0,0.8)" }}
                         onClick={e => { if (e.target === e.currentTarget) setSelectedProject(null); }}
                     >
-                        <div className="!bg-[#181c23] !border !border-[#333] !rounded-2xl !w-full !max-w-2xl !max-h-[90vh] !overflow-y-auto !relative !shadow-2xl">
+                        <div className="!bg-[#181c23] !border !border-[#333] !rounded-2xl !w-full !max-w-2xl !max-h-[90vh] !overflow-hidden !relative !shadow-2xl">
                             <div className="!p-8 !pb-6 !border-b !border-[#2f3542] !relative">
                                 <button
                                     onClick={() => setSelectedProject(null)}
@@ -1043,13 +1086,22 @@ function page() {
                                 <div className="flex flex-col sm:flex-row !gap-3 !pt-6 !border-t !border-[#2f3542]">
                                     <button
                                         className="flex-1 !bg-[#1f98f4] !text-white !px-6 !py-3 !rounded-xl !font-medium hover:!bg-[#1a7bc8] !transition-all !duration-200 hover:!-translate-y-0.5"
-                                        onClick={() => {
-                                            // Handle join project action
+                                        onClick={async () => {
+                                            console.log('Joining project:', selectedProject.id);
+                                            const result = await bookmarkProject(selectedProject.id)
+                                            if (result.status == 401) {
+                                                router.push('/login');
+                                                return;
+                                            }
+                                            if (result.status == 400) {
+                                                console.error('Bookmark failed:', result.message || 'Unknown error');
+                                                return;
+                                            }
                                             console.log('Joining project:', selectedProject.title);
                                             setSelectedProject(null);
                                         }}
                                     >
-                                        Join Project
+                                        Bookmark Project
                                     </button>
                                     <button
                                         className="flex-1 !bg-transparent !text-[#1f98f4] !border !border-[#1f98f4] !px-6 !py-3 !rounded-xl !font-medium hover:!bg-[#1f98f4] hover:!text-white !transition-colors"
@@ -1066,12 +1118,243 @@ function page() {
                         </div>
                     </div>
                 )}
+                {selectedProject && !isLoggedIn && (
+                    <div
+                        className="fixed left-0 top-0 w-full h-full flex items-center justify-center z-[999] !p-4"
+                        style={{ background: "rgba(0,0,0,0.8)" }}
+                        onClick={e => { if (e.target === e.currentTarget) setSelectedProject(null); }}
+                    >
+                        <div className="!bg-[#181c23] !border !border-[#333] !rounded-2xl !w-full !max-w-2xl !max-h-[90vh] !overflow-hidden !relative !shadow-2xl">
+                            {/* Blurred Content */}
+                            <div className="blur-sm">
+                                <div className="!p-8 !pb-6 !border-b !border-[#2f3542] !relative">
+                                    <button
+                                        onClick={() => setSelectedProject(null)}
+                                        className="!absolute !top-5 !right-5 !text-[#888] hover:!text-white !text-2xl !p-2 !rounded-lg hover:!bg-[#2f3542] !transition-colors"
+                                        aria-label="Close"
+                                    >
+                                        <X size={24} />
+                                    </button>
+
+                                    <h1 className="!text-3xl !font-bold !text-white !mb-4 !pr-12 !leading-tight">
+                                        {selectedProject.title || 'Untitled Project'}
+                                    </h1>
+
+                                    <div className="flex items-center !gap-3 !mb-4">
+                                        <div className="w-7 h-7 rounded-full bg-indigo-900 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                            <img
+                                                src={selectedProject.user_image || '/images/defaultProfile.jpg'}
+                                                alt={selectedProject.user_name || 'User'}
+                                                className="w-full h-full object-cover rounded-full"
+                                                onError={(e) => {
+                                                    e.currentTarget.onerror = null;
+                                                    e.currentTarget.src = '/images/defaultProfile.jpg';
+                                                }}
+                                            />
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <div className="!text-white !font-medium">
+                                                {selectedProject.user_name || 'Unknown Author'}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex !gap-2 flex-wrap">
+                                        {selectedProject.status && (
+                                            <span className={`!px-3 !py-1 !text-sm !font-medium !rounded-full ${selectedProject.status === 'active' ? '!bg-green-900 !text-green-300' :
+                                                selectedProject.status === 'completed' ? '!bg-blue-900 !text-blue-300' :
+                                                    '!bg-yellow-900 !text-yellow-300'
+                                                }`}>
+                                                {selectedProject.status}
+                                            </span>
+                                        )}
+                                        <span className={`!px-3 !py-1 !text-sm !font-medium !rounded-full ${selectedProject.location_preference === 'remote' ? '!bg-indigo-900 !text-indigo-200' : '!bg-green-900 !text-green-300'
+                                            }`}>
+                                            {selectedProject.location_preference === 'remote' ? 'Remote' : 'In Person'}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="!p-8">
+                                    {/* Project Details Grid */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 !gap-6 !mb-8 !p-5 !bg-white/[0.02] !border !border-[#2f3542] !rounded-xl">
+                                        <div className="flex items-center !gap-3">
+                                            <svg className="!w-5 !h-5 !text-[#1f98f4] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <span className="!text-[#ccc] !text-sm">
+                                                {selectedProject.role_count || 0} collaborator{selectedProject.role_count !== 1 ? 's' : ''} needed
+                                            </span>
+                                        </div>
+
+                                        {selectedProject.difficulty && (
+                                            <div className="flex items-center !gap-3">
+                                                <svg className="!w-5 !h-5 !text-[#1f98f4] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                                </svg>
+                                                <span className="!text-[#ccc] !text-sm !capitalize">
+                                                    {selectedProject.difficulty} level
+                                                </span>
+                                            </div>
+                                        )}
+
+                                        <div className="flex items-center !gap-3">
+                                            <svg className="!w-5 !h-5 !text-[#1f98f4] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                                            </svg>
+                                            <span className="!text-[#ccc] !text-sm">
+                                                {selectedProject.location_preference ? 'Remote collaboration' : selectedProject.location}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {/* Project Description */}
+                                    <div className="!mb-8">
+                                        <h3 className="!text-lg !font-semibold !text-white !mb-3 flex items-center !gap-2">
+                                            <div className="!w-1 !h-5 !bg-[#1f98f4] !rounded"></div>
+                                            Project Description
+                                        </h3>
+                                        <p className="!text-[#ccc] !leading-relaxed !text-[15px] !whitespace-pre-line">
+                                            {selectedProject.content || 'No description available'}
+                                        </p>
+                                    </div>
+
+                                    {/* Required Skills */}
+                                    {selectedProject.skill_tags && selectedProject.skill_tags.length > 0 && (
+                                        <div className="!mb-8">
+                                            <h3 className="!text-lg !font-semibold !text-white !mb-3 flex items-center !gap-2">
+                                                <div className="!w-1 !h-5 !bg-[#1f98f4] !rounded"></div>
+                                                Required Skills
+                                            </h3>
+                                            <div className="flex flex-wrap !gap-2">
+                                                {selectedProject.skill_tags.map((skill, i) => (
+                                                    <span
+                                                        key={i}
+                                                        className="!bg-[#1f2937] !text-[#1f98f4] !px-3 !py-2 !rounded-lg !text-sm !font-medium !border !border-[#1f98f4]/20"
+                                                    >
+                                                        {skill}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Project Tags */}
+                                    {selectedProject.project_tags && selectedProject.project_tags.length > 0 && (
+                                        <div className="!mb-8">
+                                            <h3 className="!text-lg !font-semibold !text-white !mb-3 flex items-center !gap-2">
+                                                <div className="!w-1 !h-5 !bg-[#1f98f4] !rounded"></div>
+                                                Project Tags
+                                            </h3>
+                                            <div className="flex flex-wrap !gap-2">
+                                                {selectedProject.project_tags.map((tag, i) => (
+                                                    <span
+                                                        key={i}
+                                                        className="!bg-[#0B0809] !text-gray-300 !px-3 !py-2 !rounded-lg !text-sm !border !border-[#2f3542]"
+                                                    >
+                                                        {tag}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Action Buttons */}
+                                    <div className="flex flex-col sm:flex-row !gap-3 !pt-6 !border-t !border-[#2f3542]">
+                                        <button
+                                            className="flex-1 !bg-[#1f98f4] !text-white !px-6 !py-3 !rounded-xl !font-medium hover:!bg-[#1a7bc8] !transition-all !duration-200 hover:!-translate-y-0.5"
+                                            onClick={async () => {
+                                                console.log('Joining project:', selectedProject.id);
+                                                const result = await bookmarkProject(selectedProject.id)
+                                                if (result.status == 401) {
+                                                    router.push('/login');
+                                                    return;
+                                                }
+                                                if (result.status == 400) {
+                                                    console.error('Bookmark failed:', result.message || 'Unknown error');
+                                                    return;
+                                                }
+                                                console.log('Joining project:', selectedProject.title);
+                                                setSelectedProject(null);
+                                            }}
+                                        >
+                                            Bookmark Project
+                                        </button>
+                                        <button
+                                            className="flex-1 !bg-transparent !text-[#1f98f4] !border !border-[#1f98f4] !px-6 !py-3 !rounded-xl !font-medium hover:!bg-[#1f98f4] hover:!text-white !transition-colors"
+                                            onClick={() => {
+                                                console.log('Contacting author:', selectedProject.user_name);
+                                                setSelectedProject(null);
+                                            }}
+                                        >
+                                            Contact {selectedProject.user_name?.split(' ')[0] || 'Author'}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Login Overlay */}
+                            <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/80 to-black/90 backdrop-blur-md flex items-center justify-center rounded-2xl">
+                                {/* Close Button */}
+                                <button
+                                    onClick={() => setSelectedProject(null)}
+                                    className="absolute top-6 right-6 text-white/70 hover:text-white text-2xl p-2 rounded-lg hover:bg-white/10 transition-all duration-200 z-10"
+                                    aria-label="Close"
+                                >
+                                    <X size={24} />
+                                </button>
+                                <div className="text-center px-8 py-16 max-w-lg w-full mx-4 !mb-10">
+                                    <div className="mb-8">
+                                        <div className="mx-auto w-20 h-20 rounded-full flex items-center justify-center  shadow-xl">
+                                            <div className="!mt-30 !ml-30">
+                                                <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                        <h3 className="text-3xl font-bold text-white !text-center mb-4 tracking-tight">
+                                            Login Required
+                                        </h3>
+                                        <p className="text-gray-300 text-lg !text-center !ml-10 leading-relaxed max-w-md mx-auto !mb-6 !mt-6">
+                                            Please log in or sign up with us for free to view the rest of the content and connect with amazing collaborators!
+                                        </p>
+                                    </div>
+
+                                    <div className="flex flex-col sm:flex-row gap-4 !ml-10 max-w-sm mx-auto">
+                                        <button
+                                            className="flex-1 bg-gradient-to-r from-[#1f98f4] to-[#1a7bc8] text-white px-8 py-4 rounded-xl font-semibold text-lg hover:from-[#1a7bc8] hover:to-[#1565a0] transition-all duration-300 hover:shadow-xl hover:-translate-y-1 transform"
+                                            onClick={() => {
+                                                // Handle login redirect
+                                                router.push('/login');
+                                            }}
+                                        >
+                                            Log In
+                                        </button>
+                                        <button
+                                            className="flex-1 bg-transparent text-[#1f98f4] border-2 border-[#1f98f4] px-8 py-4 rounded-xl font-semibold text-lg hover:bg-[#1f98f4] hover:text-white transition-all duration-300 hover:shadow-xl hover:-translate-y-1 transform backdrop-blur-sm"
+                                            onClick={() => {
+                                                // Handle signup redirect
+                                                router.push('/signup');
+                                            }}
+                                        >
+                                            Sign Up
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
             <div className=" bottom-0 !mb-3 left-0 w-full z-50 flex justify-center py-4 text-white">
                 <Pagination
                     pageCount={pageCount}
                     currentPage={currentPage}
-                    onPageChange={(page: number) => setCurrentPage(page)}
+                    onPageChange={(page: number) => {
+                        setCurrentPage(page);
+                        window.scrollTo({ top: 0, behavior: 'smooth' }); // scrolls window to top smoothly
+                    }}
+
                     className="bg-black-100 text-white"
                 />
             </div>

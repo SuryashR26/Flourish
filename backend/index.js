@@ -7,6 +7,8 @@ const { resetPass } = require('./inquiries/resetPass');
 const { updateProfile } = require('./profileChanges/updateProfile');
 const { logout } = require('./auth/logout');
 const { search } = require('./post/search');
+const bookmarkPost = require('./post/bookmark');
+const storeViewProject = require('./post/storeView');
 const { createPost, getUserPosts, cleanupFailedPost } = require('./post/post');
 const { sendMessage, getConversations, getMessages, markAsRead, getCurrentUser } = require('./messages/messages');
 const session = require('express-session');
@@ -85,6 +87,11 @@ app.post('/updateProfile', updateProfile);
 app.post('/logout', logout);
 
 app.get('/search', search)
+
+app.post('/bookmark', bookmarkPost);
+
+app.post('/storeView', storeViewProject);
+
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
