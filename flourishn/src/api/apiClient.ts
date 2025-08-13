@@ -276,3 +276,49 @@ export async function additionalInfo(signUpValues2: SignUpValues2) {
 
     return await res.json();
 }
+
+export function getBookmarkedPosts(): Promise<Project[]> {
+    return fetch(`http://localhost:8080/bookmarkedPosts`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    }).then(async (response) => {
+        if (!response.ok) {
+            return [];
+        }
+        return response.json();
+    });
+}
+
+export function getUserPosts(): Promise<Project[]> {
+    return fetch(`http://localhost:8080/getUserPosts`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    }).then(async (response) => {
+        if (!response.ok) {
+            return [];
+        }
+        return response.json();
+    });
+}
+
+export function getRecommendedProjects(): Promise<Project[]> {
+    return fetch(`http://localhost:8080/getRecommendedProjects`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    }).then(async (response) => {
+        if (!response.ok) {
+            return [];
+        }
+        return response.json();
+    });
+}
+

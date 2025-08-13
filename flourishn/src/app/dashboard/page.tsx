@@ -1,11 +1,14 @@
 "use client"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import Navbar from "@/components/layout/navbar"
-import NotesApp from "./notes"
+// import NotesApp from "./notes"
 import ProfileUploader from "../signup/profileUploader";
 import { useRouter } from 'next/navigation';
 import { useUser } from "@/context/UserContext";
 import { useSearchParams } from 'next/navigation';
+import { getBookmarkedPosts, getUserPosts, getRecommendedProjects } from "@/api/apiClient";
+
+import { Project } from '@/app/types/projectTypes';
 
 
 // Dashboard Sidebar Activity Feed Styles
@@ -113,28 +116,6 @@ const dashboardStyles = `
   }
 `;
 
-interface Project {
-    id: string | number
-    title: string
-    description: string
-    collaborators: number
-    tags: string[]
-    skills?: string[]
-    location?: string
-    remote?: boolean
-    createdAt?: string
-    updatedAt?: string
-    author?: {
-        id: string | number
-        name: string
-        avatar?: string
-    }
-    status?: "active" | "completed" | "paused"
-    difficulty?: "beginner" | "intermediate" | "advanced"
-    image?: string
-}
-
-
 
 
 
@@ -216,7 +197,7 @@ const getCategoryColor = (category: string) => {
     }
 };
 
-const getProjectCategory = (tags: string[]) => {
+const getProjectCategory = (tags: string[] = []) => {
     const tagString = tags.join(' ').toLowerCase();
     if (tagString.includes('creative') || tagString.includes('design') || tagString.includes('art') ||
         tagString.includes('film') || tagString.includes('podcast') || tagString.includes('storytelling')) {
@@ -268,237 +249,7 @@ const timeAgo = (date: Date) => {
 
 export default function DashboardPage() {
     // Recommended projects for the user
-    const recommendedProjects: Project[] = [
-        {
-            id: 1,
-            title: "AI-Powered Study Group Platform",
-            collaborators: 3,
-            description:
-                "Creating an AI-powered platform that matches students for study groups based on learning styles and schedules. Full-stack project with machine learning integration.",
-            tags: ["#tech", "#ai", "#education", "#machine-learning"],
-            skills: ["Machine Learning", "React", "Node.js", "Python", "TensorFlow"],
-            location: "Remote",
-            remote: true,
-            status: "active",
-            difficulty: "intermediate",
-            author: {
-                id: 1,
-                name: "Maya Thompson",
-                avatar: "/avatar1.jpg",
-            },
-            createdAt: "2025-6-15",
-        },
-        {
-            id: 2,
-            title: "Campus Sustainability Initiative",
-            collaborators: 4,
-            description:
-                "Building a comprehensive plan to reduce campus carbon footprint by 40% over the next 5 years. Looking for environmental science students and data analysts.",
-            tags: ["#environment", "#sustainability", "#research", "#policy"],
-            skills: ["Data Analysis", "Research", "Environmental Science", "Policy Writing"],
-            location: "Palo Alto, CA",
-            remote: false,
-            status: "active",
-            difficulty: "advanced",
-            author: {
-                id: 2,
-                name: "Alex Rivera",
-                avatar: "/avatar2.jpg",
-            },
-            createdAt: "2025-8-15",
-        },
-        {
-            id: 3,
-            title: "Student Film: Digital Nomad",
-            collaborators: 2,
-            description:
-                "Short film about remote work culture among Gen Z. Need cinematographer, sound engineer, and editor. Shooting starts next month.",
-            tags: ["#creative", "#film", "#storytelling", "#documentary"],
-            skills: ["Cinematography", "Video Editing", "Sound Design", "Adobe Premiere"],
-            location: "Berkeley, CA",
-            remote: false,
-            status: "active",
-            difficulty: "beginner",
-            author: {
-                id: 3,
-                name: "Jordan Chen",
-                avatar: "/avatar3.jpg",
-            },
-            createdAt: "2025-5-15",
-        },
-        {
-            id: 4,
-            title: "Student Marketplace App",
-            collaborators: 3,
-            description:
-                "Buy/sell platform specifically for college students. Like Facebook Marketplace but with student verification and campus-specific features.",
-            tags: ["#business", "#mobile", "#marketplace", "#fintech"],
-            skills: ["React Native", "Backend Development", "Product Design", "Payment Integration"],
-            location: "Mountain View, CA",
-            remote: true,
-            status: "active",
-            difficulty: "intermediate",
-            author: {
-                id: 4,
-                name: "Lisa Wang",
-                avatar: "/avatar4.jpg",
-            },
-        },
-        {
-            id: 5,
-            title: "Climate Data Visualization Portal",
-            collaborators: 2,
-            description:
-                "Create a portal for visualizing climate and weather data. Need data scientist and frontend dev for interactive charts and maps.",
-            tags: ["#environment", "#data", "#visualization", "#research"],
-            skills: ["Python", "D3.js", "React", "Pandas"],
-            location: "Remote",
-            remote: true,
-            status: "active",
-            difficulty: "advanced",
-            author: {
-                id: 5,
-                name: "Olivia Brown",
-                avatar: "/avatar5.jpg",
-            },
-        },
-        {
-            id: 6,
-            title: "Campus Mental Health Podcast",
-            collaborators: 2,
-            description:
-                "Weekly podcast discussing student mental health with expert interviews. Need audio editor, graphic designer, and social media manager.",
-            tags: ["#creative", "#podcast", "#mentalhealth", "#community"],
-            skills: ["Audio Editing", "Graphic Design", "Social Media", "Content Creation"],
-            location: "San Francisco, CA",
-            remote: false,
-            status: "active",
-            difficulty: "beginner",
-            author: {
-                id: 6,
-                name: "Kai Patel",
-                avatar: "/avatar6.jpg",
-            },
-        },
-    ]
 
-    // User's own projects
-    const userProjects: Project[] = [
-        {
-            id: 101,
-            title: "iOS Recipe App",
-            collaborators: 2,
-            description:
-                "Mobile app for sharing and discovering recipes with social features. Currently in development phase, looking for UI/UX designer and backend developer.",
-            tags: ["#business", "#mobile", "#ios", "#food", "#social"],
-            skills: ["Swift", "UI/UX Design", "Backend Development", "Firebase"],
-            location: "Remote",
-            remote: true,
-            status: "active",
-            difficulty: "intermediate",
-            author: {
-                id: 101,
-                name: "You",
-                avatar: "/your-avatar.jpg",
-            },
-            createdAt: "2025-01-15",
-        },
-        {
-            id: 102,
-            title: "Campus Event Planner",
-            collaborators: 1,
-            description:
-                "Web application for organizing and managing campus events. Features include event creation, RSVP system, and calendar integration.",
-            tags: ["#web", "#events", "#campus", "#organization"],
-            skills: ["React", "Node.js", "MongoDB", "Calendar API"],
-            location: "Stanford, CA",
-            remote: false,
-            status: "active",
-            difficulty: "beginner",
-            author: {
-                id: 102,
-                name: "You",
-                avatar: "/your-avatar.jpg",
-            },
-            createdAt: "2025-01-10",
-        },
-        {
-            id: 103,
-            title: "Study Timer with Pomodoro",
-            collaborators: 0,
-            description:
-                "Simple but effective study timer app with Pomodoro technique integration. Built with React and includes statistics tracking.",
-            tags: ["#productivity", "#web", "#pomodoro", "#study"],
-            skills: ["React", "JavaScript", "CSS", "Local Storage"],
-            location: "Remote",
-            remote: true,
-            status: "completed",
-            difficulty: "beginner",
-            author: {
-                id: 103,
-                name: "You",
-                avatar: "/your-avatar.jpg",
-            },
-            createdAt: "2024-12-20",
-        },
-        {
-            id: 104,
-            title: "Local Restaurant Review Platform",
-            collaborators: 1,
-            description:
-                "Platform for reviewing local restaurants with photo uploads and rating system. Focus on student-friendly dining options.",
-            tags: ["#web", "#reviews", "#food", "#local"],
-            skills: ["React", "Express.js", "PostgreSQL", "Image Upload"],
-            location: "Palo Alto, CA",
-            remote: false,
-            status: "paused",
-            difficulty: "intermediate",
-            author: {
-                id: 104,
-                name: "You",
-                avatar: "/your-avatar.jpg",
-            },
-            createdAt: "2023-11-15",
-        },
-        {
-            id: 105,
-            title: "Weather Dashboard",
-            collaborators: 0,
-            description:
-                "Personal weather dashboard with multiple city tracking and weather alerts. Uses OpenWeatherMap API and displays data in charts.",
-            tags: ["#web", "#weather", "#api", "#dashboard"],
-            skills: ["JavaScript", "Chart.js", "API Integration", "CSS"],
-            location: "Remote",
-            remote: true,
-            status: "completed",
-            difficulty: "beginner",
-            author: {
-                id: 105,
-                name: "You",
-                avatar: "/your-avatar.jpg",
-            },
-            createdAt: "2023-10-30",
-        },
-        {
-            id: 106,
-            title: "Fitness Tracker App",
-            collaborators: 1,
-            description:
-                "Mobile app for tracking workouts and fitness goals. Includes progress charts, workout plans, and social sharing features.",
-            tags: ["#mobile", "#fitness", "#health", "#tracking"],
-            skills: ["React Native", "Firebase", "Charts", "Push Notifications"],
-            location: "Remote",
-            remote: true,
-            status: "active",
-            difficulty: "intermediate",
-            author: {
-                id: 106,
-                name: "You",
-                avatar: "/your-avatar.jpg",
-            },
-            createdAt: "2024-01-05",
-        },
-    ]
 
     // Show more/less toggles for each section
     const [showAllRecommended, setShowAllRecommended] = useState(false);
@@ -507,7 +258,34 @@ export default function DashboardPage() {
     const router = useRouter();
     const { user, isLoggedIn } = useUser();
     const [showProfileUploader, setShowProfileUploader] = useState(true);
+    const [bookmarkedProjects, setBookmarkedProject] = useState<Project[]>([]);
+    const [userProjects, setUserProjects] = useState<Project[]>([]);
+    const [recommendedProjects, setRecommendedProjects] = useState<Project[]>([]);
     const firstTimeSignUp = useSearchParams();
+    const interests = Array.isArray(user?.personal_preferences)
+        ? user.personal_preferences
+        : user?.personal_preferences
+            ? [user.personal_preferences]
+            : [];
+
+    const fetchPosts = useCallback(async () => {
+        try {
+            const result = await getBookmarkedPosts();
+            const result2 = await getUserPosts();
+            const result3 = await getRecommendedProjects()
+            setUserProjects(result2);
+            setBookmarkedProject(result);
+            setRecommendedProjects(result3);
+
+        } catch (error) {
+            console.error('Search failed:', error);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchPosts()
+    }, []);
+
 
     useEffect(() => {
         if (!isLoggedIn) {
@@ -563,12 +341,16 @@ export default function DashboardPage() {
                 <div className="!mb-8">
                     <h3 className="!text-lg !font-semibold !mb-4 !text-white !flex !items-center !gap-2">Your Interests</h3>
                     <div className="!flex !flex-wrap !gap-2 !mb-4">
-                        <span className="!bg-[rgba(31,152,244,0.1)] !text-[#1f98f4] !py-1.5 !px-3 !rounded-2xl !text-xs !font-medium !border !border-[rgba(31,152,244,0.2)] !cursor-pointer !transition-all !duration-200 hover:!bg-[rgba(31,152,244,0.2)]">React</span>
-                        <span className="!bg-[rgba(31,152,244,0.1)] !text-[#1f98f4] !py-1.5 !px-3 !rounded-2xl !text-xs !font-medium !border !border-[rgba(31,152,244,0.2)] !cursor-pointer !transition-all !duration-200 hover:!bg-[rgba(31,152,244,0.2)]">UI/UX Design</span>
-                        <span className="!bg-[rgba(31,152,244,0.1)] !text-[#1f98f4] !py-1.5 !px-3 !rounded-2xl !text-xs !font-medium !border !border-[rgba(31,152,244,0.2)] !cursor-pointer !transition-all !duration-200 hover:!bg-[rgba(31,152,244,0.2)]">Mobile Apps</span>
-                        <span className="!bg-[rgba(31,152,244,0.1)] !text-[#1f98f4] !py-1.5 !px-3 !rounded-2xl !text-xs !font-medium !border !border-[rgba(31,152,244,0.2)] !cursor-pointer !transition-all !duration-200 hover:!bg-[rgba(31,152,244,0.2)]">AI/ML</span>
-                        <span className="!bg-[rgba(31,152,244,0.1)] !text-[#1f98f4] !py-1.5 !px-3 !rounded-2xl !text-xs !font-medium !border !border-[rgba(31,152,244,0.2)] !cursor-pointer !transition-all !duration-200 hover:!bg-[rgba(31,152,244,0.2)]">Sustainability</span>
-                        <span className="!bg-[rgba(31,152,244,0.1)] !text-[#1f98f4] !py-1.5 !px-3 !rounded-2xl !text-xs !font-medium !border !border-[rgba(31,152,244,0.2)] !cursor-pointer !transition-all !duration-200 hover:!bg-[rgba(31,152,244,0.2)]">Film</span>
+                        {interests.length > 0 ? (
+                            interests.map((interest, index) => (
+                                <span
+                                    key={index}
+                                    className="!bg-[rgba(31,152,244,0.1)] !text-[#1f98f4] !py-1.5 !px-3 !rounded-2xl !text-xs !font-medium !border !border-[rgba(31,152,244,0.2)] !cursor-pointer !transition-all !duration-200 hover:!bg-[rgba(31,152,244,0.2)]"
+                                >{interest}</span>
+                            ))
+                        ) : (
+                            <p>No interests specified.</p>
+                        )}
                     </div>
                     <a href="#" className="!text-[#888] !text-xs !no-underline !py-2 !block !border-t !border-[#2f3542] !mt-3 !pt-3 hover:!text-[#1f98f4]">✏️ Edit interests</a>
                 </div>
@@ -599,11 +381,11 @@ export default function DashboardPage() {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 mb-12">
                         {(showAllRecommended ? recommendedProjects : recommendedProjects.slice(0, 3)).map((project, idx) => {
-                            const category = getProjectCategory(project.tags);
+                            const category = getProjectCategory(project.project_tags);
                             const categoryColors = getCategoryColor(category);
-                            const isRemote = project.remote;
+                            const isRemote = project.location_preference;
                             const locationBadgeText = isRemote ? "Remote" : "In Person";
-                            const timePosted = project.createdAt ? timeAgo(new Date(project.createdAt)) : "recently";
+                            const timePosted = project.created_at ? timeAgo(new Date(project.created_at)) : "recently";
                             return (
                                 <div
                                     key={project.id || idx}
@@ -656,21 +438,29 @@ export default function DashboardPage() {
                                         {/* Description */}
                                         <div className="!mb-4 flex-1">
                                             <p className="!text-gray-300 !text-sm leading-snug line-clamp-3">
-                                                {project.description}
+                                                {project.content}
                                             </p>
                                         </div>
                                         {/* Skills Section */}
                                         <div className="!mb-4">
-                                            <SkillsRow skills={project.skills || []} />
+                                            <SkillsRow skills={project.skill_tags || []} />
                                         </div>
                                         {/* Footer */}
                                         <div className="flex justify-between items-center !gap-3 !mt-auto">
                                             <div className="flex items-center !gap-2">
                                                 <div className="w-7 h-7 !rounded-full bg-indigo-900 flex items-center justify-center !text-indigo-200 !text-xs !font-semibold flex-shrink-0">
-                                                    {getInitials(project.author?.name || "Unknown")}
+                                                    <img
+                                                        src={project.user_image || '/images/defaultProfile.jpg'}
+                                                        alt={project.user_name || 'User'}
+                                                        className="w-full h-full object-cover rounded-full"
+                                                        onError={(e) => {
+                                                            e.currentTarget.onerror = null; // prevents infinite loop if fallback fails
+                                                            e.currentTarget.src = '/images/defaultProfile.jpg';
+                                                        }}
+                                                    />
                                                 </div>
                                                 <span className="!text-[#888] !text-sm !font-medium">
-                                                    {project.author?.name || "Unknown Author"}
+                                                    {project.user_name || "Unknown Author"}
                                                 </span>
                                             </div>
                                             <span className="!text-[13px] !text-gray-400">
@@ -697,11 +487,11 @@ export default function DashboardPage() {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 mb-12">
                         {(showAllYour ? userProjects : userProjects.slice(0, 3)).map((project, idx) => {
-                            const category = getProjectCategory(project.tags);
+                            const category = getProjectCategory(project.project_tags);
                             const categoryColors = getCategoryColor(category);
-                            const isRemote = project.remote;
-                            const locationBadgeText = isRemote ? "Remote" : "In Person";
-                            const timePosted = project.createdAt ? timeAgo(new Date(project.createdAt)) : "recently";
+                            const isRemote = project.location_preference;
+                            const locationBadgeText = isRemote === 'remote' ? "Remote" : "In Person";
+                            const timePosted = project.created_at ? timeAgo(new Date(project.created_at)) : "recently";
                             return (
                                 <div
                                     key={project.id || idx}
@@ -745,7 +535,7 @@ export default function DashboardPage() {
                                             <span className={`!py-1 !px-2 !rounded !text-[13px] !font-medium ${isRemote ? "bg-[#1d4ed8] text-[#dbeafe]" : "bg-[#2a2a2a] text-[#e5e5e5]"}`}>
                                                 {locationBadgeText}
                                             </span>
-                                            {!project.remote && (
+                                            {!project.location_preference && (
                                                 <span className="!text-[13px] !text-gray-400">
                                                     {project.location}
                                                 </span>
@@ -753,19 +543,27 @@ export default function DashboardPage() {
                                         </div>
                                         <div className="!mb-4 flex-1">
                                             <p className="!text-gray-300 !text-sm leading-snug line-clamp-3">
-                                                {project.description}
+                                                {project.content}
                                             </p>
                                         </div>
                                         <div className="!mb-4">
-                                            <SkillsRow skills={project.skills || []} />
+                                            <SkillsRow skills={project.skill_tags || []} />
                                         </div>
                                         <div className="flex justify-between items-center !gap-3 !mt-auto">
                                             <div className="flex items-center !gap-2">
                                                 <div className="w-7 h-7 !rounded-full bg-indigo-900 flex items-center justify-center !text-indigo-200 !text-xs !font-semibold flex-shrink-0">
-                                                    {getInitials(project.author?.name || "Unknown")}
+                                                    <img
+                                                        src={project.user_image || '/images/defaultProfile.jpg'}
+                                                        alt={project.user_name || 'User'}
+                                                        className="w-full h-full object-cover rounded-full"
+                                                        onError={(e) => {
+                                                            e.currentTarget.onerror = null; // prevents infinite loop if fallback fails
+                                                            e.currentTarget.src = '/images/defaultProfile.jpg';
+                                                        }}
+                                                    />
                                                 </div>
                                                 <span className="!text-[#888] !text-sm !font-medium">
-                                                    {project.author?.name || "Unknown Author"}
+                                                    {project.user_name || "Unknown Author"}
                                                 </span>
                                             </div>
                                             <span className="!text-[13px] !text-gray-400">
@@ -777,7 +575,7 @@ export default function DashboardPage() {
                             );
                         })}
                     </div>
-                </div>
+                </div>*
 
                 {/* Bookmarked Projects */}
                 <div className="!mb-10">
@@ -791,12 +589,15 @@ export default function DashboardPage() {
                         </button>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 mb-12">
-                        {(showAllBookmarked ? recommendedProjects : recommendedProjects.slice(0, 3)).map((project, idx) => {
-                            const category = getProjectCategory(project.tags);
+                        {(showAllBookmarked
+                            ? (bookmarkedProjects || [])
+                            : (bookmarkedProjects || []).slice(0, 3)
+                        ).map((project, idx) => {
+                            const category = getProjectCategory(project.project_tags);
                             const categoryColors = getCategoryColor(category);
-                            const isRemote = project.remote;
-                            const locationBadgeText = isRemote ? "Remote" : "In Person";
-                            const timePosted = project.createdAt ? timeAgo(new Date(project.createdAt)) : "recently";
+                            const isRemote = project.location_preference;
+                            const locationBadgeText = isRemote === 'remote' ? "Remote" : "In Person";
+                            const timePosted = project.created_at ? timeAgo(new Date(project.created_at)) : "recently";
                             return (
                                 <div
                                     key={project.id || idx}
@@ -837,10 +638,10 @@ export default function DashboardPage() {
                                             </span>
                                         </div>
                                         <div className="flex items-center !gap-2 !mb-3">
-                                            <span className={`!py-1 !px-2 !rounded !text-[13px] !font-medium ${isRemote ? "bg-[#1d4ed8] text-[#dbeafe]" : "bg-[#2a2a2a] text-[#e5e5e5]"}`}>
+                                            <span className={`!py-1 !px-2 !rounded !text-[13px] !font-medium ${isRemote === 'remote' ? "bg-[#1d4ed8] text-[#dbeafe]" : "bg-[#2a2a2a] text-[#e5e5e5]"}`}>
                                                 {locationBadgeText}
                                             </span>
-                                            {!project.remote && (
+                                            {!project.location_preference && (
                                                 <span className="!text-[13px] !text-gray-400">
                                                     {project.location}
                                                 </span>
@@ -848,19 +649,27 @@ export default function DashboardPage() {
                                         </div>
                                         <div className="!mb-4 flex-1">
                                             <p className="!text-gray-300 !text-sm leading-snug line-clamp-3">
-                                                {project.description}
+                                                {project.content}
                                             </p>
                                         </div>
                                         <div className="!mb-4">
-                                            <SkillsRow skills={project.skills || []} />
+                                            <SkillsRow skills={project.skill_tags || []} />
                                         </div>
                                         <div className="flex justify-between items-center !gap-3 !mt-auto">
                                             <div className="flex items-center !gap-2">
                                                 <div className="w-7 h-7 !rounded-full bg-indigo-900 flex items-center justify-center !text-indigo-200 !text-xs !font-semibold flex-shrink-0">
-                                                    {getInitials(project.author?.name || "Unknown")}
+                                                    <img
+                                                        src={project.user_image || '/images/defaultProfile.jpg'}
+                                                        alt={project.user_name || 'User'}
+                                                        className="w-full h-full object-cover rounded-full"
+                                                        onError={(e) => {
+                                                            e.currentTarget.onerror = null; // prevents infinite loop if fallback fails
+                                                            e.currentTarget.src = '/images/defaultProfile.jpg';
+                                                        }}
+                                                    />
                                                 </div>
                                                 <span className="!text-[#888] !text-sm !font-medium">
-                                                    {project.author?.name || "Unknown Author"}
+                                                    {project.user_name || "Unknown Author"}
                                                 </span>
                                             </div>
                                             <span className="!text-[13px] !text-gray-400">
@@ -886,7 +695,7 @@ export default function DashboardPage() {
                             </div>
                             <div className="!bg-[#0f0f0f] !border !border-[#2f3542] !rounded-lg !p-4 !text-center">
                                 <div className="!text-2xl !font-bold !text-[#1f98f4] !mb-1">12</div>
-                                <div className="!text-xs !text-[#888]">Collaborations</div>
+                                <div className="!text-xs !text-[#888]">Total Views</div>
                             </div>
                             <div className="!bg-[#0f0f0f] !border !border-[#2f3542] !rounded-lg !p-4 !text-center">
                                 <div className="!text-2xl !font-bold !text-[#1f98f4] !mb-1">7</div>
@@ -899,7 +708,7 @@ export default function DashboardPage() {
                         </div>
                     </div>
                     {/* Quick Note Card */}
-                    <div className="!bg-[#1a1a1a] !border !border-[#333] !rounded-xl !p-6">
+                    {/* <div className="!bg-[#1a1a1a] !border !border-[#333] !rounded-xl !p-6">
                         <h3 className="!text-lg !font-semibold !mb-4 !text-white">Quick Note</h3>
                         <textarea
                             className="!w-full !h-32 !bg-[#0f0f0f] !border !border-[#2f3542] !rounded-lg !p-3 !text-white !text-sm !resize-none focus:!outline-none focus:!border-[#1f98f4] !transition-colors"
@@ -910,13 +719,13 @@ export default function DashboardPage() {
                                 Save Note
                             </button>
                         </div>
-                    </div>
+                    </div>*/}
                 </div>
 
                 {/* Notes Section */}
-                <div className="mt-16">
+                {/*<div className="mt-16">
                     <NotesApp />
-                </div>
+                </div>*/}
                 <div>
                     {/* Profile Picture Uploader Modal */}
                     {showProfileUploader && (

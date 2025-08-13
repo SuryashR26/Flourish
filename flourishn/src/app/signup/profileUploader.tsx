@@ -424,7 +424,7 @@ export default function ProfileUploader() {
                             {errors.phoneNumber && <div className="contact-error-message contact-error-phoneNumber text-red-500 text-xs mt-1">{errors.phoneNumber}</div>}
                         </div>
                     </div>
-                    <div className="filter-section !mb-6">
+                    <div className="filter-section !mb-6 !mt-10">
                         <div className={`filter-content !pl-2`}>
                             <div className="tags-container relative">
                                 <Select

@@ -404,16 +404,6 @@ function page() {
         return 'Tech';
     };
 
-    const filteredSearch = async (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault();
-        try {
-            const result = await search(searchQuery, searchFilter);
-            setProjectCards(result);
-        } catch (error) {
-            console.error('Search failed:', error);
-        }
-    };
-
     function shuffleProjects(projects: Project[]) {
         const shuffled = [...projects];
         for (let i = shuffled.length - 1; i > 0; i--) {

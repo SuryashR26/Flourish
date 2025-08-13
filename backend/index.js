@@ -7,13 +7,14 @@ const { resetPass } = require('./inquiries/resetPass');
 const { updateProfile } = require('./profileChanges/updateProfile');
 const { logout } = require('./auth/logout');
 const { search } = require('./post/search');
+const { getBookmarkedPosts, getUserPosts, getRecommendedProjects } = require('./profileView/getUserPosts')
 const incompleteRegistration = require('./notifications/incompleteRegistration');
 const inactiveUsers = require('./notifications/inactiveUser');
 const additionalInfo = require('./profileChanges/additionalinfo')
 const cron = require('node-cron');
 const bookmarkPost = require('./post/bookmark');
 const storeViewProject = require('./post/storeView');
-const { createPost, getUserPosts, cleanupFailedPost } = require('./post/post');
+const { createPost, cleanupFailedPost } = require('./post/post');
 const { sendMessage, getConversations, getMessages, markAsRead, getCurrentUser } = require('./messages/messages');
 const session = require('express-session');
 const { checkAlreadyLoggedIn } = require('./auth/checkSession')
@@ -91,8 +92,6 @@ app.get('/check-session', checkAlreadyLoggedIn)
 
 app.post('/posts', createPost);
 
-app.get('/posts/user', getUserPosts);
-
 app.post('/posts/cleanup', cleanupFailedPost);
 
 // Message routes
@@ -118,6 +117,11 @@ app.post('/storeView', storeViewProject);
 
 app.post('/additionalInfo', additionalInfo)
 
+app.get('/bookmarkedPosts', getBookmarkedPosts)
+
+app.get('/getUserPosts', getUserPosts)
+
+app.get('/getRecommendedProjects', getRecommendedProjects)
 
 
 app.listen(PORT, () => {

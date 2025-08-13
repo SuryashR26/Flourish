@@ -19,7 +19,7 @@ const storeViewProject = async (req, res) => {
         );
 
         if (userPost.rows[0].user_id === userId) {
-            return res.status(404).json({ message: 'Cannot view your own post' });
+            return res.status(405).json({ message: 'Cannot view your own post' });
         }
 
         await pool.query(

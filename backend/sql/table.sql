@@ -15,7 +15,7 @@ CREATE TABLE public.users
     personal_preferences TEXT[],        -- Changed from varchar(500) to text array
     code                TEXT,
     profileurl          TEXT,
-    bookmark_post_ids   UUID[] DEFAULT '{}',  -- Array of UUIDs for bookmarked posts
+    bookmark_projects   UUID[] DEFAULT '{}',  -- Array of UUIDs for bookmarked posts
     fulltext            TSVECTOR GENERATED ALWAYS AS (
                             to_tsvector('english', coalesce(first_name, '') || ' ' || coalesce(last_name, ''))
                         ) STORED,

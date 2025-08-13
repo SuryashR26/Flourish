@@ -232,32 +232,7 @@ const cleanupFailedPost = async (req, res) => {
     }
 };
 
-const getUserPosts = async (req, res) => {
-    if (!req.session.userId) {
-        return res.status(401).json({ error: 'Not Authenticated' });
-    }
-
-    try {
-        const userId = req.session.userId;
-        const posts = await pool.query(
-            `SELECT * FROM postData 
-             WHERE user_id = $1 AND is_active = true 
-             ORDER BY created_at DESC`,
-            [userId]
-        );
-
-        res.json({
-            success: true,
-            posts: posts.rows
-        });
-    } catch (error) {
-        console.error('Error fetching user posts:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Internal server error'
-        });
-    }
-};
 
 
-module.exports = { createPost, getUserPosts, cleanupFailedPost };
+
+module.exports = { createPost, cleanupFailedPost };
