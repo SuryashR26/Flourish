@@ -15,7 +15,7 @@ const cron = require('node-cron');
 const bookmarkPost = require('./post/bookmark');
 const storeViewProject = require('./post/storeView');
 const { createPost, cleanupFailedPost } = require('./post/post');
-const { sendMessage, getConversations, getMessages, markAsRead, getCurrentUser } = require('./messages/messages');
+const { sendMessage, getConversations, getMessages, markAsRead, getCurrentUser, searchUsers } = require('./messages/messages');
 const session = require('express-session');
 const { checkAlreadyLoggedIn } = require('./auth/checkSession')
 require('dotenv').config();
@@ -24,8 +24,11 @@ const cors = require('cors');
 
 const app = express();
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-csrf-token'],
+    exposedHeaders: ['*', 'Authorization'],
 }));
 const PORT = process.env.PORT || 8080;
 
@@ -38,9 +41,12 @@ app.use(session({
     saveUninitialized: false,
     cookie: {
         secure: false, // true in production with HTTPS
-        httpOnly: true,
+        httpOnly: false, // Allow frontend to access cookies
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        sameSite: 'lax', // Allow cross-origin requests
+        domain: 'localhost', // Ensure cookie works on localhost,
     },
+    name: 'sessionId', // Custom session name
 }));
 
 
@@ -104,6 +110,9 @@ app.get('/messages/:conversationId', getMessages);
 app.put('/messages/read', markAsRead);
 
 app.get('/user/current', getCurrentUser);
+
+// User search for new conversations
+app.get('/users/search', searchUsers);
 
 app.post('/updateProfile', updateProfile);
 

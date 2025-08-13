@@ -1,37 +1,37 @@
-const pool = require('../sql/dB');
+const pool = require('../sql/dB.js');
 const nodemailer = require('nodemailer');
 
 
 const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
-    auth: {
-        user: 'FlourishIdeaBoard@gmail.com',
-        pass: 'itzd ikju gkpr mudb',
-    },
-    family: 4 // force IPv4
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
+  auth: {
+    user: 'FlourishIdeaBoard@gmail.com',
+    pass: 'itzd ikju gkpr mudb',
+  },
+  family: 4 // force IPv4
 });
 
 const inactiveUsers = async () => {
-    try {
-        const users = await pool.query(
-            'SELECT email FROM users WHERE (first_name IS NOT NULL OR last_name IS NOT NULL) AND last_active < NOW() - INTERVAL \'3 days\''
-        );
+  try {
+    const users = await pool.query(
+      'SELECT email FROM users WHERE (first_name IS NOT NULL OR last_name IS NOT NULL) AND last_active < NOW() - INTERVAL \'3 days\''
+    );
 
-        const emails = users.rows.map(user => user.email);
+    const emails = users.rows.map(user => user.email);
 
-        if (emails.length === 0) {
-            console.log('No Inactive users found');
-            return;
-        }
+    if (emails.length === 0) {
+      console.log('No Inactive users found');
+      return;
+    }
 
-        for (const email of emails) {
-            const mailOptions = {
-                from: '"Flourish" <FlourishIdeaBoard@gmail.com>',
-                to: email,
-                subject: 'We Miss You at Flourish! Come Back and Explore',
-                html: `
+    for (const email of emails) {
+      const mailOptions = {
+        from: '"Flourish" <FlourishIdeaBoard@gmail.com>',
+        to: email,
+        subject: 'We Miss You at Flourish! Come Back and Explore',
+        html: `
                 <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
                   <h2 style="color: #4CAF50;">We Miss You at Flourish!</h2>
                   <p>Dear Flourish User,</p>
@@ -58,17 +58,17 @@ const inactiveUsers = async () => {
                   <p style="font-size: 0.9em; color: #666;">Warm regards,<br />The Flourish Team</p>
                 </div>
               `
-            };
+      };
 
-            await transporter.sendMail(mailOptions);
-            console.log(`Email sent to ${email} (Inactive User)`);
-        }
-
-
-
-    } catch (error) {
-        console.error('Error sending incomplete registration emails:', error);
+      await transporter.sendMail(mailOptions);
+      console.log(`Email sent to ${email} (Inactive User)`);
     }
+
+
+
+  } catch (error) {
+    console.error('Error sending incomplete registration emails:', error);
+  }
 };
 
 module.exports = inactiveUsers;

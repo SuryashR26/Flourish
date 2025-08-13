@@ -1,4 +1,4 @@
-const pool = require('../sql/dB');
+const pool = require('../sql/dB.js');
 
 
 const getUserPosts = async (req, res) => {

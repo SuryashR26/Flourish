@@ -1,4 +1,4 @@
-const pool = require('../sql/dB');
+const pool = require('../sql/dB.js');
 
 const additionalInfo = async (req, res) => {
     if (!req.session.userId) {
