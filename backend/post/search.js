@@ -1,4 +1,4 @@
-const pool = require('../sql/dB');
+const pool = require('../sql/optimized-dB');
 
 const search = async (req, res) => {
     // const { query } = req.query;

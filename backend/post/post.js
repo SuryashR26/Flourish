@@ -1,4 +1,4 @@
-const pool = require('../sql/dB');
+const pool = require('../sql/optimized-dB');
 const { getPostImageUrl } = require('../s3utils/getPostImageUrl');
 
 const createPost = async (req, res) => {

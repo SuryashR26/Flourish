@@ -1,5 +1,5 @@
 const nodemailer = require('nodemailer');
-const pool = require('../sql/dB');
+const pool = require('../sql/optimized-dB');
 
 const htmlTemplate = `
   <h2> Inquiry ID: {{inquiryId}}</h2>

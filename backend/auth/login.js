@@ -1,4 +1,4 @@
-const pool = require('../sql/dB');
+const pool = require('../sql/optimized-dB');
 const bcrypt = require('bcrypt');
 
 const login = async (req, res) => {

@@ -230,3 +230,27 @@ export async function getCurrentUser() {
 
     return await res.json();
 }
+
+export async function searchUsers(query?: string) {
+    const url = new URL('http://localhost:8080/users/search');
+    if (query) {
+        url.searchParams.append('query', query);
+    }
+
+    const res = await fetch(url.toString(), {
+        method: 'GET',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (res.status === 401) {
+        window.location.href = '/login';
+        throw new Error('Not authenticated');
+    }
+
+    if (!res.ok) {
+        throw new Error('Failed to search users');
+    }
+
+    return await res.json();
+}

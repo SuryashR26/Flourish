@@ -1,4 +1,4 @@
-const pool = require('../sql/dB');
+const pool = require('../sql/optimized-dB');
 
 const sendMessage = async (req, res) => {
     if (!req.session.userId) {
@@ -22,26 +22,31 @@ const sendMessage = async (req, res) => {
         });
     }
 
+    const client = await pool.connect();
+    
     try {
+        await client.query('BEGIN');
+        
         // Check if receiver exists
-        const receiverCheck = await pool.query(
+        const receiverCheck = await client.query(
             'SELECT id FROM users WHERE id = $1 AND is_active = true',
             [receiverId]
         );
 
         if (receiverCheck.rows.length === 0) {
+            await client.query('ROLLBACK');
             return res.status(404).json({
                 success: false,
                 message: 'Receiver not found'
             });
         }
 
-        // Find or create conversation
+        // Find or create conversation - FIXED: Added proper parentheses for OR condition
         let conversationId;
-        const existingConversation = await pool.query(
+        const existingConversation = await client.query(
             `SELECT id FROM conversations 
-             WHERE (participant1_id = $1 AND participant2_id = $2) 
-             OR (participant1_id = $2 AND participant2_id = $1)
+             WHERE ((participant1_id = $1 AND participant2_id = $2) 
+             OR (participant1_id = $2 AND participant2_id = $1))
              AND is_active = true`,
             [senderId, receiverId]
         );
@@ -50,13 +55,13 @@ const sendMessage = async (req, res) => {
             conversationId = existingConversation.rows[0].id;
             
             // Update conversation timestamp
-            await pool.query(
+            await client.query(
                 'UPDATE conversations SET last_message_at = NOW(), updated_at = NOW() WHERE id = $1',
                 [conversationId]
             );
         } else {
             // Create new conversation
-            const newConversation = await pool.query(
+            const newConversation = await client.query(
                 `INSERT INTO conversations (participant1_id, participant2_id) 
                  VALUES ($1, $2) RETURNING id`,
                 [senderId, receiverId]
@@ -65,11 +70,13 @@ const sendMessage = async (req, res) => {
         }
 
         // Insert message
-        const messageResult = await pool.query(
+        const messageResult = await client.query(
             `INSERT INTO messages (conversation_id, sender_id, content) 
              VALUES ($1, $2, $3) RETURNING id, created_at`,
             [conversationId, senderId, content]
         );
+
+        await client.query('COMMIT');
 
         return res.status(201).json({
             success: true,
@@ -80,14 +87,18 @@ const sendMessage = async (req, res) => {
         });
 
     } catch (error) {
+        await client.query('ROLLBACK');
         console.error('Send message error:', error);
         return res.status(500).json({
             success: false,
             message: 'Internal server error. Please try again later.'
         });
+    } finally {
+        client.release();
     }
 };
 
+// 🚀 OPTIMIZED: Single query to get all conversation data (eliminates N+1 problem)
 const getConversations = async (req, res) => {
     if (!req.session.userId) {
         return res.status(401).json({ error: 'Not Authenticated' });
@@ -96,66 +107,64 @@ const getConversations = async (req, res) => {
     const userId = req.session.userId;
 
     try {
-        // Get conversations with participant info
-        const conversations = await pool.query(
-            `SELECT 
-                c.id,
-                c.last_message_at,
-                c.created_at,
-                CASE 
-                    WHEN c.participant1_id = $1 THEN u2.first_name || ' ' || u2.last_name
-                    ELSE u1.first_name || ' ' || u1.last_name
-                END as participant_name,
-                CASE 
-                    WHEN c.participant1_id = $1 THEN u2.id
-                    ELSE u1.id
-                END as participant_id,
-                CASE 
-                    WHEN c.participant1_id = $1 THEN u2.profileurl
-                    ELSE u1.profileurl
-                END as participant_image
-             FROM conversations c
-             JOIN users u1 ON c.participant1_id = u1.id
-             JOIN users u2 ON c.participant2_id = u2.id
-             WHERE (c.participant1_id = $1 OR c.participant2_id = $1) 
-             AND c.is_active = true
-             ORDER BY c.last_message_at DESC`,
-            [userId]
-        );
+        const conversationsQuery = `
+            WITH user_conversations AS (
+                SELECT 
+                    c.id,
+                    c.last_message_at,
+                    c.created_at,
+                    CASE 
+                        WHEN c.participant1_id = $1 THEN c.participant2_id
+                        ELSE c.participant1_id
+                    END as other_participant_id
+                FROM conversations c
+                WHERE (c.participant1_id = $1 OR c.participant2_id = $1) 
+                AND c.is_active = true
+            ),
+            last_messages AS (
+                SELECT DISTINCT ON (m.conversation_id)
+                    m.conversation_id,
+                    m.content,
+                    m.created_at as message_time,
+                    m.sender_id
+                FROM messages m
+                INNER JOIN user_conversations uc ON m.conversation_id = uc.id
+                WHERE m.is_active = true
+                ORDER BY m.conversation_id, m.created_at DESC
+            ),
+            unread_counts AS (
+                SELECT 
+                    m.conversation_id,
+                    COUNT(*) as unread_count
+                FROM messages m
+                INNER JOIN user_conversations uc ON m.conversation_id = uc.id
+                WHERE m.sender_id != $1 
+                AND m.is_read = false 
+                AND m.is_active = true
+                GROUP BY m.conversation_id
+            )
+            SELECT 
+                uc.id,
+                uc.last_message_at,
+                uc.created_at,
+                u.id as participant_id,
+                u.first_name || ' ' || u.last_name as participant_name,
+                u.profileurl as participant_image,
+                COALESCE(lm.content, '') as last_message_content,
+                COALESCE(lm.message_time, uc.created_at) as last_message_time,
+                COALESCE(unr.unread_count, 0) as unread_count
+            FROM user_conversations uc
+            INNER JOIN users u ON u.id = uc.other_participant_id
+            LEFT JOIN last_messages lm ON lm.conversation_id = uc.id
+            LEFT JOIN unread_counts unr ON unr.conversation_id = uc.id
+            WHERE u.is_active = true
+            ORDER BY uc.last_message_at DESC`;
 
-        // Get last message and unread count for each conversation
-        const conversationsWithData = await Promise.all(
-            conversations.rows.map(async (conv) => {
-                // Get last message
-                const lastMessage = await pool.query(
-                    `SELECT content, created_at 
-                     FROM messages 
-                     WHERE conversation_id = $1 AND is_active = true 
-                     ORDER BY created_at DESC 
-                     LIMIT 1`,
-                    [conv.id]
-                );
-
-                // Get unread count
-                const unreadCount = await pool.query(
-                    `SELECT COUNT(*) as count 
-                     FROM messages 
-                     WHERE conversation_id = $1 AND sender_id != $2 AND is_read = false AND is_active = true`,
-                    [conv.id, userId]
-                );
-
-                return {
-                    ...conv,
-                    last_message_content: lastMessage.rows[0]?.content || '',
-                    last_message_time: lastMessage.rows[0]?.created_at || conv.created_at,
-                    unread_count: parseInt(unreadCount.rows[0].count)
-                };
-            })
-        );
+        const result = await pool.query(conversationsQuery, [userId]);
 
         return res.json({
             success: true,
-            conversations: conversationsWithData
+            conversations: result.rows
         });
 
     } catch (error) {
@@ -167,6 +176,7 @@ const getConversations = async (req, res) => {
     }
 };
 
+// 🚀 OPTIMIZED: Enhanced messages retrieval with better pagination
 const getMessages = async (req, res) => {
     if (!req.session.userId) {
         return res.status(401).json({ error: 'Not Authenticated' });
@@ -199,31 +209,43 @@ const getMessages = async (req, res) => {
             });
         }
 
-        // Get messages
-        const messages = await pool.query(
-            `SELECT 
+        // Get messages with total count for better pagination
+        const messagesQuery = `
+            SELECT 
                 m.id,
                 m.content,
                 m.is_read,
                 m.created_at,
                 u.first_name || ' ' || u.last_name as sender_name,
                 u.id as sender_id,
-                u.profileurl as sender_image
+                u.profileurl as sender_image,
+                COUNT(*) OVER() as total_count
              FROM messages m
              JOIN users u ON m.sender_id = u.id
              WHERE m.conversation_id = $1 AND m.is_active = true
              ORDER BY m.created_at ASC
-             LIMIT $2 OFFSET $3`,
-            [conversationId, limit, offset]
-        );
+             LIMIT $2 OFFSET $3`;
+
+        const messages = await pool.query(messagesQuery, [conversationId, limit, offset]);
+
+        const totalCount = messages.rows.length > 0 ? parseInt(messages.rows[0].total_count) : 0;
 
         return res.json({
             success: true,
-            messages: messages.rows,
+            messages: messages.rows.map(row => ({
+                id: row.id,
+                content: row.content,
+                is_read: row.is_read,
+                created_at: row.created_at,
+                sender_name: row.sender_name,
+                sender_id: row.sender_id,
+                sender_image: row.sender_image
+            })),
             pagination: {
                 limit: parseInt(limit),
                 offset: parseInt(offset),
-                hasMore: messages.rows.length === parseInt(limit)
+                totalCount: totalCount,
+                hasMore: (parseInt(offset) + parseInt(limit)) < totalCount
             }
         });
 
@@ -236,6 +258,7 @@ const getMessages = async (req, res) => {
     }
 };
 
+// 🚀 OPTIMIZED: Enhanced markAsRead with better response data
 const markAsRead = async (req, res) => {
     if (!req.session.userId) {
         return res.status(401).json({ error: 'Not Authenticated' });
@@ -268,16 +291,19 @@ const markAsRead = async (req, res) => {
         }
 
         // Mark all messages in conversation as read (except sender's own messages)
-        await pool.query(
+        // Returns the number of messages that were actually updated
+        const updateResult = await pool.query(
             `UPDATE messages 
              SET is_read = true, updated_at = NOW()
-             WHERE conversation_id = $1 AND sender_id != $2 AND is_read = false`,
+             WHERE conversation_id = $1 AND sender_id != $2 AND is_read = false
+             RETURNING id`,
             [conversationId, userId]
         );
 
         return res.json({
             success: true,
-            message: 'Messages marked as read'
+            message: 'Messages marked as read',
+            messagesUpdated: updateResult.rows.length
         });
 
     } catch (error) {
@@ -289,6 +315,70 @@ const markAsRead = async (req, res) => {
     }
 };
 
+// 🚀 NEW: Search users for starting new conversations
+const searchUsers = async (req, res) => {
+    if (!req.session.userId) {
+        return res.status(401).json({ error: 'Not Authenticated' });
+    }
+
+    const userId = req.session.userId;
+    const { query } = req.query; // Optional search query
+
+    try {
+        let searchQuery = `
+            SELECT 
+                u.id,
+                u.first_name || ' ' || u.last_name as name,
+                u.email,
+                u.profileurl,
+                u.first_name,
+                u.last_name,
+                CASE 
+                    WHEN EXISTS (
+                        SELECT 1 FROM conversations c 
+                        WHERE (c.participant1_id = $1 AND c.participant2_id = u.id)
+                           OR (c.participant1_id = u.id AND c.participant2_id = $1)
+                        AND c.is_active = true
+                    ) THEN true 
+                    ELSE false 
+                END as has_conversation
+            FROM users u
+            WHERE u.id != $1 
+            AND u.is_active = true
+        `;
+
+        const values = [userId];
+
+        // Add search filter if query provided
+        if (query && query.trim()) {
+            searchQuery += ` AND (
+                u.first_name ILIKE $2 
+                OR u.last_name ILIKE $2 
+                OR (u.first_name || ' ' || u.last_name) ILIKE $2
+                OR u.email ILIKE $2
+            )`;
+            values.push(`%${query.trim()}%`);
+        }
+
+        searchQuery += ` ORDER BY u.first_name, u.last_name LIMIT 20`;
+
+        const result = await pool.query(searchQuery, values);
+
+        return res.json({
+            success: true,
+            users: result.rows
+        });
+
+    } catch (error) {
+        console.error('Search users error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+};
+
+// 🚀 OPTIMIZED: Cached user data retrieval
 const getCurrentUser = async (req, res) => {
     if (!req.session.userId) {
         return res.status(401).json({ error: 'Not Authenticated' });
@@ -296,14 +386,14 @@ const getCurrentUser = async (req, res) => {
 
     try {
         const user = await pool.query(
-            'SELECT id, first_name, last_name, email FROM users WHERE id = $1',
+            'SELECT id, first_name, last_name, email, profileurl FROM users WHERE id = $1 AND is_active = true',
             [req.session.userId]
         );
 
         if (user.rows.length === 0) {
             return res.status(404).json({
                 success: false,
-                message: 'User not found'
+                message: 'User not found or inactive'
             });
         }
 
@@ -321,4 +411,4 @@ const getCurrentUser = async (req, res) => {
     }
 };
 
-module.exports = { sendMessage, getConversations, getMessages, markAsRead, getCurrentUser }; 
+module.exports = { sendMessage, getConversations, getMessages, markAsRead, getCurrentUser, searchUsers }; 

@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import Navbar from "@/components/layout/navbar"
 import ConversationLoadingScreen from "@/components/ui/ConversationLoadingScreen"
-import { sendMessage, getConversations, getMessages, markMessagesAsRead, getCurrentUser } from "@/api/apiClient"
+import { sendMessage, getConversations, getMessages, markMessagesAsRead, getCurrentUser, searchUsers } from "@/api/apiClient"
 
 interface Message {
     id: string;
@@ -28,6 +28,16 @@ interface Conversation {
     isActive?: boolean;
 }
 
+interface User {
+    id: string;
+    name: string;
+    email: string;
+    profileurl?: string;
+    first_name: string;
+    last_name: string;
+    has_conversation: boolean;
+}
+
 export default function MessagesPage() {
     const router = useRouter()
     const [currentConversationId, setCurrentConversationId] = useState<string>("")
@@ -40,6 +50,13 @@ export default function MessagesPage() {
     const [sendingMessage, setSendingMessage] = useState(false)
     const [currentUserId, setCurrentUserId] = useState<string>("")
     const chatMessagesRef = useRef<HTMLDivElement>(null)
+
+    // New conversation modal state
+    const [showNewConversationModal, setShowNewConversationModal] = useState(false)
+    const [userSearchQuery, setUserSearchQuery] = useState("")
+    const [searchResults, setSearchResults] = useState<User[]>([])
+    const [searchingUsers, setSearchingUsers] = useState(false)
+    const [startingConversation, setStartingConversation] = useState(false)
 
     // Get user initials helper function
     const getInitials = (name: string) => {
@@ -104,6 +121,61 @@ export default function MessagesPage() {
 
         loadData()
     }, [])
+
+    // Search users when modal opens or search query changes
+    useEffect(() => {
+        if (showNewConversationModal) {
+            searchForUsers(userSearchQuery)
+        }
+    }, [showNewConversationModal, userSearchQuery])
+
+    const searchForUsers = async (query: string) => {
+        try {
+            setSearchingUsers(true)
+            const response = await searchUsers(query)
+            if (response.success) {
+                setSearchResults(response.users)
+            }
+        } catch (error) {
+            console.error('Failed to search users:', error)
+        } finally {
+            setSearchingUsers(false)
+        }
+    }
+
+    const startConversationWithUser = async (user: User) => {
+        try {
+            setStartingConversation(true)
+            
+            // Send initial message to create conversation
+            const initialMessage = `Hi ${user.first_name}! 👋`
+            const response = await sendMessage(user.id, initialMessage)
+            
+            if (response.success) {
+                // Close modal
+                setShowNewConversationModal(false)
+                setUserSearchQuery("")
+                setSearchResults([])
+                
+                // Refresh conversations to get the new one
+                const conversationsResponse = await getConversations()
+                if (conversationsResponse.success) {
+                    const updatedConversations = conversationsResponse.conversations.map((conv: Conversation, index: number) => ({
+                        ...conv,
+                        isActive: conv.id === response.conversationId
+                    }))
+                    setConversations(updatedConversations)
+                    setCurrentConversationId(response.conversationId)
+                    await loadMessages(response.conversationId)
+                }
+            }
+        } catch (error) {
+            console.error('Failed to start conversation:', error)
+            alert('Failed to start conversation. Please try again.')
+        } finally {
+            setStartingConversation(false)
+        }
+    }
 
     // Load messages for a conversation
     const loadMessages = async (conversationId: string) => {
@@ -232,7 +304,10 @@ export default function MessagesPage() {
                         />
                     </div>
                     
-                    <button className="new-conversation-btn">
+                    <button 
+                        className="new-conversation-btn"
+                        onClick={() => setShowNewConversationModal(true)}
+                    >
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
                             <path d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"/>
                         </svg>
@@ -366,6 +441,77 @@ export default function MessagesPage() {
                     )}
                 </main>
             </div>
+
+            {/* New Conversation Modal */}
+            {showNewConversationModal && (
+                <div className="modal-overlay" onClick={() => setShowNewConversationModal(false)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h3>Start New Conversation</h3>
+                            <button 
+                                className="close-btn"
+                                onClick={() => setShowNewConversationModal(false)}
+                            >
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <div className="modal-body">
+                            <input
+                                type="text"
+                                className="user-search-input"
+                                placeholder="Search users by name or email..."
+                                value={userSearchQuery}
+                                onChange={(e) => setUserSearchQuery(e.target.value)}
+                            />
+                            
+                            <div className="users-list">
+                                {searchingUsers ? (
+                                    <div className="loading-state">
+                                        Searching users...
+                                    </div>
+                                ) : searchResults.length === 0 ? (
+                                    <div className="empty-state">
+                                        {userSearchQuery ? 'No users found' : 'Type to search for users'}
+                                    </div>
+                                ) : (
+                                    searchResults.map(user => (
+                                        <div 
+                                            key={user.id}
+                                            className="user-item"
+                                            onClick={() => startConversationWithUser(user)}
+                                        >
+                                            <div className="user-avatar">
+                                                {getInitials(user.name)}
+                                            </div>
+                                            <div className="user-info">
+                                                <div className="user-name">{user.name}</div>
+                                                <div className="user-email">{user.email}</div>
+                                            </div>
+                                            <div className="user-status">
+                                                {user.has_conversation ? (
+                                                    <span className="existing-chat">Existing chat</span>
+                                                ) : (
+                                                    <span className="new-chat">Start chat</span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                            
+                            {startingConversation && (
+                                <div className="starting-conversation">
+                                    Starting conversation...
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <style jsx>{`
                 .messaging-container {
@@ -778,6 +924,190 @@ export default function MessagesPage() {
                     font-size: 1rem;
                     color: #b0b8c1;
                     max-width: 400px;
+                }
+
+                /* Modal Styles */
+                .modal-overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background-color: rgba(0, 0, 0, 0.7);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 1000;
+                }
+
+                .modal-content {
+                    background-color: #000000;
+                    border: 1px solid #2f3542;
+                    border-radius: 12px;
+                    width: 500px;
+                    max-width: 90vw;
+                    max-height: 80vh;
+                    overflow: hidden;
+                    display: flex;
+                    flex-direction: column;
+                }
+
+                .modal-header {
+                    padding: 24px;
+                    border-bottom: 1px solid rgba(255,255,255,0.1);
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                }
+
+                .modal-header h3 {
+                    font-size: 1.4rem;
+                    font-weight: 500;
+                    color: #ffffff;
+                    margin: 0;
+                }
+
+                .close-btn {
+                    background: none;
+                    border: none;
+                    color: #888;
+                    cursor: pointer;
+                    padding: 8px;
+                    border-radius: 4px;
+                    transition: color 0.2s, background-color 0.2s;
+                }
+
+                .close-btn:hover {
+                    color: #ffffff;
+                    background-color: rgba(255, 255, 255, 0.1);
+                }
+
+                .modal-body {
+                    padding: 24px;
+                    flex: 1;
+                    overflow-y: auto;
+                }
+
+                .user-search-input {
+                    width: 100%;
+                    height: 54px;
+                    padding: 0 20px;
+                    background-color: #0B0809;
+                    border: 1px solid #2f3542;
+                    border-radius: 8px;
+                    color: #ffffff;
+                    font-size: 1.15rem;
+                    font-weight: 400;
+                    margin-bottom: 20px;
+                    transition: border-color 0.2s ease;
+                }
+
+                .user-search-input::placeholder {
+                    color: #b0b8c1;
+                    opacity: 1;
+                }
+
+                .user-search-input:focus {
+                    outline: none;
+                    border-color: #1f98f4;
+                }
+
+                .users-list {
+                    max-height: 300px;
+                    overflow-y: auto;
+                }
+
+                .loading-state, .empty-state {
+                    text-align: center;
+                    padding: 40px 20px;
+                    color: #888;
+                    font-size: 1rem;
+                }
+
+                .user-item {
+                    display: flex;
+                    align-items: center;
+                    gap: 14px;
+                    padding: 16px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    transition: background-color 0.2s;
+                    margin-bottom: 8px;
+                }
+
+                .user-item:hover {
+                    background-color: rgba(255,255,255,0.03);
+                }
+
+                .user-avatar {
+                    width: 44px;
+                    height: 44px;
+                    border-radius: 50%;
+                    background-color: #1f98f4;
+                    flex-shrink: 0;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-weight: 500;
+                    font-size: 1rem;
+                    color: #ffffff;
+                }
+
+                .user-info {
+                    flex: 1;
+                }
+
+                .user-name {
+                    font-weight: 500;
+                    font-size: 1.1rem;
+                    color: #ffffff;
+                    margin-bottom: 2px;
+                }
+
+                .user-email {
+                    font-size: 0.9rem;
+                    color: #b0b8c1;
+                }
+
+                .user-status {
+                    font-size: 0.85rem;
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                }
+
+                .existing-chat {
+                    color: #888;
+                    background-color: rgba(255,255,255,0.05);
+                }
+
+                .new-chat {
+                    color: #1f98f4;
+                    background-color: rgba(31, 152, 244, 0.1);
+                }
+
+                .starting-conversation {
+                    text-align: center;
+                    padding: 20px;
+                    color: #1f98f4;
+                    font-size: 1rem;
+                    font-weight: 500;
+                }
+
+                .users-list::-webkit-scrollbar {
+                    width: 6px;
+                }
+
+                .users-list::-webkit-scrollbar-track {
+                    background: rgba(255,255,255,0.02);
+                }
+
+                .users-list::-webkit-scrollbar-thumb {
+                    background: rgba(255,255,255,0.1);
+                    border-radius: 3px;
+                }
+
+                .users-list::-webkit-scrollbar-thumb:hover {
+                    background: rgba(255,255,255,0.15);
                 }
             `}</style>
         </>

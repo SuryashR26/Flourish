@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const pool = require('../sql/dB');
+const pool = require('../sql/optimized-dB');
 const nodemailer = require('nodemailer');
 
 
