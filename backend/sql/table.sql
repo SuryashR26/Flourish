@@ -81,6 +81,8 @@ CREATE TABLE public.postData (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     photourl VARCHAR,
     is_draft BOOLEAN NOT NULL DEFAULT FALSE,
+    time_commitment TEXT,
+    project_category TEXT
 
     
    

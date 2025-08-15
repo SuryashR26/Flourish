@@ -24,6 +24,8 @@ const createPost = async (req, res) => {
         filename,
         filetype,
         confirmDuplicate,
+        time_commitment,
+        project_category
     } = req.body;
 
 
@@ -102,11 +104,13 @@ const createPost = async (req, res) => {
                          location_preference,
                          location,
                          difficulty,
-                         is_draft
+                         is_draft,
+                         time_commitment,
+                         project_category
                     ) VALUES (
                          $1, $2, $3, $4, $5, $6,
                          $7, $8, $9, $10,
-                         $11, $12, $13, $14, $15
+                         $11, $12, $13, $14, $15, $16, $17
                     ) RETURNING *;
                 `;
 
@@ -125,7 +129,9 @@ const createPost = async (req, res) => {
                 location_preference,
                 location,
                 difficulty,
-                is_draft
+                is_draft,
+                time_commitment,
+                project_category
             ];
 
             const result = await pool.query(query, values);

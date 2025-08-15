@@ -18,6 +18,8 @@ export interface Project {
     updated_at: string;
     is_active: boolean;
     photourl?: string | null;
+    time_commitment: string;
+    project_cateogry: string
 }
 
 export interface SearchFilter {
