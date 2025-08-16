@@ -14,7 +14,7 @@ type User = {
     is_verified: boolean | null;
     is_admin: boolean | null;
     age: number | null;
-    personal_preferences: string | null;
+    personal_preferences: string[] | null;
 }
 
 type UserContextType = {

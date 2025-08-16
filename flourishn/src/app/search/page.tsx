@@ -235,7 +235,7 @@ function SkillsRow({ skills = [] }: { skills: string[] }) {
 }
 
 function page() {
-    const [searchFilter, setSearchFilter] = useState<SearchFilter>({
+    const initialSearchFilter: SearchFilter = {
         LocationS: { remote: false, inPerson: false },
         LocationL: '',
         skills: [],
@@ -244,16 +244,21 @@ function page() {
         time: [],
         radius: 50,
         sortBy: 'relevance',
-    })
+    };
+
+    const initialPreferences: string[] = [];
+    const [searchFilter, setSearchFilter] = useState<SearchFilter>(initialSearchFilter);
+    const [preferences, setPreferences] = useState<string[]>(initialPreferences);
     const { user, isLoggedIn } = useUser();
     const router = useRouter();
     const [scrollProgress, setScrollProgress] = useState(0)
+    const [usePreferences, setUsePreferences] = useState(false)
     const [currentPage, setCurrentPage] = useState(1)
     const [locationDropdownOpen, setLocationDropdownOpen] = useState(true)
-    const [projectTagsDrop, setProjectTagsDrop] = useState(true)
     const [skillTagsDrop, setSkillTagsDrop] = useState(true)
     const [sortDropdownOpen, setSortDropdownOpen] = useState(false)
     const [projectCards, setProjectCards] = useState<Project[]>([]);
+
     const searchParams = useSearchParams();
     const query = searchParams.get('query') || '';
     const [searchQuery, setSearchQuery] = useState(query);
@@ -270,9 +275,10 @@ function page() {
     const projectPerPage = 10;
 
     // Fetch function wrapped with useCallback to avoid re-creating
-    const fetchData = useCallback(async (query: string, filters: SearchFilter) => {
+    const fetchData = useCallback(async (query: string, filters: SearchFilter, preferences: string[]) => {
         try {
-            const result = await search(query, filters);
+            console.log(preferences)
+            const result = await search(query, filters, preferences);
             setProjectCards(result);
             setCurrentPage(1);
         } catch (error) {
@@ -289,9 +295,22 @@ function page() {
     }, [query]);
 
     useEffect(() => {
-        fetchData(query, searchFilter);
-    }, [query, searchFilter]);
+        const savedPrefs = localStorage.getItem('interests');
+        localStorage.clear();
+        if (savedPrefs) {
+            const parsedPrefs = JSON.parse(savedPrefs) as string[];
+            setPreferences(parsedPrefs);
+            setUsePreferences(true); // enable future fetches to use prefs
+            fetchData(query, searchFilter, parsedPrefs); // initial fetch
+        } else {
+            fetchData(query, searchFilter, []); // initial fetch without prefs
+        }
+    }, []);
 
+    useEffect(() => {
+        if (!usePreferences) return; // skip if preferences are not enabled
+        fetchData(query, searchFilter, preferences);
+    }, [query, searchFilter, preferences, usePreferences]);
     useEffect(() => {
         if (isLoggedIn) {
             if (selectedProject) {
@@ -333,6 +352,7 @@ function page() {
 
     // Enhanced category colors with updated palette for project cards
     const getCategoryColor = (category: string) => {
+        if (!category) { category = 'tech' }
         switch (category.toLowerCase()) {
             case 'tech':
                 return {
@@ -428,10 +448,10 @@ function page() {
 
     const getCategoryPlaceholder = (category: string) => {
         switch (category) {
-            case 'Creative': return 'Creative';
-            case 'Business': return 'Business';
-            case 'Environment': return 'Environment';
-            case 'Research': return 'Research';
+            case 'creative': return 'Creative';
+            case 'business': return 'Business';
+            case 'environment': return 'Environment';
+            case 'research': return 'Research';
             default: return 'Tech';
         }
     };
@@ -506,7 +526,8 @@ function page() {
                         <div className={`filter-content !pl-2 ${locationDropdownOpen ? '' : 'hidden'}`}>
                             <div className="location-options flex flex-col !gap-3 !mb-4">
                                 <label className="checkbox-option flex items-center !gap-2 cursor-pointer !py-1">
-                                    <input type="checkbox" className="custom-checkbox !w-[18px] !h-[18px] !border-2 !border-[#2f3542] !rounded !bg-transparent" checked={searchFilter.LocationS.remote} onChange={() =>
+                                    <input type="checkbox" className="custom-checkbox !w-[18px] !h-[18px] !border-2 !border-[#2f3542] !rounded !bg-transparent" checked={searchFilter.LocationS.remote} onChange={() => {
+                                        setUsePreferences(true)
                                         setSearchFilter(prev => ({
                                             ...prev,
                                             LocationS: {
@@ -514,11 +535,12 @@ function page() {
                                                 remote: !prev.LocationS.remote,
                                             },
                                         }))
-                                    } />
+                                    }} />
                                     <span className="option-label !text-[14px] !text-[#ccc] select-none">Remote</span>
                                 </label>
                                 <label className="checkbox-option flex items-center !gap-2 cursor-pointer !py-1">
-                                    <input type="checkbox" className="custom-checkbox !w-[18px] !h-[18px] !border-2 !border-[#2f3542] !rounded !bg-transparent" checked={searchFilter.LocationS.inPerson} onChange={() =>
+                                    <input type="checkbox" className="custom-checkbox !w-[18px] !h-[18px] !border-2 !border-[#2f3542] !rounded !bg-transparent" checked={searchFilter.LocationS.inPerson} onChange={() => {
+                                        setUsePreferences(true)
                                         setSearchFilter(prev => ({
                                             ...prev,
                                             LocationS: {
@@ -526,7 +548,7 @@ function page() {
                                                 inPerson: !prev.LocationS.inPerson,
                                             },
                                         }))
-                                    } />
+                                    }} />
                                     <span className="option-label !text-[14px] !text-[#ccc] select-none">In Person</span>
                                 </label>
                             </div>
@@ -539,12 +561,13 @@ function page() {
                                     min={1}
                                     max={100}
                                     value={searchFilter.radius}
-                                    onChange={(e) =>
+                                    onChange={(e) => {
+                                        setUsePreferences(true)
                                         setSearchFilter((prev) => ({
                                             ...prev,
                                             radius: Number(e.target.value),
                                         }))
-                                    }
+                                    }}
                                     className="!w-full !h-1 !bg-[#2f3542] !rounded !mb-2 focus:!outline-none focus:!border-[#1f98f4] accent-[#1f98f4]"
                                 />
                                 <div className="radius-value !text-[12px] !text-[#1f98f4] text-center">{searchFilter.radius} miles</div>
@@ -566,6 +589,7 @@ function page() {
                                     value={searchFilter.skills.map(skill => ({ value: skill, label: skill }))}
                                     onChange={selected => {
                                         // selected is array of {value,label}
+                                        setUsePreferences(true)
                                         const skills = (selected as { value: string; label: string }[]).map(option => option.value).slice(0, 5);
                                         setSearchFilter({ ...searchFilter, skills });
                                     }}
@@ -610,13 +634,14 @@ function page() {
                         </div>
                         <div className={`filter-content !pl-2 ${categoryOpen ? '' : 'hidden'}`}>
                             <div className="difficulty-options flex flex-col !gap-2">
-                                {['Tech', 'Creative', 'Business', 'Environment'].map((tag) => (
+                                {['Tech', 'Creative', 'Business', 'Environment', 'Research'].map((tag) => (
                                     <label key={tag} className="checkbox-option flex items-center !gap-2 cursor-pointer !py-1">
                                         <input
                                             type="checkbox"
                                             className="custom-checkbox !w-[18px] !h-[18px] !border-2 !border-[#2f3542] !rounded !bg-transparent"
                                             checked={searchFilter.tags.includes(tag)}
                                             onChange={() => {
+                                                setUsePreferences(true);
                                                 setSearchFilter(prev => {
                                                     const tags = prev.tags.includes(tag)
                                                         ? prev.tags.filter(t => t !== tag)   // remove if checked
@@ -648,7 +673,8 @@ function page() {
                                                 type="checkbox"
                                                 className="custom-checkbox !w-[18px] !h-[18px] !border-2 !border-[#2f3542] !rounded !bg-transparent"
                                                 checked={searchFilter.difficulty.includes(level)}
-                                                onChange={() =>
+                                                onChange={() => {
+                                                    setUsePreferences(true)
                                                     setSearchFilter((prev) => {
                                                         const current = prev.difficulty;
                                                         return {
@@ -658,7 +684,7 @@ function page() {
                                                                 : [...current, level],
                                                         };
                                                     })
-                                                }
+                                                }}
                                             />
                                             <span className="option-label !text-[14px] !text-[#ccc] select-none">
                                                 {labels[idx]}
@@ -672,7 +698,7 @@ function page() {
                     </div>
 
                     {/* Time Commitment Filter */}
-                    <div className="filter-section !mb-15">
+                    <div className="filter-section !mb-18">
                         <div className="filter-header flex items-center justify-between cursor-pointer !mb-3 !py-2" onClick={() => setTimeOpen(open => !open)}>
                             <span className="filter-label !text-[16px] !font-medium !text-white">Time Commitment</span>
                             <ChevronDownIcon className={`chevron !w-4 !h-4 !text-[#888] transition-transform ${timeOpen ? 'open !rotate-180' : ''}`} />
@@ -685,7 +711,8 @@ function page() {
                                             type="checkbox"
                                             className="custom-checkbox !w-[18px] !h-[18px] !border-2 !border-[#2f3542] !rounded !bg-transparent"
                                             checked={searchFilter.time.includes(range)}
-                                            onChange={() =>
+                                            onChange={() => {
+                                                setUsePreferences(true)
                                                 setSearchFilter((prev) => {
                                                     const current = prev.time;
                                                     return {
@@ -695,7 +722,7 @@ function page() {
                                                             : [...current, range],
                                                     };
                                                 })
-                                            }
+                                            }}
                                         />
                                         <span className="option-label !text-[14px] !text-[#ccc] select-none">
                                             {range}
@@ -714,7 +741,11 @@ function page() {
                     `}
                     style={!isMobile ? { zIndex: 10001, background: "#000" } : {}}
                 >
-                    <button className="btn btn-clear flex-1 !bg-transparent !text-[#888] !border !border-[#2f3542] !px-4 !py-2 !rounded-lg !text-[14px] !font-medium hover:!bg-[#2f3542] hover:!text-white">Clear All</button>
+                    <button className="btn btn-clear flex-1 !bg-transparent !text-[#888] !border !border-[#2f3542] !px-4 !py-2 !rounded-lg !text-[14px] !font-medium hover:!bg-[#2f3542] hover:!text-white"
+                        onClick={() => {
+                            setSearchFilter(initialSearchFilter);
+                            setPreferences(initialPreferences);
+                        }} >Clear All</button>
 
                 </div>
             </div>
@@ -789,7 +820,7 @@ function page() {
                 {/* Enhanced Responsive grid layout */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 mt-8">
                     {paginatedProjects.map((project, idx) => {
-                        const category = getProjectCategory(project.project_tags);
+                        const category = project.project_category
                         /*const categoryClass = category === 'Tech'
                             ? 'bg-blue-900/10 text-blue-400 border border-blue-400/20'
                             : category === 'Creative'
@@ -856,7 +887,7 @@ function page() {
                                                 border: `1px solid ${getCategoryColor(category).primary}20`
                                             }}
                                         >
-                                            {category}
+                                            {category?.toUpperCase()}
                                         </span>
                                     </div>
 
@@ -919,7 +950,7 @@ function page() {
                         style={{ background: "rgba(0,0,0,0.8)" }}
                         onClick={e => { if (e.target === e.currentTarget) setSelectedProject(null); }}
                     >
-                        <div className="!bg-[#181c23] !border !border-[#333] !rounded-2xl !w-full !max-w-2xl !max-h-[90vh] !overflow-hidden !relative !shadow-2xl">
+                        <div className="!bg-[#181c23] !border !border-[#333] !rounded-2xl !w-full !max-w-2xl !max-h-[90vh] !overflow-y-auto !relative !shadow-2xl">
                             <div className="!p-8 !pb-6 !border-b !border-[#2f3542] !relative">
                                 <button
                                     onClick={() => setSelectedProject(null)}
@@ -1009,16 +1040,16 @@ function page() {
                                         </span>
                                     </div>
 
-                                    {/*selectedProject.timeCommitment && (
+                                    {selectedProject.time_commitment && (
                                         <div className="flex items-center !gap-3">
                                             <svg className="!w-5 !h-5 !text-[#1f98f4] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
                                             </svg>
                                             <span className="!text-[#ccc] !text-sm">
-                                                {selectedProject.timeCommitment}
+                                                {selectedProject.time_commitment}
                                             </span>
                                         </div>
-                                    )*/}
+                                    )}
                                 </div>
 
                                 {/* Project Description */}

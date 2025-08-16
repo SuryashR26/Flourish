@@ -172,13 +172,10 @@ export default function ProfileUploader() {
         const selected = event.target.files?.[0];
         if (!selected) return;
         setFile(selected);
-        if (submitPhoto) {
-            uploadFile(selected);
-        }
     };
 
 
-    const uploadFile = async (selected: File) => {
+    const uploadFile = async (selected: File, interests: string[]) => {
         try {
             const { new_url, publicUrl } = await getPresignedUrl(selected.name, selected.type);
 
@@ -191,7 +188,11 @@ export default function ProfileUploader() {
             if (!uploadRes.ok) throw new Error('Upload failed');
 
             if (user) {
-                const updatedUser = { ...user, profileurl: publicUrl };
+                const updatedUser = {
+                    ...user,
+                    profileurl: publicUrl,
+                    personal_preferences: [...interests]
+                };
                 setUser(updatedUser);
                 setCookie('user', JSON.stringify(updatedUser));
             }
@@ -218,7 +219,7 @@ export default function ProfileUploader() {
             await additionalInfo(signUpValues);
             setSubmitPhoto(true);
             if (file) {
-                await uploadFile(file);
+                await uploadFile(file, signUpValues.interest);
             }
             return true;
         } catch (error) {

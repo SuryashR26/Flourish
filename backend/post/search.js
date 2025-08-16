@@ -11,7 +11,8 @@ const search = async (req, res) => {
         difficulty,
         time,
         query,
-        sortBy
+        sortBy,
+        interests
     } = req.query;
 
     console.log('Search parameters:', {
@@ -24,7 +25,8 @@ const search = async (req, res) => {
         difficulty,
         time,
         query,
-        sortBy
+        sortBy,
+        interests,
     });
 
     try {
@@ -47,6 +49,37 @@ const search = async (req, res) => {
             values.push(location_preference);
         }
 
+        const interestArray = interests
+            ? Array.isArray(interests)
+                ? interests
+                : [interests]
+            : [];
+        if (interestArray.length > 0) {
+
+            const interestCondition = `skill_tags && $${index}::text[]`;
+            values.push(interestArray);
+            index++;
+
+            const tsQuery = interestArray
+                .map(interest => interest.toLowerCase().split(/\s+/).join(' | '))
+                .join(' | ');
+            const fullTextCondition = `document_with_weights @@ to_tsquery('english', $${index})`;
+            values.push(tsQuery);
+            index++;
+
+            const fuzzyCondition = `
+                 EXISTS (
+                 SELECT 1 FROM unnest(skill_tags) AS skill_tag
+                 WHERE skill_tag % ANY($${index})
+                 )
+              `;
+            values.push(interestArray.map(s => s.toLowerCase()));
+            index++;
+
+            conditions.push(`(${interestCondition} OR ${fullTextCondition} OR ${fuzzyCondition})`);
+        }
+
+
         if (difficulty && Array.isArray(difficulty)) {
             const placeholders = difficulty.map((_, i) => `$${index + i}`).join(', ');
 
@@ -60,6 +93,35 @@ const search = async (req, res) => {
         if (difficulty && !Array.isArray(difficulty)) {
             conditions.push(`difficulty = $${index++}`);
             values.push(difficulty.toLowerCase());
+        }
+        if (time && Array.isArray(time)) {
+            const placeholders = time.map((_, i) => `$${index + i}`).join(', ');
+
+            conditions.push(`time_commitment IN (${placeholders})`);
+
+            values.push(...time.map(d => d.toLowerCase()));
+
+            index += time.length;
+        }
+
+        if (time && !Array.isArray(time)) {
+            conditions.push(`time_commitment = $${index++}`);
+            values.push(time.toLowerCase());
+        }
+
+        if (tags && Array.isArray(tags)) {
+            const placeholders = tags.map((_, i) => `$${index + i}`).join(', ');
+
+            conditions.push(`project_category IN (${placeholders})`);
+
+            values.push(...tags.map(d => d.toLowerCase()));
+
+            index += tags.length;
+        }
+
+        if (tags && !Array.isArray(tags)) {
+            conditions.push(`project_category = $${index++}`);
+            values.push(tags.toLowerCase());
         }
 
         if (skills) {

@@ -261,12 +261,12 @@ export default function DashboardPage() {
     const [bookmarkedProjects, setBookmarkedProject] = useState<Project[]>([]);
     const [userProjects, setUserProjects] = useState<Project[]>([]);
     const [recommendedProjects, setRecommendedProjects] = useState<Project[]>([]);
+    const [interests, setInterests] = useState<string[]>([]);
     const firstTimeSignUp = useSearchParams();
-    const interests = Array.isArray(user?.personal_preferences)
-        ? user.personal_preferences
-        : user?.personal_preferences
-            ? [user.personal_preferences]
-            : [];
+    useEffect(() => {
+        setInterests(user?.personal_preferences || []);
+    }, [user]);
+
 
     const fetchPosts = useCallback(async () => {
         try {
@@ -341,17 +341,20 @@ export default function DashboardPage() {
                 <div className="!mb-8">
                     <h3 className="!text-lg !font-semibold !mb-4 !text-white !flex !items-center !gap-2">Your Interests</h3>
                     <div className="!flex !flex-wrap !gap-2 !mb-4">
-                        {interests.length > 0 ? (
-                            interests.map((interest, index) => (
+                        {user?.personal_preferences?.length ? (
+                            user.personal_preferences.map((interest, index) => (
                                 <span
                                     key={index}
                                     className="!bg-[rgba(31,152,244,0.1)] !text-[#1f98f4] !py-1.5 !px-3 !rounded-2xl !text-xs !font-medium !border !border-[rgba(31,152,244,0.2)] !cursor-pointer !transition-all !duration-200 hover:!bg-[rgba(31,152,244,0.2)]"
-                                >{interest}</span>
+                                >
+                                    {interest}
+                                </span>
                             ))
                         ) : (
                             <p>No interests specified.</p>
                         )}
                     </div>
+
                     <a href="#" className="!text-[#888] !text-xs !no-underline !py-2 !block !border-t !border-[#2f3542] !mt-3 !pt-3 hover:!text-[#1f98f4]">✏️ Edit interests</a>
                 </div>
             </div>
@@ -373,7 +376,15 @@ export default function DashboardPage() {
                     <div className="!flex !items-center !justify-between !mb-5">
                         <h2 className="!text-2xl !font-semibold !text-white">Recommended for You</h2>
                         <button
-                            onClick={() => setShowAllRecommended((v) => !v)}
+                            onClick={() => {
+                                localStorage.setItem(
+                                    "interests",
+                                    JSON.stringify(user?.personal_preferences || {})
+                                );
+
+
+                                router.push("/search");
+                            }}
                             className="!text-[#1f98f4] !no-underline !text-sm !font-medium !py-2 !px-4 !border !border-[#1f98f4] !rounded-lg !transition-all !duration-200 hover:!bg-[#1f98f4] hover:!text-white"
                         >
                             {showAllRecommended ? "Show Less" : "View All"}
@@ -553,7 +564,7 @@ export default function DashboardPage() {
                                             <div className="flex items-center !gap-2">
                                                 <div className="w-7 h-7 !rounded-full bg-indigo-900 flex items-center justify-center !text-indigo-200 !text-xs !font-semibold flex-shrink-0">
                                                     <img
-                                                        src={project.user_image || '/images/defaultProfile.jpg'}
+                                                        src={user?.profileurl || '/images/defaultProfile.jpg'}
                                                         alt={project.user_name || 'User'}
                                                         className="w-full h-full object-cover rounded-full"
                                                         onError={(e) => {

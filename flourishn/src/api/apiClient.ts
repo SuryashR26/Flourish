@@ -78,7 +78,7 @@ export async function getPresignedUrl(filename: string, filetype: string) {
     return await res.json();
 }
 
-export function search(query: string, searchFilter: SearchFilter): Promise<Project[]> {
+export function search(query: string, searchFilter: SearchFilter, interests: string[]): Promise<Project[]> {
     const params = new URLSearchParams();
 
     if (query) params.append('query', query);
@@ -94,6 +94,7 @@ export function search(query: string, searchFilter: SearchFilter): Promise<Proje
     searchFilter.tags.forEach((tag) => params.append('tags', tag));
     searchFilter.difficulty.forEach((diff) => params.append('difficulty', diff));
     searchFilter.time.forEach((t) => params.append('time', t));
+    interests.forEach((interest) => params.append('interests', interest));
 
     return fetch(`http://localhost:8080/search?${params.toString()}`, {
         method: 'GET',

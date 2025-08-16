@@ -186,8 +186,8 @@ export default function PostPage() {
         status: "active",
         difficulty: "easy",
         is_draft: false,
-        time_commitment: "1-2 Weeks",
-        project_category: ""
+        time_commitment: "1-2 weeks",
+        project_category: "tech"
     })
 
     const [errors, setErrors] = useState<PostValuesErrors>({})
@@ -370,7 +370,7 @@ export default function PostPage() {
                     status: "active",
                     difficulty: "easy",
                     is_draft: false,
-                    time_commitment: "1-2 Weeks",
+                    time_commitment: "1-2 weeks",
                     project_category: ""
                 });
                 setSelectedFile(null);
@@ -481,7 +481,7 @@ export default function PostPage() {
                     status: "active",
                     difficulty: "easy",
                     is_draft: false,
-                    time_commitment: "1-2 Weeks",
+                    time_commitment: "1-2 weeks",
                     project_category: ""
                 });
                 setSelectedFile(null);
@@ -648,11 +648,11 @@ export default function PostPage() {
                                     onChange={handleChange}
                                     className="w-full p-2 border rounded bg-[#0B0809] text-white"
                                 >
-                                    <option value="Tech"> Tech </option>
-                                    <option value="Creative"> Creative</option>
-                                    <option value="Business"> Business</option>
-                                    <option value="Research"> Research</option>
-                                    <option value="Environment"> Environment</option>
+                                    <option value="tech"> Tech </option>
+                                    <option value="creative"> Creative</option>
+                                    <option value="business"> Business</option>
+                                    <option value="research"> Research</option>
+                                    <option value="environment"> Environment</option>
                                 </select>
                             </div>
                             <div className="mt-4 w-1/2">
@@ -663,10 +663,10 @@ export default function PostPage() {
                                     onChange={handleChange}
                                     className="w-full p-2 border rounded bg-[#0B0809] text-white"
                                 >
-                                    <option value="1-2 Weeks">1-2 Weeks</option>
-                                    <option value="1-3 Months">1-3 Months</option>
-                                    <option value="3-6 Months">3-6 Months</option>
-                                    <option value="6+ Months">6+ Months</option>
+                                    <option value="1-2 weeks">1-2 weeks</option>
+                                    <option value="1-3 months">1-3 months</option>
+                                    <option value="3-6 months">3-6 months</option>
+                                    <option value="6+ months">6+ months</option>
                                 </select>
                             </div>
 

@@ -19,7 +19,7 @@ export interface Project {
     is_active: boolean;
     photourl?: string | null;
     time_commitment: string;
-    project_cateogry: string
+    project_category: string
 }
 
 export interface SearchFilter {
