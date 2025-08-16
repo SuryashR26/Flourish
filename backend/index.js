@@ -66,23 +66,10 @@ app.get('/test-db', async (req, res) => {
 
 // runs it at 9 am every day at the server time zone
 cron.schedule('0 9 * * *', async () => {
-    console.log('Running daily incomplete registration email task...');
+    console.log('Running daily incomplete registration and inactive user email task...');
     await incompleteRegistration();
+    await inactiveUsers();
 });
-
-
-// Schedule the task to run at midnight every 3 days (days divisible by 3)
-cron.schedule('0 0 */3 * *', async () => {
-    console.log('Running incomplete registration email task every 3 days...');
-    try {
-        await inactiveUsers();
-        console.log('Task completed successfully.');
-    } catch (error) {
-        console.error('Error running task:', error);
-    }
-});
-
-cron.schedule
 
 app.post('/signup', signup);
 

@@ -14,11 +14,20 @@ const transporter = nodemailer.createTransport({
 });
 
 const incompleteRegistration = async () => {
+  const today = new Date();
+  const dayOfWeek = today.getDay();
+
+  if (dayOfWeek !== 0) {
+    console.log('Today is not Sunday. Exiting function.');
+    return;
+  }
   try {
     const users = await pool.query(
-      'SELECT email FROM users WHERE first_name IS NULL OR last_name IS NULL'
-    );
-
+      `SELECT email 
+       FROM users 
+       WHERE (first_name IS NULL OR last_name IS NULL) 
+         AND last_notified < NOW() - INTERVAL '7 days'`
+    )
     const emails = users.rows.map(user => user.email);
 
     if (emails.length === 0) {
@@ -61,8 +70,17 @@ const incompleteRegistration = async () => {
               `
       };
 
-      await transporter.sendMail(mailOptions);
-      console.log(`Email sent to ${email}`);
+      try {
+        await transporter.sendMail(mailOptions);
+        console.log(`Email sent to ${email}`);
+
+        await pool.query(
+          "UPDATE users SET last_notified = NOW() WHERE email = $1",
+          [email]
+        );
+      } catch (err) {
+        console.error(`Failed to send email to ${email}:`, err);
+      }
     }
 
 

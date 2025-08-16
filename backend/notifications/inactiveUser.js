@@ -14,9 +14,17 @@ const transporter = nodemailer.createTransport({
 });
 
 const inactiveUsers = async () => {
+  const today = new Date();
+  const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+
+  if (dayOfWeek !== 0) {
+    console.log('Today is not Sunday. Exiting function.');
+    return;
+  }
+
   try {
     const users = await pool.query(
-      'SELECT email FROM users WHERE (first_name IS NOT NULL OR last_name IS NOT NULL) AND last_active < NOW() - INTERVAL \'3 days\''
+      'SELECT email FROM users WHERE (first_name IS NOT NULL OR last_name IS NOT NULL) AND last_active < NOW() - INTERVAL \'7 days\''
     );
 
     const emails = users.rows.map(user => user.email);
@@ -60,8 +68,18 @@ const inactiveUsers = async () => {
               `
       };
 
-      await transporter.sendMail(mailOptions);
-      console.log(`Email sent to ${email} (Inactive User)`);
+
+      try {
+        await transporter.sendMail(mailOptions);
+        console.log(`Email sent to ${email}`);
+
+        await pool.query(
+          "UPDATE users SET last_active = NOW() WHERE email = $1",
+          [email]
+        );
+      } catch (err) {
+        console.error(`Failed to send email to ${email}:`, err);
+      }
     }
 
 
