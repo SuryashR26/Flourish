@@ -44,6 +44,11 @@ const login = async (req, res) => {
 
         req.session.userId = user_id; // sets the session user ID to the user ID of the person
 
+        const result3 = await pool.query(
+            'UPDATE users set last_active = NOW() where email = $1',
+            [emailLower]
+        )
+
         console.log('Session after login:', req.session);
 
         const user = {

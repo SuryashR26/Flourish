@@ -347,3 +347,107 @@ export function getRecommendedProjects(): Promise<Project[]> {
     });
 }
 
+export async function getNotifications() {
+    try {
+        const response = await fetch(`http://localhost:8080/getNotifications`, {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            console.error('Failed to fetch notifications:', response.statusText);
+            return [];
+        }
+
+        const data = await response.json();
+        return data.notifications || [];
+    } catch (error) {
+        console.error('Error fetching notifications:', error);
+        return [];
+    }
+}
+
+export async function getOverallViews() {
+    try {
+        const response = await fetch(`http://localhost:8080/getOverallViews`, {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            console.error('Failed to fetch views:', response.statusText);
+            return [];
+        }
+
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching views:', error);
+        return [];
+    }
+}
+
+export async function getOverallClicks() {
+    try {
+        const response = await fetch(`http://localhost:8080/getOverallClicks`, {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            console.error('Failed to fetch clicks:', response.statusText);
+            return [];
+        }
+
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching views:', error);
+        return [];
+    }
+}
+export async function getOverallBookmarks() {
+    try {
+        const response = await fetch(`http://localhost:8080/getOverallBookmarks`, {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            console.error('Failed to fetch bookmarks:', response.statusText);
+            return [];
+        }
+
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching views:', error);
+        return [];
+    }
+}
+
+export async function markNotificationsRead() {
+    const res = await fetch('http://localhost:8080/markNotifications', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!res.ok) {
+        throw new Error('Failed to create post');
+    }
+
+    return await res.json();
+}

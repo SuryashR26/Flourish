@@ -332,7 +332,7 @@ export default function PostPage() {
                         });
 
                         if (!uploadRes.ok) {
-                            const errorText = await uploadRes.text(); // 🔍 get actual XML error
+                            const errorText = await uploadRes.text();
                             console.error('Upload failed:', errorText);
                             throw new Error('Upload failed');
                         }

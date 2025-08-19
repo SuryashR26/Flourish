@@ -15,7 +15,12 @@ CREATE TABLE public.users
     personal_preferences TEXT[],        -- Changed from varchar(500) to text array
     code                TEXT,
     profileurl          TEXT,
-    bookmark_projects   UUID[] DEFAULT '{}',  -- Array of UUIDs for bookmarked posts
+    bookmark_projects   UUID[] DEFAULT '{}',  -- Array of UUIDs for bookmarked posts,
+    birthday            DATE,
+    phone_number        VARCHAR,
+    last_active         TIMESTAMPTZ DEFAULT NOW(),
+    last_notified       TIMESTAMPTZ DEFAULT NOW(),
+    hasPosted           BOOLEAN
     fulltext            TSVECTOR GENERATED ALWAYS AS (
                             to_tsvector('english', coalesce(first_name, '') || ' ' || coalesce(last_name, ''))
                         ) STORED,
@@ -137,4 +142,16 @@ CREATE TABLE post_views (
   post_id UUID NOT NULL,
   user_id UUID NOT NULL,
   viewed_at TIMESTAMP DEFAULT NOW(),
+);
+
+
+CREATE TABLE notifications (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    event_type TEXT NOT NULL,              
+    actor_id UUID REFERENCES users(id) ON DELETE CASCADE, 
+    recipient_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE, 
+    target_id UUID,                        
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    read_at TIMESTAMPTZ,
+    actor_name TEXT,
 );

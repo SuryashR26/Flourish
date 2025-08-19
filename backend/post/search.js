@@ -272,6 +272,46 @@ const search = async (req, res) => {
             return res.status(404).json({ message: 'No posts found' });
         }
 
+
+        const actorId = req.session.userId || null;
+        let actorName = 'Guest'
+        if (actorId) {
+            const user_name = await pool.query(
+                'SELECT first_name from users where id = $1',
+                [actorId]
+            )
+            actorName = user_name.rows[0]?.first_name || 'Guest';
+        }
+
+
+        let placeholders = [];
+        let values2 = [];
+        let paramIndex = 1; // track placeholder numbering
+
+        for (const post of result.rows) {
+            if (actorId === post.user_id) {
+                continue;
+            }
+
+            placeholders.push(`($${paramIndex}, $${paramIndex + 1}, $${paramIndex + 2}, $${paramIndex + 3}, $${paramIndex + 4})`);
+
+            values2.push('view');        // event_type
+            values2.push(actorId);       // actor_id
+            values2.push(actorName);     // actor_name
+            values2.push(post.user_id);  // recipient_id
+            values2.push(post.id);       // target_id
+
+            paramIndex += 5;
+        }
+        const query2 = `
+            INSERT INTO notifications (event_type, actor_id, actor_name, recipient_id, target_id)
+            VALUES ${placeholders.join(', ')}
+        `;
+
+        if (placeholders.length > 0 && baseQuery != 'SELECT * FROM postdata WHERE is_draft = false ORDER BY created_at DESC') {
+            await pool.query(query2, values2);
+        }
+
         res.json(result.rows);
     } catch (error) {
         console.error('Error searching posts:', error);

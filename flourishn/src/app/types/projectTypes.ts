@@ -42,3 +42,13 @@ export interface SignUpValues2 {
     phoneNumber: string;
     interest: string[];
 }
+
+export interface Notification {
+    type: 'view' | 'click' | 'bookmark';
+    targetId: string;
+    actorId: string | null;
+    actor_name: string
+    message: string;
+    created_at: string;
+    read_at: string;
+};

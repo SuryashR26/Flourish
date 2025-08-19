@@ -136,6 +136,11 @@ const createPost = async (req, res) => {
 
             const result = await pool.query(query, values);
 
+            const result2 = await pool.query(
+                'UPDATE users set hasPosted = true where id = $1',
+                [userId]
+            )
+
 
             const postId = result.rows[0]
 
@@ -220,6 +225,18 @@ const cleanupFailedPost = async (req, res) => {
                 success: false,
                 message: 'Post not found or unauthorized'
             });
+        }
+
+        const result2 = await pool.query(
+            'SELECT * from postData where user_id = $1',
+            [userId]
+        )
+
+        if (result2.rowCount === 0) {
+            await pool.query(
+                'UPDATE users set hasPosted = false where id = $1',
+                [userId]
+            )
         }
 
         console.log('Post cleaned up successfully:', postId);

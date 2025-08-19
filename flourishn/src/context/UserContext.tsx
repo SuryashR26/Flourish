@@ -4,6 +4,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { getCookie, setCookie } from '@/utils/cookies';
 import { usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 type User = {
     id: string;
@@ -31,6 +32,7 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export function UserProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+    const router = useRouter();
     const pathname = usePathname();
     const login = async (email: string, password: string) => {
         const result = await fetch('http://localhost:8080/login', {
@@ -100,6 +102,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         }
         setUser(null);
         setIsLoggedIn(false);
+        router.push('/login')
         setCookie('user', '', { maxAge: -1 });
     };
     // Check if user is already logged in from cookie
@@ -115,6 +118,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
                 setUser(null);
                 setIsLoggedIn(false);
             }
+
         };
         checkUserFromCookie();
     }, [pathname]);

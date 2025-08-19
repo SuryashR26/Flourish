@@ -7,7 +7,9 @@ const { resetPass } = require('./inquiries/resetPass');
 const { updateProfile } = require('./profileChanges/updateProfile');
 const { logout } = require('./auth/logout');
 const { search } = require('./post/search');
+const { getNotifications, getViews, getBookmarks, getClicks, markAsReadNotifications } = require('./notifications/getNotifications')
 const { getBookmarkedPosts, getUserPosts, getRecommendedProjects } = require('./profileView/getUserPosts')
+const { weeklyDigest } = require('./notifications/weeklyDigest')
 const incompleteRegistration = require('./notifications/incompleteRegistration');
 const inactiveUsers = require('./notifications/inactiveUser');
 const additionalInfo = require('./profileChanges/additionalinfo')
@@ -69,6 +71,7 @@ cron.schedule('0 9 * * *', async () => {
     console.log('Running daily incomplete registration and inactive user email task...');
     await incompleteRegistration();
     await inactiveUsers();
+    await weeklyDigest();
 });
 
 app.post('/signup', signup);
@@ -118,6 +121,16 @@ app.get('/bookmarkedPosts', getBookmarkedPosts)
 app.get('/getUserPosts', getUserPosts)
 
 app.get('/getRecommendedProjects', getRecommendedProjects)
+
+app.get('/getOverallViews', getViews)
+
+app.get('/getOverallClicks', getClicks)
+
+app.get('/getOverallBookmarks', getBookmarks)
+
+app.get('/getNotifications', getNotifications)
+
+app.post('/markNotifications', markAsReadNotifications)
 
 
 app.listen(PORT, () => {

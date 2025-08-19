@@ -292,6 +292,7 @@ function page() {
     // Your filters state and logic remain as is on the search page
     useEffect(() => {
         setSearchQuery(query);
+        setUsePreferences(true)
     }, [query]);
 
     useEffect(() => {

@@ -6,9 +6,9 @@ import ProfileUploader from "../signup/profileUploader";
 import { useRouter } from 'next/navigation';
 import { useUser } from "@/context/UserContext";
 import { useSearchParams } from 'next/navigation';
-import { getBookmarkedPosts, getUserPosts, getRecommendedProjects } from "@/api/apiClient";
+import { getBookmarkedPosts, getUserPosts, getRecommendedProjects, getNotifications, markNotificationsRead } from "@/api/apiClient";
 
-import { Project } from '@/app/types/projectTypes';
+import { Project, Notification } from '@/app/types/projectTypes';
 
 
 // Dashboard Sidebar Activity Feed Styles
@@ -262,6 +262,8 @@ export default function DashboardPage() {
     const [userProjects, setUserProjects] = useState<Project[]>([]);
     const [recommendedProjects, setRecommendedProjects] = useState<Project[]>([]);
     const [interests, setInterests] = useState<string[]>([]);
+    const [unreadNotification, setUnreadNotification] = useState(false);
+    const [notifications, setNotifications] = useState<Notification[]>([]);
     const firstTimeSignUp = useSearchParams();
     useEffect(() => {
         setInterests(user?.personal_preferences || []);
@@ -272,7 +274,9 @@ export default function DashboardPage() {
         try {
             const result = await getBookmarkedPosts();
             const result2 = await getUserPosts();
-            const result3 = await getRecommendedProjects()
+            const result3 = await getRecommendedProjects();
+            const result4 = await getNotifications()
+            setNotifications(result4)
             setUserProjects(result2);
             setBookmarkedProject(result);
             setRecommendedProjects(result3);
@@ -282,9 +286,32 @@ export default function DashboardPage() {
         }
     }, []);
 
+    const viewAllNotifications = async () => {
+        try {
+            await markNotificationsRead();
+            setNotifications((prev) =>
+                prev.map((n) => ({ ...n, read_at: n.read_at ?? new Date().toISOString() }))
+            );
+            setUnreadNotification(false);
+            router.push(`/statistics?query=${encodeURIComponent('Notifications')}`);
+        } catch (error) {
+            console.error('Error marking notifications as read:', error);
+        }
+    };
+
+
     useEffect(() => {
         fetchPosts()
     }, []);
+
+    useEffect(() => {
+        if (notifications && notifications.length > 0) {
+            const hasUnread = notifications.some((notif) => notif.read_at === "unread");
+            setUnreadNotification(hasUnread);
+        } else {
+            setUnreadNotification(false);
+        }
+    }, [notifications]);
 
 
     useEffect(() => {
@@ -311,31 +338,53 @@ export default function DashboardPage() {
                 {/* Activity Feed Section */}
                 <div className="sidebar-section">
                     <h3 className="sidebar-title">Activity Feed</h3>
-                    {/* Urgent notification */}
-                    <div className="activity-item urgent">
-                        <div className="activity-avatar urgent">⚠️</div>
-                        <div className="activity-content">
-                            <div className="activity-text">Film project deadline tomorrow</div>
-                            <div className="activity-time">3h ago</div>
-                        </div>
-                    </div>
-                    {/* User activity */}
-                    <div className="activity-item">
-                        <div className="activity-avatar user">SM</div>
-                        <div className="activity-content">
-                            <div className="activity-text"><strong>Sarah</strong> joined Recipe App</div>
-                            <div className="activity-time">2h ago</div>
-                        </div>
-                    </div>
-                    <div className="activity-item">
-                        <div className="activity-avatar user" style={{ background: '#f59e0b' }}>JC</div>
-                        <div className="activity-content">
-                            <div className="activity-text"><strong>Jordan</strong> updated film project</div>
-                            <div className="activity-time">5h ago</div>
-                        </div>
-                    </div>
-                    <a href="#" className="view-all-activity">View All Activity</a>
+
+                    {notifications && notifications.length > 0 ? (
+                        notifications
+                            .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) // newest first
+                            .slice(0, 3)
+                            .map((notif, index) => {
+                                const initials = notif.actor_name
+                                    ? notif.actor_name
+                                        .split(' ')
+                                        .map((n: string) => n[0].toUpperCase())
+                                        .join('')
+                                    : '⚡';
+
+
+                                return (
+                                    <div key={index} className="activity-item">
+                                        <div className="activity-avatar user">{initials}</div>
+                                        <div className="activity-content">
+                                            <div className="activity-text">{notif.message}</div>
+                                            {notif.created_at && (
+                                                <div className="activity-time">
+                                                    {new Date(notif.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })
+                    ) : (
+                        <div>No notifications yet</div>
+                    )}
+
+                    <a
+                        href="#"
+                        className="view-all-activity"
+                        onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
+                            e.preventDefault();
+                            viewAllNotifications();
+                        }}
+                    >
+                        View All
+                        {unreadNotification && (
+                            <span className="absolute right-10 w-2 h-2 !bg-red-500 rounded-full" />
+                        )}
+                    </a>
                 </div>
+
 
                 {/* Interests Section */}
                 <div className="!mb-8">
