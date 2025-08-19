@@ -15,12 +15,21 @@ const bookmarkPost = async (req, res) => {
 
     try {
         const res2 = await pool.query(
-            'SELECT user_id FROM postdata where  user_id = $1 AND id = $2',
-            [userId, postId]
+            'SELECT user_id, user_name FROM postdata WHERE id = $1',
+            [postId]
         )
-        if (res2.rows.length > 0) {
-            return res.status(400).json({ message: 'Post Was Created by User' });
+
+        if (res2.rows[0].user_id === userId) {
+            return res.status(404).json({ message: 'Post was created by user' });
         }
+
+        const recipient_id = res2.rows[0].user_id;
+        const user_name = await pool.query(
+            'SELECT first_name from users where id = $1',
+            [userId]
+        )
+        const actorName = user_name.rows[0].first_name;
+
         const existingBookmark = await pool.query(
             'SELECT * FROM users WHERE id = $1 AND $2 = ANY(bookmarked_projects)',
             [userId, postId]
@@ -31,6 +40,12 @@ const bookmarkPost = async (req, res) => {
         await pool.query(
             'UPDATE users SET bookmarked_projects = array_append(bookmarked_projects, $1) WHERE id = $2;',
             [postId, userId]
+        );
+
+        await pool.query(
+            `INSERT INTO notifications (event_type, actor_id, actor_name, recipient_id, target_id)
+             VALUES ($1, $2, $3, $4, $5)`,
+            ['bookmark', userId, actorName, recipient_id, postId]
         );
 
         res.json({ success: true, message: 'Post bookmarked' });

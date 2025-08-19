@@ -11,7 +11,8 @@ const search = async (req, res) => {
         difficulty,
         time,
         query,
-        sortBy
+        sortBy,
+        interests
     } = req.query;
 
     console.log('Search parameters:', {
@@ -24,7 +25,8 @@ const search = async (req, res) => {
         difficulty,
         time,
         query,
-        sortBy
+        sortBy,
+        interests,
     });
 
     try {
@@ -47,6 +49,37 @@ const search = async (req, res) => {
             values.push(location_preference);
         }
 
+        const interestArray = interests
+            ? Array.isArray(interests)
+                ? interests
+                : [interests]
+            : [];
+        if (interestArray.length > 0) {
+
+            const interestCondition = `skill_tags && $${index}::text[]`;
+            values.push(interestArray);
+            index++;
+
+            const tsQuery = interestArray
+                .map(interest => interest.toLowerCase().split(/\s+/).join(' | '))
+                .join(' | ');
+            const fullTextCondition = `document_with_weights @@ to_tsquery('english', $${index})`;
+            values.push(tsQuery);
+            index++;
+
+            const fuzzyCondition = `
+                 EXISTS (
+                 SELECT 1 FROM unnest(skill_tags) AS skill_tag
+                 WHERE skill_tag % ANY($${index})
+                 )
+              `;
+            values.push(interestArray.map(s => s.toLowerCase()));
+            index++;
+
+            conditions.push(`(${interestCondition} OR ${fullTextCondition} OR ${fuzzyCondition})`);
+        }
+
+
         if (difficulty && Array.isArray(difficulty)) {
             const placeholders = difficulty.map((_, i) => `$${index + i}`).join(', ');
 
@@ -60,6 +93,35 @@ const search = async (req, res) => {
         if (difficulty && !Array.isArray(difficulty)) {
             conditions.push(`difficulty = $${index++}`);
             values.push(difficulty.toLowerCase());
+        }
+        if (time && Array.isArray(time)) {
+            const placeholders = time.map((_, i) => `$${index + i}`).join(', ');
+
+            conditions.push(`time_commitment IN (${placeholders})`);
+
+            values.push(...time.map(d => d.toLowerCase()));
+
+            index += time.length;
+        }
+
+        if (time && !Array.isArray(time)) {
+            conditions.push(`time_commitment = $${index++}`);
+            values.push(time.toLowerCase());
+        }
+
+        if (tags && Array.isArray(tags)) {
+            const placeholders = tags.map((_, i) => `$${index + i}`).join(', ');
+
+            conditions.push(`project_category IN (${placeholders})`);
+
+            values.push(...tags.map(d => d.toLowerCase()));
+
+            index += tags.length;
+        }
+
+        if (tags && !Array.isArray(tags)) {
+            conditions.push(`project_category = $${index++}`);
+            values.push(tags.toLowerCase());
         }
 
         if (skills) {
@@ -208,6 +270,46 @@ const search = async (req, res) => {
 
         if (result.rows.length === 0) {
             return res.status(404).json({ message: 'No posts found' });
+        }
+
+
+        const actorId = req.session.userId || null;
+        let actorName = 'Guest'
+        if (actorId) {
+            const user_name = await pool.query(
+                'SELECT first_name from users where id = $1',
+                [actorId]
+            )
+            actorName = user_name.rows[0]?.first_name || 'Guest';
+        }
+
+
+        let placeholders = [];
+        let values2 = [];
+        let paramIndex = 1; // track placeholder numbering
+
+        for (const post of result.rows) {
+            if (actorId === post.user_id) {
+                continue;
+            }
+
+            placeholders.push(`($${paramIndex}, $${paramIndex + 1}, $${paramIndex + 2}, $${paramIndex + 3}, $${paramIndex + 4})`);
+
+            values2.push('view');        // event_type
+            values2.push(actorId);       // actor_id
+            values2.push(actorName);     // actor_name
+            values2.push(post.user_id);  // recipient_id
+            values2.push(post.id);       // target_id
+
+            paramIndex += 5;
+        }
+        const query2 = `
+            INSERT INTO notifications (event_type, actor_id, actor_name, recipient_id, target_id)
+            VALUES ${placeholders.join(', ')}
+        `;
+
+        if (placeholders.length > 0 && baseQuery != 'SELECT * FROM postdata WHERE is_draft = false ORDER BY created_at DESC') {
+            await pool.query(query2, values2);
         }
 
         res.json(result.rows);

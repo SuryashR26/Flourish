@@ -18,15 +18,28 @@ const storeViewProject = async (req, res) => {
             [postId]
         );
 
+        const recipientId = userPost.rows[0].user_id;
+        const user_name = await pool.query(
+            'SELECT first_name from users where id = $1',
+            [userId]
+        )
+        const actorName = user_name.rows[0].first_name;
+
         if (userPost.rows[0].user_id === userId) {
             return res.status(405).json({ message: 'Cannot view your own post' });
         }
-
         await pool.query(
             `INSERT INTO post_views (post_id, user_id)
              VALUES ($1, $2)`,
             [postId, userId]
         );
+
+        await pool.query(
+            `INSERT INTO notifications (event_type, actor_id, actor_name, recipient_id, target_id)
+             VALUES ($1, $2, $3, $4, $5)`,
+            ['click', userId, actorName, recipientId, postId]
+        );
+
 
 
         res.json({ success: true, message: 'Post view stored' });

@@ -18,6 +18,8 @@ export interface Project {
     updated_at: string;
     is_active: boolean;
     photourl?: string | null;
+    time_commitment: string;
+    project_category: string
 }
 
 export interface SearchFilter {
@@ -40,3 +42,13 @@ export interface SignUpValues2 {
     phoneNumber: string;
     interest: string[];
 }
+
+export interface Notification {
+    type: 'view' | 'click' | 'bookmark';
+    targetId: string;
+    actorId: string | null;
+    actor_name: string
+    message: string;
+    created_at: string;
+    read_at: string;
+};

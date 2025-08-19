@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import FormCard from "@/components/cards/formCards"
 import Navbar from "@/components/layout/navbar"
@@ -28,6 +28,8 @@ interface PostValues {
     status: string
     difficulty: string
     is_draft: boolean
+    time_commitment: string
+    project_category: string
 }
 
 interface PostValuesErrors {
@@ -45,6 +47,8 @@ interface PostValuesErrors {
     status?: string
     difficulty?: string
     is_draft?: boolean
+    time_commitment?: string
+    project_category?: string
 }
 
 const TAG_DIRECTORY = [
@@ -181,7 +185,9 @@ export default function PostPage() {
         authorID: "",
         status: "active",
         difficulty: "easy",
-        is_draft: false
+        is_draft: false,
+        time_commitment: "1-2 weeks",
+        project_category: "tech"
     })
 
     const [errors, setErrors] = useState<PostValuesErrors>({})
@@ -223,9 +229,22 @@ export default function PostPage() {
             isValid = false
         }
 
+        if (!postValues.project_category) {
+            tempErrors.project_category = "Project Category is Required"
+        }
+
+        if (!postValues.time_commitment) {
+            tempErrors.time_commitment = "Time Commitment is Required"
+        }
+
         setErrors(tempErrors)
         return isValid
     }
+
+    const cardRef = useRef<HTMLDivElement | null>(null);
+
+
+
 
     const validateForm2 = (): boolean => {
         const tempErrors: PostValuesErrors = {}
@@ -268,8 +287,11 @@ export default function PostPage() {
 
         if (!validateForm()) {
             console.log("Form validation failed", errors);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             return;
         }
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
 
         setIsSubmitting(true);
 
@@ -286,6 +308,8 @@ export default function PostPage() {
                 difficulty: postValues.difficulty,
                 confirmDuplicate: duplicateWarning.show,
                 status: postValues.status,
+                time_commitment: postValues.time_commitment,
+                project_category: postValues.project_category
             };
 
 
@@ -308,7 +332,7 @@ export default function PostPage() {
                         });
 
                         if (!uploadRes.ok) {
-                            const errorText = await uploadRes.text(); // 🔍 get actual XML error
+                            const errorText = await uploadRes.text();
                             console.error('Upload failed:', errorText);
                             throw new Error('Upload failed');
                         }
@@ -345,7 +369,9 @@ export default function PostPage() {
                     authorID: "",
                     status: "active",
                     difficulty: "easy",
-                    is_draft: false
+                    is_draft: false,
+                    time_commitment: "1-2 weeks",
+                    project_category: ""
                 });
                 setSelectedFile(null);
                 setErrors({});
@@ -372,8 +398,10 @@ export default function PostPage() {
 
         if (!validateForm2()) {
             console.log("Form validation failed", errors);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             return;
         }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
 
         setIsSubmitting(true);
 
@@ -390,7 +418,9 @@ export default function PostPage() {
                 difficulty: postValues.difficulty,
                 confirmDuplicate: duplicateWarning.show,
                 status: postValues.status,
-                is_draft: true
+                is_draft: true,
+                time_commitment: postValues.time_commitment,
+                project_category: postValues.project_category
             };
 
 
@@ -450,7 +480,9 @@ export default function PostPage() {
                     authorID: "",
                     status: "active",
                     difficulty: "easy",
-                    is_draft: false
+                    is_draft: false,
+                    time_commitment: "1-2 weeks",
+                    project_category: ""
                 });
                 setSelectedFile(null);
                 setErrors({});
@@ -607,6 +639,39 @@ export default function PostPage() {
                             </div>
 
                         </div>
+                        <div className="flex flex-row gap-4">
+                            <div className="mt-4 w-1/2">
+                                <label>Project Category</label>
+                                <select
+                                    name="project_category"
+                                    value={postValues.project_category}
+                                    onChange={handleChange}
+                                    className="w-full p-2 border rounded bg-[#0B0809] text-white"
+                                >
+                                    <option value="tech"> Tech </option>
+                                    <option value="creative"> Creative</option>
+                                    <option value="business"> Business</option>
+                                    <option value="research"> Research</option>
+                                    <option value="environment"> Environment</option>
+                                </select>
+                            </div>
+                            <div className="mt-4 w-1/2">
+                                <label>Time Commitment</label>
+                                <select
+                                    name="time_commitment"
+                                    value={postValues.time_commitment}
+                                    onChange={handleChange}
+                                    className="w-full p-2 border rounded bg-[#0B0809] text-white"
+                                >
+                                    <option value="1-2 weeks">1-2 weeks</option>
+                                    <option value="1-3 months">1-3 months</option>
+                                    <option value="3-6 months">3-6 months</option>
+                                    <option value="6+ months">6+ months</option>
+                                </select>
+                            </div>
+
+                        </div>
+
 
                         <div className="mt-4">
                             <label> Project Tags (up to 5)</label>
@@ -774,22 +839,24 @@ export default function PostPage() {
                                 </div>
                             </div>
                         )}
-
-                        <div className="mt-4 flex">
+                        <div className="mt-4 !w-full flex">
                             <button
-                                className="flex-1 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
-                                type="button"
-                                onClick={(e) => {
-                                    e.preventDefault(); // Prevent form submission
+                                className="w-full flex-1"
+                                onClick={() => {
                                     setViewPost(true);
+                                    setTimeout(() => {
+                                        cardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                    }, 0);
                                 }}
                             >
                                 View Post
                             </button>
                         </div>
+
                         {viewPost && (
                             <div
-                                className="fixed left-0 top-0 w-full h-full flex items-center justify-center z-[999] !p-4"
+                                ref={cardRef}
+                                className="fixed !left-0 !top-0 w-full h-full flex items-center justify-center z-[999] !p-4"
                                 style={{ background: "rgba(0,0,0,0.8)" }}
                                 onClick={e => { if (e.target === e.currentTarget) setViewPost(false); }}
                             >
@@ -809,14 +876,22 @@ export default function PostPage() {
 
                                         <div className="flex items-center !gap-3 !mb-4">
                                             <div className="!w-10 !h-10 !rounded-full !bg-indigo-900 flex items-center justify-center !text-indigo-200 !text-sm !font-semibold">
-                                                {'Unknown'}
+                                                <img
+                                                    src={user?.profileurl || '/images/defaultProfile.jpg'}
+                                                    alt={user?.first_name || 'User'}
+                                                    className="w-full h-full object-cover rounded-full"
+                                                    onError={(e) => {
+                                                        e.currentTarget.onerror = null; // prevents infinite loop if fallback fails
+                                                        e.currentTarget.src = '/images/defaultProfile.jpg';
+                                                    }}
+                                                />
                                             </div>
                                             <div className="flex flex-col">
                                                 <div className="!text-white !font-medium">
-                                                    {'Unknown Author'}
+                                                    {`${user?.first_name || ''} ${user?.last_name || ''}`}
                                                 </div>
                                                 <div className="!text-[#888] !text-sm">
-                                                    {'Student'}
+                                                    {/*'Student'*/}
                                                 </div>
                                             </div>
                                         </div>
@@ -869,6 +944,16 @@ export default function PostPage() {
                                                     {postValues.locationL ? 'Remote collaboration' : postValues.locationS}
                                                 </span>
                                             </div>
+                                            {postValues.time_commitment && (
+                                                <div className="flex items-center !gap-3">
+                                                    <svg className="!w-5 !h-5 !text-[#1f98f4] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                                                    </svg>
+                                                    <span className="!text-[#ccc] !text-sm">
+                                                        {postValues.time_commitment}
+                                                    </span>
+                                                </div>
+                                            )}
                                         </div>
 
                                         {/* Project Description */}
@@ -881,6 +966,30 @@ export default function PostPage() {
                                                 {postValues.content || 'No description available'}
                                             </p>
                                         </div>
+                                        <div className="!mb-8">
+                                            <h3 className="!text-lg !font-semibold !text-white !mb-3 flex items-center !gap-2">
+                                                <div className="!w-1 !h-5 !bg-[#1f98f4] !rounded"></div>
+                                                Role Description
+                                            </h3>
+
+                                            {postValues.roleDescription?.length > 0 ? (
+                                                <div className="list-disc pl-5 space-y-2">
+                                                    {postValues.roleDescription.map((role, index) => (
+                                                        <p
+                                                            key={index}
+                                                            className="!text-[#ccc] !text-left !mt-3 !text-[15px]"
+                                                        >
+                                                            {role}
+                                                        </p>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <p className="!text-[#ccc] !leading-relaxed !text-[15px]">
+                                                    No description available
+                                                </p>
+                                            )}
+                                        </div>
+
 
                                         {/* Required Skills */}
                                         {postValues.skills && postValues.skills.length > 0 && (
@@ -930,23 +1039,21 @@ export default function PostPage() {
                                         <div className="flex flex-col sm:flex-row !gap-3 !pt-6 !border-t !border-[#2f3542]">
                                             <button
                                                 className="flex-1 !bg-[#1f98f4] !text-white !px-6 !py-3 !rounded-xl !font-medium hover:!bg-[#1a7bc8] !transition-all !duration-200 hover:!-translate-y-0.5"
-                                                onClick={() => {
-                                                    // Handle join project action
-                                                    console.log('Joining project:', postValues.title);
-                                                    setViewPost(false);
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    return;
                                                 }}
                                             >
-                                                Join Project
+                                                Bookmark Project
                                             </button>
                                             <button
                                                 className="flex-1 !bg-transparent !text-[#1f98f4] !border !border-[#1f98f4] !px-6 !py-3 !rounded-xl !font-medium hover:!bg-[#1f98f4] hover:!text-white !transition-colors"
-                                                onClick={() => {
-                                                    // Handle contact author action
-                                                    console.log('Contacting author:', 'Unknown');
-                                                    setViewPost(false);
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    return;
                                                 }}
                                             >
-                                                Contact {'Author'}
+                                                Contact {user?.first_name}
                                             </button>
                                         </div>
                                     </div>

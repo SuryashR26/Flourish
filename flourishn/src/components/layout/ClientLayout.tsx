@@ -9,7 +9,7 @@ import { useUser } from '@/context/UserContext';
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { isInitialized } = useUser();
-  const publicRoutes = ['/login', '/signup', '/forgotPassword', '/search', '/dashboard', '/messages'];
+  const publicRoutes = ['/login', '/signup', '/forgotPassword', '/search', '/dashboard', '/messages', '/statistics'];
   const showFooter = !publicRoutes.includes(pathname);
 
   // Show loading screen while authentication is being checked

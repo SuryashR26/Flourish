@@ -54,17 +54,17 @@ const signup = async (req, res) => {
                 [emailLower, verificationCode]
             )
 
-            return res.status(200).json({
-                success: true,
-                message: 'Verification code sent to your email!'
-            });
-
             await transporter.sendMail({
                 from: '"Flourish" <FlourishIdeaBoard@gmail.com>',
                 to: emailLower,
                 subject: 'Your Verification Code for Flourish',
                 html: htmlTemplate
                     .replace('{{placeholder}}', verificationCode),
+            });
+
+            return res.status(200).json({
+                success: true,
+                message: 'Verification code sent to your email!'
             });
 
 

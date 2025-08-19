@@ -6,10 +6,10 @@ import ProfileUploader from "../signup/profileUploader";
 import { useRouter } from 'next/navigation';
 import { useUser } from "@/context/UserContext";
 import { useSearchParams } from 'next/navigation';
-import { getBookmarkedPosts, getUserPosts, getRecommendedProjects } from "@/api/apiClient";
+import { getBookmarkedPosts, getUserPosts, getRecommendedProjects, getNotifications, markNotificationsRead } from "@/api/apiClient";
 import LoadingScreen from "@/components/ui/LoadingScreen";
 
-import { Project } from '@/app/types/projectTypes';
+import { Project, Notification } from '@/app/types/projectTypes';
 
 
 // Dashboard Sidebar Activity Feed Styles
@@ -262,31 +262,44 @@ export default function DashboardPage() {
     const [bookmarkedProjects, setBookmarkedProject] = useState<Project[]>([]);
     const [userProjects, setUserProjects] = useState<Project[]>([]);
     const [recommendedProjects, setRecommendedProjects] = useState<Project[]>([]);
+    const [interests, setInterests] = useState<string[]>([]);
+    const [unreadNotification, setUnreadNotification] = useState(false);
+    const [notifications, setNotifications] = useState<Notification[]>([]);
     const firstTimeSignUp = useSearchParams();
-    const interests = Array.isArray(user?.personal_preferences)
-        ? user.personal_preferences
-        : user?.personal_preferences
-            ? [user.personal_preferences]
-            : [];
+    useEffect(() => {
+        setInterests(user?.personal_preferences || []);
+    }, [user]);
+
 
     const fetchPosts = useCallback(async () => {
         try {
-            // Fetch all data in parallel and update state in a single batch
-            const [bookmarkedResult, userPostsResult, recommendedResult] = await Promise.all([
-                getBookmarkedPosts(),
-                getUserPosts(),
-                getRecommendedProjects()
-            ]);
-            
-            // Batch state updates to prevent multiple re-renders
-            setUserProjects(userPostsResult);
-            setBookmarkedProject(bookmarkedResult);
-            setRecommendedProjects(recommendedResult);
+            const result = await getBookmarkedPosts();
+            const result2 = await getUserPosts();
+            const result3 = await getRecommendedProjects();
+            const result4 = await getNotifications()
+            setNotifications(result4)
+            setUserProjects(result2);
+            setBookmarkedProject(result);
+            setRecommendedProjects(result3);
 
         } catch (error) {
             console.error('Search failed:', error);
         }
     }, []);
+
+    const viewAllNotifications = async () => {
+        try {
+            await markNotificationsRead();
+            setNotifications((prev) =>
+                prev.map((n) => ({ ...n, read_at: n.read_at ?? new Date().toISOString() }))
+            );
+            setUnreadNotification(false);
+            router.push(`/statistics?query=${encodeURIComponent('Notifications')}`);
+        } catch (error) {
+            console.error('Error marking notifications as read:', error);
+        }
+    };
+
 
     useEffect(() => {
         // Only fetch data if user is authenticated
@@ -294,6 +307,15 @@ export default function DashboardPage() {
             fetchPosts();
         }
     }, [isInitialized, isLoggedIn, fetchPosts]);
+
+    useEffect(() => {
+        if (notifications && notifications.length > 0) {
+            const hasUnread = notifications.some((notif) => notif.read_at === "unread");
+            setUnreadNotification(hasUnread);
+        } else {
+            setUnreadNotification(false);
+        }
+    }, [notifications]);
 
 
     useEffect(() => {
@@ -325,49 +347,74 @@ export default function DashboardPage() {
                 {/* Activity Feed Section */}
                 <div className="sidebar-section">
                     <h3 className="sidebar-title">Activity Feed</h3>
-                    {/* Urgent notification */}
-                    <div className="activity-item urgent">
-                        <div className="activity-avatar urgent">⚠️</div>
-                        <div className="activity-content">
-                            <div className="activity-text">Film project deadline tomorrow</div>
-                            <div className="activity-time">3h ago</div>
-                        </div>
-                    </div>
-                    {/* User activity */}
-                    <div className="activity-item">
-                        <div className="activity-avatar user">SM</div>
-                        <div className="activity-content">
-                            <div className="activity-text"><strong>Sarah</strong> joined Recipe App</div>
-                            <div className="activity-time">2h ago</div>
-                        </div>
-                    </div>
-                    <div className="activity-item">
-                        <div className="activity-avatar user" style={{ background: '#f59e0b' }}>JC</div>
-                        <div className="activity-content">
-                            <div className="activity-text"><strong>Jordan</strong> updated film project</div>
-                            <div className="activity-time">5h ago</div>
-                        </div>
-                    </div>
-                    <a href="#" className="view-all-activity">View All Activity</a>
+
+                    {notifications && notifications.length > 0 ? (
+                        notifications
+                            .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) // newest first
+                            .slice(0, 3)
+                            .map((notif, index) => {
+                                const initials = notif.actor_name
+                                    ? notif.actor_name
+                                        .split(' ')
+                                        .map((n: string) => n[0].toUpperCase())
+                                        .join('')
+                                    : '⚡';
+
+
+                                return (
+                                    <div key={index} className="activity-item">
+                                        <div className="activity-avatar user">{initials}</div>
+                                        <div className="activity-content">
+                                            <div className="activity-text">{notif.message}</div>
+                                            {notif.created_at && (
+                                                <div className="activity-time">
+                                                    {new Date(notif.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })
+                    ) : (
+                        <div>No notifications yet</div>
+                    )}
+
+                    <a
+                        href="#"
+                        className="view-all-activity"
+                        onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
+                            e.preventDefault();
+                            viewAllNotifications();
+                        }}
+                    >
+                        View All
+                        {unreadNotification && (
+                            <span className="absolute right-10 w-2 h-2 !bg-red-500 rounded-full" />
+                        )}
+                    </a>
                 </div>
+
 
                 {/* Interests Section */}
                 <div className="!mb-8">
                     <h3 className="!text-lg !font-semibold !mb-4 !text-white !flex !items-center !gap-2">Your Interests</h3>
                     <div className="!flex !flex-wrap !gap-2 !mb-4">
-                        {interests.length > 0 ? (
-                            interests.map((interest, index) => (
+                        {user?.personal_preferences?.length ? (
+                            user.personal_preferences.map((interest, index) => (
                                 <span
                                     key={index}
                                     className="!bg-[rgba(31,152,244,0.1)] !text-[#1f98f4] !py-1.5 !px-3 !rounded-2xl !text-xs !font-medium !border !border-[rgba(31,152,244,0.2)] !cursor-pointer !transition-all !duration-200 hover:!bg-[rgba(31,152,244,0.2)]"
-                                >{interest}</span>
+                                >
+                                    {interest}
+                                </span>
                             ))
                         ) : (
                             <p>No interests specified.</p>
                         )}
                     </div>
-                    <button 
-                        onClick={() => window.location.href = '/settings'} 
+
+                    <button
+                        onClick={() => window.location.href = '/settings'}
                         className="!text-[#888] !text-xs !no-underline !py-2 !block !border-t !border-[#2f3542] !mt-3 !pt-3 hover:!text-[#1f98f4] !bg-transparent !border-none !cursor-pointer !w-full !text-left"
                     >
                         ✏️ Edit interests
@@ -392,7 +439,15 @@ export default function DashboardPage() {
                     <div className="!flex !items-center !justify-between !mb-5">
                         <h2 className="!text-2xl !font-semibold !text-white">Recommended for You</h2>
                         <button
-                            onClick={() => setShowAllRecommended((v) => !v)}
+                            onClick={() => {
+                                localStorage.setItem(
+                                    "interests",
+                                    JSON.stringify(user?.personal_preferences || {})
+                                );
+
+
+                                router.push("/search");
+                            }}
                             className="!text-[#1f98f4] !no-underline !text-sm !font-medium !py-2 !px-4 !border !border-[#1f98f4] !rounded-lg !transition-all !duration-200 hover:!bg-[#1f98f4] hover:!text-white"
                         >
                             {showAllRecommended ? "Show Less" : "View All"}
@@ -572,7 +627,7 @@ export default function DashboardPage() {
                                             <div className="flex items-center !gap-2">
                                                 <div className="w-7 h-7 !rounded-full bg-indigo-900 flex items-center justify-center !text-indigo-200 !text-xs !font-semibold flex-shrink-0">
                                                     <img
-                                                        src={project.user_image || '/images/defaultProfile.jpg'}
+                                                        src={user?.profileurl || '/images/defaultProfile.jpg'}
                                                         alt={project.user_name || 'User'}
                                                         className="w-full h-full object-cover rounded-full"
                                                         onError={(e) => {
@@ -746,7 +801,7 @@ export default function DashboardPage() {
                     <NotesApp />
                 </div>*/}
             </div>
-            
+
             {/* Profile Picture Uploader Modal - Outside of main content to avoid positioning issues */}
             {showProfileUploader && (
                 <ProfileUploader />
