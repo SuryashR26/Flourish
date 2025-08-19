@@ -389,7 +389,7 @@ export default function SignUp() {
                             </>
                         ) : currentStep === 2 ? (
                             <div style={{ marginTop: '-1rem' }}>
-                                <p style={{
+                                <p className="verification-text" style={{
                                     textAlign: 'center',
                                     color: '#b0b8c1',
                                     marginBottom: '1.2rem',
@@ -403,7 +403,7 @@ export default function SignUp() {
                                     {verificationCode.map((digit, idx) => (
                                         <input
                                             key={idx}
-                                            className={`verification - digit - input ${errors.verificationCode ? 'error' : ''} `}
+                                            className={`verification-digit-input ${errors.verificationCode ? 'error' : ''}`}
                                             ref={el => { inputRefs.current[idx] = el; }}
                                             type="text"
                                             inputMode="numeric"
@@ -434,15 +434,15 @@ export default function SignUp() {
                                         <span style={{ verticalAlign: 'middle' }}>{errors.verificationCode}</span>
                                     </div>
                                 )}
-                                <div style={{ textAlign: 'center', marginBottom: '1rem', color: '#b0b8c1' }}>
+                                <div style={{ textAlign: 'center', marginBottom: '0.5rem', color: '#b0b8c1' }}>
                                     {timer > 0 ? (
                                         <span>Resend code in {timer}s</span>
                                     ) : (
                                         <button
                                             onClick={handleVerificationCode}
                                             type="button"
-                                            className="bg-white text-black border border-gray-300 rounded-lg px-4 !mb-10 font-semibold hover:bg-gray-100 transition-colors"
-                                            style={{ width: '100%' }}
+                                            className="bg-white text-black border border-gray-300 rounded-lg px-4 !mb-2 font-semibold hover:bg-gray-100 transition-colors"
+                                            style={{ width: 'auto', minWidth: '200px' }}
                                         >
                                             Resend Code
                                         </button>

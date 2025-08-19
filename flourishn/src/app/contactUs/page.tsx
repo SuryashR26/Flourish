@@ -8,6 +8,7 @@ import SplitText from "gsap/SplitText"
 import FormCard from "@/components/cards/formCards"
 import Navbar from "@/components/layout/navbar"
 import { contactUs } from "@/api/apiClient"
+import { showSuccessNotification, showErrorNotification } from "@/components/ui/NotificationContainer"
 
 gsap.registerPlugin(SplitText)
 
@@ -36,11 +37,6 @@ export default function ContactUsPage() {
     const [errors, setErrors] = useState<FormErrors>({})
 
     const [scrollProgress, setScrollProgress] = useState(0)
-
-    const [successMessage, setSuccessMessage] = useState(false)
-
-    const [errorMessage, setErrorMessage] = useState(false)
-    const [errorText, setErrorText] = useState<string>("");
 
     useEffect(() => {
         const handleScroll = () => {
@@ -169,15 +165,23 @@ export default function ContactUsPage() {
             contactUs(formValues.firstName, formValues.lastName, formValues.email, formValues.message)
                 .then(response => {
                     if (response.success) {
-                        console.log("Contact form submitted successfully", response);
-                        setSuccessMessage(true);
+                        showSuccessNotification(
+                            "Success",
+                            "Your contact form has been submitted successfully. We will get back to you soon."
+                        );
                         return;
                     }
-                    setErrorText(response.message || "There was an error submitting your contact form.");
-                    setErrorMessage(true);
-                }
-
-                )
+                    showErrorNotification(
+                        "Error",
+                        response.message || "There was an error submitting your contact form. Please try again."
+                    );
+                })
+                .catch(error => {
+                    showErrorNotification(
+                        "Error",
+                        "Failed to submit your contact form. Please check your connection and try again."
+                    );
+                })
         }
     };
 
@@ -243,50 +247,6 @@ export default function ContactUsPage() {
                             </div>
                         </div>
                     </FormCard>
-                    {successMessage && (
-                        <div
-                            className="fixed inset-0 z-50 flex items-center justify-center min-w-[300px] bg-black/40 backdrop-blur-sm"
-                            style={{ pointerEvents: 'auto' }}
-                        >
-                            <div className="relative bg-black text-white text-md p-6 min-w-[300px] min-h-[150px] max-w-2xl rounded-lg shadow-xl text-center mt-10">
-                                <div className="absolute left-0 top-0 w-full flex justify-end">
-                                    <button
-                                        onClick={() => setSuccessMessage(false)}
-                                        className="text-white text-2xl font-bold hover:text-gray-400 focus:outline-none p-2"
-                                        aria-label="Close"
-                                        style={{ zIndex: 10 }}
-                                    >
-                                        &times;
-                                    </button>
-                                </div>
-                                <div className="flex flex-col items-center justify-center h-full !mt-10">
-                                    Your contact form has been submitted successfully. We will get back to you soon.
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                    {errorMessage && (
-                        <div
-                            className="fixed inset-0 z-50 flex items-center justify-center min-w-[300px] bg-black/40 backdrop-blur-sm"
-                            style={{ pointerEvents: 'auto' }}
-                        >
-                            <div className="relative bg-black text-white text-md p-6 min-w-[300px] min-h-[150px] max-w-2xl rounded-lg shadow-xl text-center mt-10">
-                                <div className="absolute left-0 top-0 w-full flex justify-end">
-                                    <button
-                                        onClick={() => setErrorMessage(false)}
-                                        className="text-white text-2xl font-bold hover:text-gray-400 focus:outline-none p-2"
-                                        aria-label="Close"
-                                        style={{ zIndex: 10 }}
-                                    >
-                                        &times;
-                                    </button>
-                                </div>
-                                <div className="flex flex-col items-center justify-center h-full !mt-10">
-                                    {errorText}
-                                </div>
-                            </div>
-                        </div>
-                    )}
                 </div>
             </div>
         </div>

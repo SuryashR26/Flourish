@@ -115,14 +115,14 @@ const search = async (req, res) => {
             const fuzzyCondition = `
               EXISTS (
                 SELECT 1 FROM unnest(skill_tags) AS skill_tag
-                WHERE similarity(skill_tag, $${fuzzyIndex}) > 0.2
+                WHERE similarity(skill_tag, $${fuzzyIndex}) > 0.3
               )
               OR EXISTS (
                 SELECT 1 FROM unnest(project_tags) AS project_tag
-                WHERE similarity(project_tag, $${fuzzyIndex}) > 0.2
+                WHERE similarity(project_tag, $${fuzzyIndex}) > 0.3
               )
-              OR similarity(title, $${fuzzyIndex}) > 0.2
-              OR similarity(content, $${fuzzyIndex}) > 0.2
+              OR similarity(title, $${fuzzyIndex}) > 0.3
+              OR similarity(content, $${fuzzyIndex}) > 0.3
               OR EXISTS (
                 SELECT 1 FROM unnest($${authorTokensIndex}::text[]) AS token
                 WHERE user_name ILIKE token

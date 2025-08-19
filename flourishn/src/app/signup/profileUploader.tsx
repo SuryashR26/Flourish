@@ -324,7 +324,7 @@ export default function ProfileUploader() {
     }
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="modal-overlay">
             {/* Backdrop blur overlay */}
             <div
                 className="absolute inset-0 backdrop-blur-md"

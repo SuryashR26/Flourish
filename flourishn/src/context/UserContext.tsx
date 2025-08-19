@@ -20,6 +20,7 @@ type User = {
 type UserContextType = {
     user: User | null;
     isLoggedIn: boolean;
+    isInitialized: boolean;
     login: (email: string, password: string) => Promise<string | undefined>;
     signUp: (email: string, first_name: string, last_name: string, password: string, code: string) => Promise<string | undefined>;
     logout: () => void;
@@ -31,6 +32,7 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export function UserProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+    const [isInitialized, setIsInitialized] = useState<boolean>(false);
     const pathname = usePathname();
     const login = async (email: string, password: string) => {
         const result = await fetch('http://localhost:8080/login', {
@@ -105,22 +107,30 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     // Check if user is already logged in from cookie
     useEffect(() => {
         const checkUserFromCookie = async () => {
-            const userCookie = await getCookie('user');
-            if (userCookie) {
-                const parsedUser = JSON.parse(userCookie);
-                setUser(parsedUser);
-                setIsLoggedIn(true);
-            }
-            else {
+            try {
+                const userCookie = await getCookie('user');
+                if (userCookie) {
+                    const parsedUser = JSON.parse(userCookie);
+                    setUser(parsedUser);
+                    setIsLoggedIn(true);
+                }
+                else {
+                    setUser(null);
+                    setIsLoggedIn(false);
+                }
+            } catch (error) {
+                console.error('Error checking user cookie:', error);
                 setUser(null);
                 setIsLoggedIn(false);
+            } finally {
+                setIsInitialized(true);
             }
         };
         checkUserFromCookie();
     }, [pathname]);
 
     return (
-        <UserContext.Provider value={{ user, isLoggedIn, login, signUp, logout, setUser }}>
+        <UserContext.Provider value={{ user, isLoggedIn, isInitialized, login, signUp, logout, setUser }}>
             {children}
         </UserContext.Provider>
     );

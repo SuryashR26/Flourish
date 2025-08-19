@@ -5,6 +5,9 @@ const { login } = require('./auth/login');
 const { contactUs } = require('./inquiries/contactUs');
 const { resetPass } = require('./inquiries/resetPass');
 const { updateProfile } = require('./profileChanges/updateProfile');
+const { updateSettings, getSettings } = require('./profileChanges/settings');
+const { updatePassword } = require('./profileChanges/updatePassword');
+
 const { logout } = require('./auth/logout');
 const { search } = require('./post/search');
 const { getBookmarkedPosts, getUserPosts, getRecommendedProjects } = require('./profileView/getUserPosts')
@@ -115,6 +118,13 @@ app.get('/user/current', getCurrentUser);
 app.get('/users/search', searchUsers);
 
 app.post('/updateProfile', updateProfile);
+
+// Settings routes
+app.get('/settings', getSettings);
+app.put('/settings', updateSettings);
+
+// Password update route
+app.put('/update-password', updatePassword);
 
 app.post('/logout', logout);
 

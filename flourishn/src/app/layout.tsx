@@ -5,11 +5,12 @@ import "@/styles/globals.css"
 import "@/styles/footer.css"
 import "@/styles/navbar.css"
 import "@/styles/formCard.css"
-// import "@/styles/login.css"
+import "@/styles/login.css"
 import { FooterProvider } from '@/context/FooterContext'
 import { Metadata } from 'next'
 import ClientLayout from '@/components/layout/ClientLayout'
 import { UserProvider } from "@/context/UserContext"
+import NotificationContainer from "@/components/ui/NotificationContainer"
 
 export const metadata: Metadata = {
   title: 'Flourish',
@@ -30,7 +31,9 @@ export default function RootLayout({
       <body className={figtree.className}>
         <UserProvider>
           <FooterProvider>
-            <ClientLayout>{children}</ClientLayout>
+            <NotificationContainer>
+              <ClientLayout>{children}</ClientLayout>
+            </NotificationContainer>
           </FooterProvider>
         </UserProvider>
       </body>

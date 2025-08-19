@@ -8,6 +8,7 @@ import { FaLightbulb, FaEye, FaEyeSlash, FaGoogle, FaGraduationCap } from "react
 import FormCard from "@/components/cards/formCards"
 import "@/styles/login.css"
 import { useUser } from "@/context/UserContext"
+import LoadingScreen from "@/components/ui/LoadingScreen"
 
 interface LoginValues {
     username: string
@@ -28,6 +29,7 @@ export default function LoginPage() {
     const [errors, setErrors] = useState<LoginErrors>({})
     const [showPassword, setShowPassword] = useState(false)
     const [showPasswordField, setShowPasswordField] = useState(true)
+    const [isLoading, setIsLoading] = useState(false)
     const router = useRouter()
     const { login, isLoggedIn } = useUser()
 
@@ -71,24 +73,29 @@ export default function LoginPage() {
             console.log("Login failed", errors);
             return;
         }
-        const success = await login(loginValues.username, loginValues.password)
-        if (success !== 'Login successful!') {
-            if (success && success.includes("User")) {
-                setErrors(prev => ({ ...prev, username: success }))
-                return;
-            } else {
-                setErrors(prev => ({ ...prev, password: success }))
-                return;
+        
+        setIsLoading(true);
+        try {
+            const success = await login(loginValues.username, loginValues.password)
+            if (success !== 'Login successful!') {
+                if (success && success.includes("User")) {
+                    setErrors(prev => ({ ...prev, username: success }))
+                    return;
+                } else {
+                    setErrors(prev => ({ ...prev, password: success }))
+                    return;
+                }
             }
-
+            setLoginValues({
+                username: "",
+                password: "",
+            });
+            setErrors({});
+            console.log("Login Successfully", success);
+            router.push('/dashboard')
+        } finally {
+            setIsLoading(false);
         }
-        setLoginValues({
-            username: "",
-            password: "",
-        });
-        setErrors({});
-        console.log("Login Successfully", success);
-        router.push('/dashboard')
     }
 
     const validateForm = (): boolean => {
@@ -139,6 +146,11 @@ export default function LoginPage() {
             console.log("Login failed", errors);
         }
     };
+
+    // Show loading screen during login process
+    if (isLoading) {
+        return <LoadingScreen />;
+    }
 
     return (
         <>

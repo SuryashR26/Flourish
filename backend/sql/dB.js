@@ -61,13 +61,14 @@ pool.on('error', (err, client) => {
     });
 });
 
-pool.on('acquire', (client) => {
-    console.log('🔄 Connection acquired from pool (ID: ' + (client?.processID || 'unknown') + ')');
-});
+// Removed repetitive acquire/release logs for cleaner output
+// pool.on('acquire', (client) => {
+//     console.log('🔄 Connection acquired from pool (ID: ' + (client?.processID || 'unknown') + ')');
+// });
 
-pool.on('release', (client) => {
-    console.log('↩️  Connection returned to pool (ID: ' + (client?.processID || 'unknown') + ')');
-});
+// pool.on('release', (client) => {
+//     console.log('↩️  Connection returned to pool (ID: ' + (client?.processID || 'unknown') + ')');
+// });
 
 pool.on('remove', (client) => {
     console.log('🗑️  Connection removed from pool (ID: ' + (client?.processID || 'unknown') + ')');

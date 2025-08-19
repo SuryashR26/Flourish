@@ -116,7 +116,6 @@
     @apply outline-ring/50;
   }
 
-
   body {
     @apply bg-background text-foreground;
     background: #000 !important;
@@ -328,6 +327,23 @@ div.filter-sidebar-scrollable {
 .vision-text p {
   font-weight: 400 !important;
   font-size: 1.2rem !important;
+}
+
+/* Modal and Popup Positioning */
+.modal-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 10001 !important;
+  /* Ensure it's not affected by transforms or containment */
+  transform: none !important;
 }
 
 /* Custom Checkbox Styles */

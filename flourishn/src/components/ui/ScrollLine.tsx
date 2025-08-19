@@ -44,7 +44,7 @@ const ScrollLine = () => {
 
   return (
     <div
-      className="absolute left-1/2 -translate-x-1/2 pointer-events-none z-50 w-[120px] h-[300px] scroll-line-container"
+      className="absolute left-1/2 -translate-x-1/2 pointer-events-none z-1 w-[120px] h-[300px] scroll-line-container"
       ref={svgContainerRef}
       style={{ height: "300px", overflow: "visible" }}
     >

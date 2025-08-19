@@ -4,9 +4,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 // import Button from "@/components/ui/button";
-import { FaLightbulb, FaBars, FaTimes, FaSearch } from "react-icons/fa";
+import { FaLightbulb, FaBars, FaTimes, FaSearch, FaCog } from "react-icons/fa";
 import "@/styles/navbar.css";
+import "@/styles/settings.css";
 import { useUser } from '@/context/UserContext';
+import SettingsPopup from '@/components/ui/SettingsPopup';
+
 
 interface NavbarProps {
   showSearchBar?: boolean;
@@ -20,9 +23,11 @@ const Navbar: React.FC<NavbarProps> = ({ showSearchBar = false, showSeparator = 
   const [scrolled, setScrolled] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [open, setOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
   const navMenuRef = useRef<HTMLUListElement | null>(null);
   const router = useRouter();
-  const { user, logout, isLoggedIn } = useUser();
+  const { user, logout, isLoggedIn, isInitialized } = useUser();
   console.log("Navbar user profileurl:", user?.profileurl);
 
   useEffect(() => {
@@ -81,6 +86,21 @@ const Navbar: React.FC<NavbarProps> = ({ showSearchBar = false, showSeparator = 
     return () => window.removeEventListener("resize", showButton);
   }, []);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (open && !target.closest('.relative')) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [open]);
+
   return (
     <>
       <nav className={`navbar ${scrolled ? "navbar--scrolled" : ""} ${showSeparator ? "navbar--with-separator" : ""}`}>
@@ -91,7 +111,7 @@ const Navbar: React.FC<NavbarProps> = ({ showSearchBar = false, showSeparator = 
             </Link>
           </div>
 
-          {showSearchBar && (
+          {(showSearchBar || (!isInitialized || isLoggedIn)) && (
             <form onSubmit={handleSearch} className="navbar-search-container">
               <FaSearch className="navbar-search-icon" />
               <input
@@ -100,6 +120,7 @@ const Navbar: React.FC<NavbarProps> = ({ showSearchBar = false, showSeparator = 
                 className="navbar-search-input"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                disabled={!isInitialized}
               />
             </form>
           )}
@@ -114,13 +135,19 @@ const Navbar: React.FC<NavbarProps> = ({ showSearchBar = false, showSeparator = 
 
           <div className="navbar-column-right">
             <ul className="nav-menu" ref={navMenuRef}>
-              {!showSearchBar && (
+              {/* Always show Dashboard button if user is/might be logged in */}
+              {(!isInitialized || isLoggedIn) && (
                 <li className="nav-item">
-                  <Link href="/search" className="nav-links" onClick={closeMobileMenu}>
-                    Search
+                  <Link href="/dashboard" className="nav-links" onClick={closeMobileMenu}>
+                    Dashboard
                   </Link>
                 </li>
               )}
+              <li className="nav-item">
+                <Link href="/search" className="nav-links" onClick={closeMobileMenu}>
+                  Browse
+                </Link>
+              </li>
               <li className="nav-item">
                 <Link href="/post" className="nav-links" onClick={closeMobileMenu}>
                   Post
@@ -137,7 +164,7 @@ const Navbar: React.FC<NavbarProps> = ({ showSearchBar = false, showSeparator = 
                 </Link>
               </li>
               <div className="nav-separator"></div>
-              {!isLoggedIn &&
+              {isInitialized && !isLoggedIn &&
                 <li className="nav-item">
                   <Link
                     href="/login"
@@ -148,24 +175,27 @@ const Navbar: React.FC<NavbarProps> = ({ showSearchBar = false, showSeparator = 
                   </Link>
                 </li>
               }
-              {isLoggedIn &&
+              {/* Always show Messages button if user is/might be logged in */}
+              {(!isInitialized || isLoggedIn) &&
                 <li className='nav-item'>
                   <Link
                     href="/messages"
                     className={button ? "nav-links-mobile" : "nav-links"}
+                    onClick={closeMobileMenu}
                   >
                     Messages
                   </Link>
                 </li>
               }
-              {!isLoggedIn &&
+              {isInitialized && !isLoggedIn &&
                 <li className="nav-item">
                   <Link href="/signup" className="sign-up-btn-navbar">
                     Sign Up
                   </Link>
                 </li>
               }
-              {isLoggedIn &&
+              {/* Show profile picture placeholder or actual profile during initialization */}
+              {(!isInitialized || isLoggedIn) &&
                 <li className="">
                   <div className="relative inline-block text-left">
 
@@ -174,31 +204,40 @@ const Navbar: React.FC<NavbarProps> = ({ showSearchBar = false, showSeparator = 
                       src={user?.profileurl || "/images/defaultProfile.jpg"}
                       alt="Profile"
                       className="w-12 h-12 rounded-full object-cover cursor-pointer border-2 border-gray-300"
-                      onClick={() => setOpen(!open)}
+                      onClick={() => isInitialized && setOpen(!open)}
                       onError={(e) => {
                         e.currentTarget.onerror = null; // prevents infinite loop if fallback fails
                         e.currentTarget.src = '/images/defaultProfile.jpg';
                       }}
+                      style={{ opacity: isInitialized ? 1 : 0.7 }}
                     />
 
-                    {/* Dropdown menu */}
-                    {open && (
+                    {/* Dropdown menu - only show when initialized */}
+                    {isInitialized && open && (
                       <div className="absolute right-0 mt-2 w-48 bg-black rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 z-10">
                         <div className="py-1 ">
-                          <button className="block px-4 py-2 !mt-3 !mb-2 text-sm text-white" onClick={() => router.push('/dashboard')}>
+                          <button className="block px-4 py-2 !mt-3 !mb-2 text-sm text-white hover:bg-gray-800 w-full text-left" onClick={() => {
+                            router.push('/dashboard');
+                            setOpen(false);
+                          }}>
                             Dashboard
                           </button>
-                          <button className="block px-4 py-2 !mb-2 text-sm text-white">
+
+                          <button className="block px-4 py-2 text-sm text-white hover:bg-gray-800 w-full text-left flex items-center gap-2" onClick={() => {
+                            setSettingsOpen(true);
+                            setOpen(false);
+                          }}>
+                            <FaCog />
                             Settings
                           </button>
-                          <button className="block px-4 py-2 text-sm text-red-600" onClick={() => logout()}>
+
+                          <button className="block px-4 py-2 text-sm text-red-600 hover:bg-gray-800 w-full text-left" onClick={() => logout()}>
                             Log out
                           </button>
                         </div>
                       </div>
                     )}
                   </div>
-                  );
 
                 </li>
               }
@@ -206,6 +245,12 @@ const Navbar: React.FC<NavbarProps> = ({ showSearchBar = false, showSeparator = 
           </div>
         </div>
       </nav>
+
+      {/* Settings Popup */}
+      <SettingsPopup 
+        isOpen={settingsOpen} 
+        onClose={() => setSettingsOpen(false)} 
+      />
     </>
   );
 };

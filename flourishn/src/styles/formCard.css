@@ -209,6 +209,19 @@ div[id^="text-block-"]>p {
     font-size: 2rem !important;
 }
 
+/* Override font size for verification text */
+.login-container p.verification-text {
+    font-size: 1.15rem !important;
+}
+
+
+/* Even more specific override for reset password text within login container */
+.login-container .form-card .reset-password-text {
+    font-size: 1.2rem !important;
+    margin-top: -0.25rem !important;
+    margin-bottom: -0.25rem !important;
+}
+
 .contact-error-message {
   /* General error message styles */
   font-size: 0.9rem;

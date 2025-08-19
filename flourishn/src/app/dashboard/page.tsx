@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useUser } from "@/context/UserContext";
 import { useSearchParams } from 'next/navigation';
 import { getBookmarkedPosts, getUserPosts, getRecommendedProjects } from "@/api/apiClient";
+import LoadingScreen from "@/components/ui/LoadingScreen";
 
 import { Project } from '@/app/types/projectTypes';
 
@@ -256,7 +257,7 @@ export default function DashboardPage() {
     const [showAllYour, setShowAllYour] = useState(false);
     const [showAllBookmarked, setShowAllBookmarked] = useState(false);
     const router = useRouter();
-    const { user, isLoggedIn } = useUser();
+    const { user, isLoggedIn, isInitialized } = useUser();
     const [showProfileUploader, setShowProfileUploader] = useState(true);
     const [bookmarkedProjects, setBookmarkedProject] = useState<Project[]>([]);
     const [userProjects, setUserProjects] = useState<Project[]>([]);
@@ -270,12 +271,17 @@ export default function DashboardPage() {
 
     const fetchPosts = useCallback(async () => {
         try {
-            const result = await getBookmarkedPosts();
-            const result2 = await getUserPosts();
-            const result3 = await getRecommendedProjects()
-            setUserProjects(result2);
-            setBookmarkedProject(result);
-            setRecommendedProjects(result3);
+            // Fetch all data in parallel and update state in a single batch
+            const [bookmarkedResult, userPostsResult, recommendedResult] = await Promise.all([
+                getBookmarkedPosts(),
+                getUserPosts(),
+                getRecommendedProjects()
+            ]);
+            
+            // Batch state updates to prevent multiple re-renders
+            setUserProjects(userPostsResult);
+            setBookmarkedProject(bookmarkedResult);
+            setRecommendedProjects(recommendedResult);
 
         } catch (error) {
             console.error('Search failed:', error);
@@ -283,18 +289,26 @@ export default function DashboardPage() {
     }, []);
 
     useEffect(() => {
-        fetchPosts()
-    }, []);
+        // Only fetch data if user is authenticated
+        if (isInitialized && isLoggedIn) {
+            fetchPosts();
+        }
+    }, [isInitialized, isLoggedIn, fetchPosts]);
 
 
     useEffect(() => {
-        if (!isLoggedIn) {
+        if (isInitialized && !isLoggedIn) {
             router.push('/login')
         }
         if (firstTimeSignUp.get('true') === 'true') {
             setShowProfileUploader(true);
         }
-    }, [isLoggedIn, router]);
+    }, [isInitialized, isLoggedIn, router]);
+
+    // Don't render content if user is not logged in (will redirect)
+    if (!isLoggedIn) {
+        return null;
+    }
 
     return (
         <>
@@ -352,7 +366,12 @@ export default function DashboardPage() {
                             <p>No interests specified.</p>
                         )}
                     </div>
-                    <a href="#" className="!text-[#888] !text-xs !no-underline !py-2 !block !border-t !border-[#2f3542] !mt-3 !pt-3 hover:!text-[#1f98f4]">✏️ Edit interests</a>
+                    <button 
+                        onClick={() => window.location.href = '/settings'} 
+                        className="!text-[#888] !text-xs !no-underline !py-2 !block !border-t !border-[#2f3542] !mt-3 !pt-3 hover:!text-[#1f98f4] !bg-transparent !border-none !cursor-pointer !w-full !text-left"
+                    >
+                        ✏️ Edit interests
+                    </button>
                 </div>
             </div>
 
@@ -726,14 +745,12 @@ export default function DashboardPage() {
                 {/*<div className="mt-16">
                     <NotesApp />
                 </div>*/}
-                <div>
-                    {/* Profile Picture Uploader Modal */}
-                    {showProfileUploader && (
-                        <ProfileUploader
-                        />
-                    )}
-                </div>
             </div>
+            
+            {/* Profile Picture Uploader Modal - Outside of main content to avoid positioning issues */}
+            {showProfileUploader && (
+                <ProfileUploader />
+            )}
         </>
     )
 }

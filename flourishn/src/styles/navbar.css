@@ -11,6 +11,8 @@
     align-items: center;
     font-size: 1.2rem;
     transition: all 0.3s ease-in-out;
+    /* Prevent layout shifts during auth state changes */
+    contain: size;
 }
 
 .navbar--with-separator {
@@ -41,6 +43,8 @@
     justify-content: flex-end;
     gap: 1rem;
     flex: 1 1 auto;
+    /* Reserve minimum space to prevent layout shifts */
+    min-width: 200px;
 }
 
 .navbar-spacer {

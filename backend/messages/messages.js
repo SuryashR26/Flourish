@@ -129,7 +129,8 @@ const getConversations = async (req, res) => {
                     m.sender_id
                 FROM messages m
                 INNER JOIN user_conversations uc ON m.conversation_id = uc.id
-                WHERE m.is_active = true
+                WHERE m.is_active = true 
+                AND m.content != 'SYSTEM_CONVERSATION_CREATED'
                 ORDER BY m.conversation_id, m.created_at DESC
             ),
             unread_counts AS (
@@ -141,6 +142,7 @@ const getConversations = async (req, res) => {
                 WHERE m.sender_id != $1 
                 AND m.is_read = false 
                 AND m.is_active = true
+                AND m.content != 'SYSTEM_CONVERSATION_CREATED'
                 GROUP BY m.conversation_id
             )
             SELECT 
@@ -360,7 +362,7 @@ const searchUsers = async (req, res) => {
             values.push(`%${query.trim()}%`);
         }
 
-        searchQuery += ` ORDER BY u.first_name, u.last_name LIMIT 20`;
+        searchQuery += ` ORDER BY has_conversation DESC, u.first_name, u.last_name LIMIT 20`;
 
         const result = await pool.query(searchQuery, values);
 

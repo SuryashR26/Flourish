@@ -267,6 +267,92 @@ export async function bookmarkProject(projectId: string) {
     return { status: res.status, ...data };
 }
 
+// Settings API functions
+export async function getSettings() {
+    const res = await fetch('http://localhost:8080/settings', {
+        method: 'GET',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (res.status === 401) {
+        window.location.href = '/login';
+        throw new Error('Not authenticated');
+    }
+
+    if (!res.ok) {
+        throw new Error('Failed to get settings');
+    }
+
+    return await res.json();
+}
+
+export async function updateSettings(settingsData: {
+    display_name?: string;
+    bio?: string;
+    areas_of_interest?: string[];
+    profile_visibility?: 'public' | 'private';
+    show_email_publicly?: boolean;
+}) {
+    const res = await fetch('http://localhost:8080/settings', {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(settingsData),
+    });
+
+    if (res.status === 401) {
+        window.location.href = '/login';
+        throw new Error('Not authenticated');
+    }
+
+    if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || 'Failed to update settings');
+    }
+
+    return await res.json();
+}
+
+export async function updatePassword(passwordData: {
+    currentPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+}) {
+    try {
+        const res = await fetch('http://localhost:8080/update-password', {
+            method: 'PUT',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(passwordData),
+        });
+
+        if (!res.ok) {
+            // Try to parse the error response
+            let errorData;
+            try {
+                errorData = await res.json();
+            } catch (parseError) {
+                // If JSON parsing fails, handle specific status codes
+                if (res.status === 401) {
+                    throw new Error('You must be logged in to change your password. Please log in and try again.');
+                }
+                throw new Error(`Server connection error. HTTP ${res.status}: ${res.statusText}`);
+            }
+            
+            // If we successfully parsed the JSON, throw the message from backend
+            throw new Error(errorData.message || errorData.error || `HTTP ${res.status}: ${res.statusText}`);
+        }
+
+        return await res.json();
+    } catch (error) {
+        if (error instanceof TypeError && error.message.includes('fetch')) {
+            throw new Error('Unable to connect to server. Please ensure the backend server is running.');
+        }
+        throw error;
+    }
+}
+
 export async function storeViewProject(projectId: string) {
     const res = await fetch('http://localhost:8080/storeView', {
         method: 'POST',
@@ -345,4 +431,6 @@ export function getRecommendedProjects(): Promise<Project[]> {
         return response.json();
     });
 }
+
+
 

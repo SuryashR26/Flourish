@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import Navbar from "@/components/layout/navbar"
 import ConversationLoadingScreen from "@/components/ui/ConversationLoadingScreen"
+import LoadingScreen from "@/components/ui/LoadingScreen"
 import { sendMessage, getConversations, getMessages, markMessagesAsRead, getCurrentUser, searchUsers } from "@/api/apiClient"
 
 interface Message {
@@ -42,10 +43,10 @@ export default function MessagesPage() {
     const router = useRouter()
     const [currentConversationId, setCurrentConversationId] = useState<string>("")
     const [messageInput, setMessageInput] = useState("")
-    const [searchQuery, setSearchQuery] = useState("")
+    const [conversationSearchQuery, setConversationSearchQuery] = useState("")
     const [conversations, setConversations] = useState<Conversation[]>([])
     const [messages, setMessages] = useState<Message[]>([])
-    const [loading, setLoading] = useState(true)
+
     const [loadingConversation, setLoadingConversation] = useState(false)
     const [sendingMessage, setSendingMessage] = useState(false)
     const [currentUserId, setCurrentUserId] = useState<string>("")
@@ -55,11 +56,16 @@ export default function MessagesPage() {
     const [showNewConversationModal, setShowNewConversationModal] = useState(false)
     const [userSearchQuery, setUserSearchQuery] = useState("")
     const [searchResults, setSearchResults] = useState<User[]>([])
-    const [searchingUsers, setSearchingUsers] = useState(false)
     const [startingConversation, setStartingConversation] = useState(false)
+    
+    // Auto-refresh for real-time messages
+    const [lastMessageCount, setLastMessageCount] = useState(0)
 
     // Get user initials helper function
-    const getInitials = (name: string) => {
+    const getInitials = (name: string | null | undefined) => {
+        if (!name || typeof name !== 'string') {
+            return 'U' // Default fallback for unknown user
+        }
         return name.split(' ').map(n => n[0]).join('').toUpperCase()
     }
 
@@ -85,12 +91,47 @@ export default function MessagesPage() {
         }
     }
 
+    // Group messages by sender and time proximity
+    const groupMessages = (messages: Message[]) => {
+        // Filter out system messages
+        const userMessages = messages.filter(message => 
+            message.content !== "SYSTEM_CONVERSATION_CREATED"
+        )
+        
+        const groups = []
+        let currentGroup = null
+
+        for (const message of userMessages) {
+            const messageTime = new Date(message.created_at).getTime()
+            
+            if (!currentGroup || 
+                currentGroup.senderId !== message.sender_id ||
+                (messageTime - currentGroup.lastMessageTime) > 60000) { // 60 seconds
+                
+                // Start new group
+                currentGroup = {
+                    senderId: message.sender_id,
+                    senderName: message.sender_name,
+                    messages: [message],
+                    lastMessageTime: messageTime,
+                    timestamp: message.created_at
+                }
+                groups.push(currentGroup)
+            } else {
+                // Add to existing group
+                currentGroup.messages.push(message)
+                currentGroup.lastMessageTime = messageTime
+                currentGroup.timestamp = message.created_at // Update to latest timestamp
+            }
+        }
+
+        return groups
+    }
+
     // Load conversations on component mount
     useEffect(() => {
         const loadData = async () => {
             try {
-                setLoading(true)
-                
                 // Get current user info first
                 const userResponse = await getCurrentUser()
                 if (userResponse.success) {
@@ -114,32 +155,104 @@ export default function MessagesPage() {
                 }
             } catch (error) {
                 console.error('Failed to load data:', error)
-            } finally {
-                setLoading(false)
             }
         }
 
         loadData()
     }, [])
 
-    // Search users when modal opens or search query changes
+    // Search users only when search query changes (not when modal opens)
     useEffect(() => {
-        if (showNewConversationModal) {
+        if (showNewConversationModal && userSearchQuery.trim()) {
             searchForUsers(userSearchQuery)
+        } else if (showNewConversationModal && !userSearchQuery.trim()) {
+            // Clear results when search is empty
+            setSearchResults([])
         }
     }, [showNewConversationModal, userSearchQuery])
 
+    // Auto-refresh messages for real-time updates
+    useEffect(() => {
+        if (!currentConversationId || loadingConversation) return
+
+        const pollForNewMessages = async () => {
+            try {
+                const response = await getMessages(currentConversationId)
+                if (response.success) {
+                    const newMessages = response.messages
+                    
+                    // Only update if we have new messages
+                    if (newMessages.length !== lastMessageCount) {
+                        setMessages(newMessages)
+                        setLastMessageCount(newMessages.length)
+                        
+                        // Auto-scroll to bottom if new messages
+                        setTimeout(() => {
+                            if (chatMessagesRef.current) {
+                                chatMessagesRef.current.scrollTop = chatMessagesRef.current.scrollHeight
+                            }
+                        }, 100)
+                        
+                        // Mark new messages as read
+                        try {
+                            await markMessagesAsRead(currentConversationId)
+                            
+                            // Update conversations list to clear unread count
+                            const conversationsResponse = await getConversations()
+                            if (conversationsResponse.success) {
+                                const updatedConversations = conversationsResponse.conversations.map((conv: Conversation) => ({
+                                    ...conv,
+                                    isActive: conv.id === currentConversationId
+                                }))
+                                setConversations(updatedConversations)
+                            }
+                        } catch (error) {
+                            console.error('Failed to mark messages as read:', error)
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to poll for messages:', error)
+            }
+        }
+
+        // Poll every 2 seconds
+        const interval = setInterval(pollForNewMessages, 2000)
+
+        return () => clearInterval(interval)
+    }, [currentConversationId, lastMessageCount, loadingConversation])
+
+    // Auto-refresh conversations list to update last messages and unread counts
+    useEffect(() => {
+        const pollForConversationUpdates = async () => {
+            try {
+                const response = await getConversations()
+                if (response.success) {
+                    const updatedConversations = response.conversations.map((conv: Conversation) => ({
+                        ...conv,
+                        isActive: conv.id === currentConversationId
+                    }))
+                    setConversations(updatedConversations)
+                }
+            } catch (error) {
+                console.error('Failed to poll for conversation updates:', error)
+            }
+        }
+
+        // Poll every 5 seconds (less frequent than messages)
+        const interval = setInterval(pollForConversationUpdates, 5000)
+
+        return () => clearInterval(interval)
+    }, [currentConversationId])
+
     const searchForUsers = async (query: string) => {
         try {
-            setSearchingUsers(true)
             const response = await searchUsers(query)
             if (response.success) {
                 setSearchResults(response.users)
             }
         } catch (error) {
             console.error('Failed to search users:', error)
-        } finally {
-            setSearchingUsers(false)
         }
     }
 
@@ -147,9 +260,25 @@ export default function MessagesPage() {
         try {
             setStartingConversation(true)
             
-            // Send initial message to create conversation
-            const initialMessage = `Hi ${user.first_name}! 👋`
-            const response = await sendMessage(user.id, initialMessage)
+            // Check if conversation already exists, if so just open it
+            if (user.has_conversation) {
+                // Find existing conversation
+                const existingConv = conversations.find(conv => 
+                    conv.participant_name === user.name
+                )
+                
+                if (existingConv) {
+                    // Close modal and open existing conversation
+                    setShowNewConversationModal(false)
+                    setUserSearchQuery("")
+                    setSearchResults([])
+                    selectConversation(existingConv.id)
+                    return
+                }
+            }
+            
+            // For new conversations, create it with a system message that we'll filter out
+            const response = await sendMessage(user.id, "SYSTEM_CONVERSATION_CREATED")
             
             if (response.success) {
                 // Close modal
@@ -160,7 +289,7 @@ export default function MessagesPage() {
                 // Refresh conversations to get the new one
                 const conversationsResponse = await getConversations()
                 if (conversationsResponse.success) {
-                    const updatedConversations = conversationsResponse.conversations.map((conv: Conversation, index: number) => ({
+                    const updatedConversations = conversationsResponse.conversations.map((conv: Conversation) => ({
                         ...conv,
                         isActive: conv.id === response.conversationId
                     }))
@@ -183,9 +312,21 @@ export default function MessagesPage() {
             const response = await getMessages(conversationId)
             if (response.success) {
                 setMessages(response.messages)
+                setLastMessageCount(response.messages.length) // Update message count for polling
+                
                 // Mark messages as read
                 try {
                     await markMessagesAsRead(conversationId)
+                    
+                    // Update conversations list to clear unread count immediately
+                    const conversationsResponse = await getConversations()
+                    if (conversationsResponse.success) {
+                        const updatedConversations = conversationsResponse.conversations.map((conv: Conversation) => ({
+                            ...conv,
+                            isActive: conv.id === conversationId
+                        }))
+                        setConversations(updatedConversations)
+                    }
                 } catch (error) {
                     console.error('Failed to mark messages as read:', error)
                 }
@@ -285,6 +426,19 @@ export default function MessagesPage() {
         }
     }
 
+    // Filter conversations based on search query
+    const filteredConversations = conversations.filter(conversation => {
+        if (!conversationSearchQuery.trim()) {
+            return true // Show all if no search query
+        }
+        
+        const searchTerm = conversationSearchQuery.toLowerCase().trim()
+        const participantName = conversation.participant_name?.toLowerCase() || ''
+        const lastMessage = conversation.last_message_content?.toLowerCase() || ''
+        
+        return participantName.includes(searchTerm) || lastMessage.includes(searchTerm)
+    })
+
     const activeConversation = conversations.find(conv => conv.isActive)
 
     return (
@@ -295,13 +449,27 @@ export default function MessagesPage() {
                 <aside className="conversations-list">
                     <div className="conversations-header">
                         <h2>Messages</h2>
-                        <input 
-                            type="text" 
-                            className="search-conversations" 
-                            placeholder="Search conversations..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
+                        <div className="search-input-wrapper">
+                            <input 
+                                type="text" 
+                                className="search-conversations" 
+                                placeholder="Search conversations..."
+                                value={conversationSearchQuery}
+                                onChange={(e) => setConversationSearchQuery(e.target.value)}
+                            />
+                            {conversationSearchQuery && (
+                                <button 
+                                    className="clear-search-btn"
+                                    onClick={() => setConversationSearchQuery("")}
+                                    title="Clear search"
+                                >
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                                    </svg>
+                                </button>
+                            )}
+                        </div>
                     </div>
                     
                     <button 
@@ -315,16 +483,12 @@ export default function MessagesPage() {
                     </button>
                     
                     <div className="conversations-container">
-                        {loading ? (
+                        {filteredConversations.length === 0 ? (
                             <div className="p-4 text-center text-gray-400">
-                                Loading conversations...
-                            </div>
-                        ) : conversations.length === 0 ? (
-                            <div className="p-4 text-center text-gray-400">
-                                No conversations yet
+                                {conversationSearchQuery.trim() ? 'No conversations found' : 'No conversations yet'}
                             </div>
                         ) : (
-                            conversations.map(conversation => (
+                            filteredConversations.map(conversation => (
                                 <div 
                                     key={conversation.id}
                                     className={`conversation-item ${conversation.isActive ? 'active' : ''}`}
@@ -345,9 +509,8 @@ export default function MessagesPage() {
                                         <div className="conversation-time">
                                             {formatTime(conversation.last_message_time)}
                                         </div>
-                                        {conversation.unread_count > 0 && (
-                                            <div className="unread-badge">
-                                                {conversation.unread_count}
+                                        {conversation.unread_count > 0 && !conversation.isActive && (
+                                            <div className="unread-circle">
                                             </div>
                                         )}
                                     </div>
@@ -377,24 +540,24 @@ export default function MessagesPage() {
 
                             <div className="chat-messages" ref={chatMessagesRef}>
                                 {messages.length === 0 ? (
-                                    <div className="p-4 text-center text-gray-400">
-                                        No messages yet. Start the conversation!
-                                    </div>
+                                    <div></div>
                                 ) : (
-                                    messages.map(message => (
+                                    groupMessages(messages).map((group, groupIndex) => (
                                         <div 
-                                            key={message.id}
-                                            className={`message ${message.sender_id === currentUserId ? 'sent' : ''}`}
+                                            key={`group-${groupIndex}`}
+                                            className={`message-group ${group.senderId === currentUserId ? 'sent' : ''}`}
                                         >
                                             <div className="message-avatar">
-                                                {getInitials(message.sender_name)}
+                                                {getInitials(group.senderName)}
                                             </div>
                                             <div className="message-content">
-                                                <div className="message-bubble">
-                                                    {message.content}
-                                                </div>
+                                                {group.messages.map((message, messageIndex) => (
+                                                    <div key={message.id} className="message-bubble">
+                                                        {message.content}
+                                                    </div>
+                                                ))}
                                                 <div className="message-time">
-                                                    {formatTime(message.created_at)}
+                                                    {formatTime(group.timestamp)}
                                                 </div>
                                             </div>
                                         </div>
@@ -469,13 +632,9 @@ export default function MessagesPage() {
                             />
                             
                             <div className="users-list">
-                                {searchingUsers ? (
-                                    <div className="loading-state">
-                                        Searching users...
-                                    </div>
-                                ) : searchResults.length === 0 ? (
+                                {searchResults.length === 0 ? (
                                     <div className="empty-state">
-                                        {userSearchQuery ? 'No users found' : 'Type to search for users'}
+                                        {userSearchQuery.trim() ? 'No users found' : 'Start typing to search for users...'}
                                     </div>
                                 ) : (
                                     searchResults.map(user => (
@@ -490,13 +649,6 @@ export default function MessagesPage() {
                                             <div className="user-info">
                                                 <div className="user-name">{user.name}</div>
                                                 <div className="user-email">{user.email}</div>
-                                            </div>
-                                            <div className="user-status">
-                                                {user.has_conversation ? (
-                                                    <span className="existing-chat">Existing chat</span>
-                                                ) : (
-                                                    <span className="new-chat">Start chat</span>
-                                                )}
                                             </div>
                                         </div>
                                     ))
@@ -530,28 +682,54 @@ export default function MessagesPage() {
                 }
 
                 .conversations-header {
-                    padding: 24px 20px 20px;
+                    padding: 20px 18px 17px;
                     border-bottom: 1px solid rgba(255,255,255,0.1);
                 }
 
                 .conversations-header h2 {
-                    font-size: 2rem;
-                    margin-bottom: 1rem;
+                    font-size: 1.8rem;
+                    margin-bottom: 0.85rem;
                     font-weight: 500;
                     color: #ffffff;
                 }
 
+                .search-input-wrapper {
+                    position: relative;
+                }
+
                 .search-conversations {
                     width: 100%;
-                    height: 54px;
-                    padding: 0 20px;
+                    height: 46px;
+                    padding: 0 48px 0 16px;
                     background-color: #0B0809;
                     border: 1px solid #2f3542;
                     border-radius: 8px;
                     color: #ffffff;
-                    font-size: 1.15rem;
+                    font-size: 1.0rem;
                     font-weight: 400;
                     transition: border-color 0.2s ease;
+                }
+
+                .clear-search-btn {
+                    position: absolute;
+                    right: 12px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    background: none;
+                    border: none;
+                    color: #888;
+                    cursor: pointer;
+                    padding: 6px;
+                    border-radius: 4px;
+                    transition: color 0.2s, background-color 0.2s;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                .clear-search-btn:hover {
+                    color: #1f98f4;
+                    background-color: rgba(31, 152, 244, 0.1);
                 }
 
                 .search-conversations::placeholder {
@@ -565,13 +743,13 @@ export default function MessagesPage() {
                 }
 
                 .new-conversation-btn {
-                    margin: 20px;
-                    height: 54px;
+                    margin: 16px 18px;
+                    height: 46px;
                     background: #0B0809;
                     color: #ffffff;
                     border: 1px solid #2f3542;
                     border-radius: 8px;
-                    font-size: 1.15rem;
+                    font-size: 1.0rem;
                     font-weight: 500;
                     cursor: pointer;
                     transition: border-color 0.2s ease;
@@ -591,13 +769,13 @@ export default function MessagesPage() {
                 }
 
                 .conversation-item {
-                    padding: 20px;
+                    padding: 16px 18px;
                     border-bottom: 1px solid rgba(255,255,255,0.05);
                     cursor: pointer;
                     transition: background-color 0.2s;
                     display: flex;
                     align-items: center;
-                    gap: 14px;
+                    gap: 12px;
                     position: relative;
                 }
 
@@ -620,8 +798,8 @@ export default function MessagesPage() {
                 }
 
                 .conversation-avatar {
-                    width: 48px;
-                    height: 48px;
+                    width: 42px;
+                    height: 42px;
                     border-radius: 50%;
                     background-color: #1f98f4;
                     flex-shrink: 0;
@@ -629,7 +807,7 @@ export default function MessagesPage() {
                     align-items: center;
                     justify-content: center;
                     font-weight: 500;
-                    font-size: 1.1rem;
+                    font-size: 1.0rem;
                     color: #ffffff;
                 }
 
@@ -640,13 +818,13 @@ export default function MessagesPage() {
 
                 .conversation-name {
                     font-weight: 500;
-                    font-size: 1.1rem;
-                    margin-bottom: 4px;
+                    font-size: 1.0rem;
+                    margin-bottom: 3px;
                     color: #ffffff;
                 }
 
                 .conversation-preview {
-                    font-size: 0.95rem;
+                    font-size: 0.85rem;
                     color: #b0b8c1;
                     white-space: nowrap;
                     overflow: hidden;
@@ -658,23 +836,20 @@ export default function MessagesPage() {
                     display: flex;
                     flex-direction: column;
                     align-items: flex-end;
-                    gap: 6px;
+                    gap: 5px;
                 }
 
                 .conversation-time {
-                    font-size: 0.85rem;
+                    font-size: 0.8rem;
                     color: #888;
                 }
 
-                .unread-badge {
+                .unread-circle {
                     background-color: #1f98f4;
-                    color: #ffffff;
-                    font-size: 0.8rem;
-                    font-weight: 500;
-                    padding: 3px 8px;
-                    border-radius: 12px;
-                    min-width: 22px;
-                    text-align: center;
+                    width: 11px;
+                    height: 11px;
+                    border-radius: 50%;
+                    flex-shrink: 0;
                 }
 
                 .chat-area {
@@ -685,39 +860,39 @@ export default function MessagesPage() {
                 }
 
                 .chat-header {
-                    padding: 20px 24px;
+                    padding: 14px 16px;
                     border-bottom: 1px solid rgba(255,255,255,0.1);
                     display: flex;
                     align-items: center;
-                    gap: 16px;
+                    gap: 12px;
                     background-color: #000000;
                 }
 
                 .chat-header .conversation-avatar {
-                    width: 48px;
-                    height: 48px;
+                    width: 42px;
+                    height: 42px;
                 }
 
                 .chat-header-info h3 {
-                    font-size: 1.3rem;
+                    font-size: 1.1rem;
                     font-weight: 500;
-                    margin-bottom: 2px;
+                    margin-bottom: 1px;
                     color: #ffffff;
                 }
 
                 .online-status {
-                    font-size: 0.9rem;
+                    font-size: 0.8rem;
                     color: #1f98f4;
                     font-weight: 400;
                 }
 
                 .chat-messages {
                     flex: 1;
-                    padding: 20px;
+                    padding: 16px;
                     overflow-y: auto;
                     display: flex;
                     flex-direction: column;
-                    gap: 12px;
+                    gap: 10px;
                     background-color: #000000;
                 }
 
@@ -738,13 +913,14 @@ export default function MessagesPage() {
                     background: rgba(255,255,255,0.15);
                 }
 
-                .message {
+                .message-group {
                     display: flex;
                     gap: 8px;
                     align-items: flex-start;
+                    margin-bottom: 8px;
                 }
 
-                .message.sent {
+                .message-group.sent {
                     flex-direction: row-reverse;
                 }
 
@@ -762,7 +938,7 @@ export default function MessagesPage() {
                     color: #ffffff;
                 }
 
-                .message.sent .message-avatar {
+                .message-group.sent .message-avatar {
                     background-color: #2f3542;
                 }
 
@@ -771,22 +947,35 @@ export default function MessagesPage() {
                     display: flex;
                     flex-direction: column;
                     gap: 4px;
+                    align-items: flex-start;
+                }
+
+                .message-group.sent .message-content {
+                    align-items: flex-end;
                 }
 
                 .message-bubble {
                     padding: 10px 14px;
-                    border-radius: 6px;
-                    background-color: #0B0809;
-                    border: 1px solid #2f3542;
+                    border-radius: 16px;
+                    background-color: #1a1a1a;
+                    border: none;
                     word-wrap: break-word;
                     font-size: 0.95rem;
                     line-height: 1.4;
                     color: #ffffff;
+                    margin-bottom: 3px;
+                    display: inline-block;
+                    max-width: 100%;
+                    width: fit-content;
                 }
 
-                .message.sent .message-bubble {
+                .message-bubble:last-of-type {
+                    margin-bottom: 0;
+                }
+
+                .message-group.sent .message-bubble {
                     background-color: #1f98f4;
-                    border-color: #1f98f4;
+                    border: none;
                     color: #ffffff;
                 }
 
@@ -796,19 +985,19 @@ export default function MessagesPage() {
                     padding: 0 4px;
                 }
 
-                .message.sent .message-time {
+                .message-group.sent .message-time {
                     text-align: right;
                 }
 
                 .message-input-container {
-                    padding: 20px 24px;
+                    padding: 12px 16px;
                     border-top: 1px solid rgba(255,255,255,0.1);
                     background-color: #000000;
                 }
 
                 .message-input-wrapper {
                     display: flex;
-                    gap: 12px;
+                    gap: 8px;
                     align-items: flex-start;
                 }
 
@@ -819,17 +1008,17 @@ export default function MessagesPage() {
 
                 .message-input {
                     width: 100%;
-                    min-height: 60px;
-                    padding: 16px 50px 16px 20px;
+                    min-height: 44px;
+                    padding: 12px 44px 12px 16px;
                     background-color: #0B0809;
                     border: 1px solid #2f3542;
                     border-radius: 8px;
                     color: #ffffff;
-                    font-size: 1.15rem;
+                    font-size: 0.95rem;
                     font-weight: 400;
                     outline: none;
                     resize: none;
-                    line-height: 1.4;
+                    line-height: 1.3;
                     transition: border-color 0.2s ease;
                     font-family: inherit;
                 }
@@ -845,16 +1034,17 @@ export default function MessagesPage() {
 
                 .attachment-btn {
                     position: absolute;
-                    right: 16px;
+                    right: 12px;
                     top: 50%;
                     transform: translateY(-50%);
                     background: none;
                     border: none;
                     color: #888;
                     cursor: pointer;
-                    padding: 8px;
+                    padding: 6px;
                     border-radius: 4px;
                     transition: color 0.2s, background-color 0.2s;
+                    font-size: 0.9rem;
                 }
 
                 .attachment-btn:hover {
@@ -863,8 +1053,8 @@ export default function MessagesPage() {
                 }
 
                 .send-btn {
-                    height: 60px;
-                    width: 60px;
+                    height: 44px;
+                    width: 44px;
                     background: #ffffff;
                     border: 1px solid #2f3542;
                     color: #000000;
@@ -875,7 +1065,7 @@ export default function MessagesPage() {
                     justify-content: center;
                     transition: background-color 0.2s ease;
                     flex-shrink: 0;
-                    font-size: 1.2rem;
+                    font-size: 1rem;
                 }
 
                 .send-btn:hover:not(:disabled) {
@@ -1017,7 +1207,7 @@ export default function MessagesPage() {
                     overflow-y: auto;
                 }
 
-                .loading-state, .empty-state {
+                .empty-state {
                     text-align: center;
                     padding: 40px 20px;
                     color: #888;
@@ -1069,21 +1259,7 @@ export default function MessagesPage() {
                     color: #b0b8c1;
                 }
 
-                .user-status {
-                    font-size: 0.85rem;
-                    padding: 4px 8px;
-                    border-radius: 4px;
-                }
 
-                .existing-chat {
-                    color: #888;
-                    background-color: rgba(255,255,255,0.05);
-                }
-
-                .new-chat {
-                    color: #1f98f4;
-                    background-color: rgba(31, 152, 244, 0.1);
-                }
 
                 .starting-conversation {
                     text-align: center;
