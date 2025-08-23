@@ -523,7 +523,7 @@ export async function getOverallBookmarks() {
 
         return await response.json();
     } catch (error) {
-        console.error('Error fetching views:', error);
+        console.error('Error fetching bookmarks:', error);
         return [];
     }
 }
@@ -540,4 +540,26 @@ export async function markNotificationsRead() {
     }
 
     return await res.json();
+}
+
+export async function skillDirectory(query: string) {
+    try {
+        const response = await fetch(`http://localhost:8080/skillDirectory?q=${encodeURIComponent(query)}`, {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            console.error('Failed to fetch skills:', response.statusText);
+            return [];
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching skills:', error);
+        return [];
+    }
 }

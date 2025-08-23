@@ -7,6 +7,7 @@ const { resetPass } = require('./inquiries/resetPass');
 const { updateProfile } = require('./profileChanges/updateProfile');
 const { updateSettings, getSettings } = require('./profileChanges/settings');
 const { updatePassword } = require('./profileChanges/updatePassword');
+const { skillsDirectory } = require('./directories/skillsDirectories')
 
 const { logout } = require('./auth/logout');
 const { search } = require('./post/search');
@@ -141,6 +142,8 @@ app.get('/getOverallBookmarks', getBookmarks)
 app.get('/getNotifications', getNotifications)
 
 app.post('/markNotifications', markAsReadNotifications)
+
+app.get('/skillDirectory', skillsDirectory)
 
 
 app.listen(PORT, () => {

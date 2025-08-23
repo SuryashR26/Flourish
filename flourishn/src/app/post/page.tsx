@@ -5,13 +5,22 @@ import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import FormCard from "@/components/cards/formCards"
 import Navbar from "@/components/layout/navbar"
-import { createPostWithImage, cleanupFailedPost } from "@/api/apiClient"
+import { createPostWithImage, cleanupFailedPost, skillDirectory } from "@/api/apiClient"
+import AsyncSelect from "react-select/async";
 // import { on } from "events"
 import dynamic from "next/dynamic"
 import { components } from "react-select"
 import { X } from "lucide-react"
+import type { GroupBase, StylesConfig } from "react-select"
+import { projectCategories, ProjectCategory } from "../types/projectCategory"
 import type { CSSObjectWithLabel, ControlProps, MultiValueRemoveProps, OptionProps } from 'react-select';
 import { useUser } from "@/context/UserContext"
+
+
+type SkillOption = {
+    value: string
+    label: string
+}
 
 interface PostValues {
     title: string
@@ -51,33 +60,12 @@ interface PostValuesErrors {
     project_category?: string
 }
 
-const TAG_DIRECTORY = [
-    { value: "Monday", label: "Monday" },
-    { value: "Tuesday", label: "Tuesday" },
-    { value: "Wednesday", label: "Wednesday" },
-    { value: "Thursday", label: "Thursday" },
-    { value: "Friday", label: "Friday" },
-    { value: "Saturday", label: "Saturday" },
-    { value: "Sunday", label: "Sunday" },
-    // ...add more as needed
-]
 
-const SKILL_DIRECTORY = [
-    { value: "React", label: "React" },
-    { value: "Node.js", label: "Node.js" },
-    { value: "UI Design", label: "UI Design" },
-    { value: "TypeScript", label: "TypeScript" },
-    { value: "Python", label: "Python" },
-    // ...add more as needed
-]
-
-const TagSelect = dynamic(() => import("react-select/creatable"), { ssr: false })
-
-const customSelectStyles = {
-    control: (provided: CSSObjectWithLabel, state: ControlProps) => ({
+const customSelectStyles: StylesConfig<SkillOption, true, GroupBase<SkillOption>> = {
+    control: (provided, _state) => ({
         ...provided,
         backgroundColor: '#0B0809',
-        border: state.isFocused ? '1px solid #1f98f4' : '1px solid #2f3542',
+        border: '1px solid #2f3542',
         borderRadius: 8,
         color: 'white',
         fontWeight: 400,
@@ -85,10 +73,10 @@ const customSelectStyles = {
         boxShadow: 'none',
         flexWrap: 'wrap' as const,
         '&:hover': {
-            border: state.isFocused ? '1px solid #1f98f4' : '1px solid #2f3542',
+            borderColor: '#1f98f4',
         },
     }),
-    menu: (provided: CSSObjectWithLabel) => ({
+    menu: (provided) => ({
         ...provided,
         backgroundColor: '#0B0809',
         color: 'white',
@@ -96,39 +84,29 @@ const customSelectStyles = {
         borderRadius: 8,
         zIndex: 20,
     }),
-    option: (provided: CSSObjectWithLabel, state: OptionProps<unknown, boolean>) => ({
+    option: (provided, _state) => ({
         ...provided,
-        backgroundColor: state.isFocused ? '#181c23' : '#0B0809',
+        backgroundColor: '#0B0809',
         color: 'white',
         fontWeight: 400,
         cursor: 'pointer',
     }),
-    input: (provided: CSSObjectWithLabel) => ({
-        ...provided,
-        color: 'white',
-        fontWeight: 400,
-    }),
-    singleValue: (provided: CSSObjectWithLabel) => ({
-        ...provided,
-        color: 'white',
-        fontWeight: 400,
-    }),
-    multiValue: (provided: CSSObjectWithLabel) => ({
+    input: (provided) => ({ ...provided, color: 'white', fontWeight: 400 }),
+    singleValue: (provided) => ({ ...provided, color: 'white', fontWeight: 400 }),
+    multiValue: (provided) => ({
         ...provided,
         backgroundColor: '#181c23',
-        color: 'white',
         borderRadius: 8,
-        minHeight: 36,
-        height: 36,
         display: 'flex',
         alignItems: 'center',
+        minHeight: 36,
         fontSize: 20,
         paddingLeft: 8,
         paddingRight: 8,
         marginTop: 4,
         marginBottom: 4,
     }),
-    multiValueLabel: (provided: CSSObjectWithLabel) => ({
+    multiValueLabel: (provided) => ({
         ...provided,
         color: 'white',
         fontWeight: 400,
@@ -137,7 +115,7 @@ const customSelectStyles = {
         display: 'flex',
         alignItems: 'center',
     }),
-    multiValueRemove: (provided: CSSObjectWithLabel) => ({
+    multiValueRemove: (provided) => ({
         ...provided,
         color: 'white',
         fontSize: 20,
@@ -148,26 +126,21 @@ const customSelectStyles = {
             color: 'white',
         },
     }),
-    placeholder: (provided: CSSObjectWithLabel) => ({
-        ...provided,
-        color: '#b0b8c1',
-        fontWeight: 400,
-    }),
-};
+    placeholder: (provided) => ({ ...provided, color: '#b0b8c1', fontWeight: 400 }),
+}
 
-const CustomMultiValueRemove = (props: MultiValueRemoveProps) => (
+const CustomMultiValueRemove = (props: MultiValueRemoveProps<SkillOption, true>) => (
     <components.MultiValueRemove {...props}>
-        <svg
-            width={24} height={24} viewBox="0 0 24 24"
-            style={{ display: "block" }}
-            aria-hidden="true"
-            focusable="false"
-        >
-            <line x1="6" y1="6" x2="18" y2="18" stroke="white" strokeWidth="2" />
-            <line x1="6" y1="18" x2="18" y2="6" stroke="white" strokeWidth="2" />
-        </svg>
+        <X size={14} />
     </components.MultiValueRemove>
-);
+)
+
+interface SkillSelectProps {
+    postValues: PostValues
+    setPostValues: React.Dispatch<React.SetStateAction<PostValues>>
+}
+
+
 
 export default function PostPage() {
     const router = useRouter()
@@ -281,6 +254,35 @@ export default function PostPage() {
             setSelectedFile(file)
         }
     }
+
+    const handleProjectTags = async (inputValue: string) => {
+        if (!inputValue || inputValue.length < 2) return [];
+
+        try {
+            // Filter local project categories first
+            const localMatches = projectCategories.filter(cat =>
+                cat.label.toLowerCase().includes(inputValue.toLowerCase())
+            );
+
+            // Fetch ESCO results
+            const escoResults: SkillOption[] = await skillDirectory(inputValue);
+
+            // Merge local + ESCO results, avoiding duplicates
+            const merged: SkillOption[] = [...localMatches];
+
+            escoResults.forEach((esco) => {
+                if (!merged.some(local => local.label === esco.label)) {
+                    merged.push(esco);
+                }
+            });
+
+            // Return only the first 10 combined results
+            return merged.slice(0, 10);
+        } catch (error) {
+            console.error("Error fetching tags:", error);
+            return [];
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -672,46 +674,26 @@ export default function PostPage() {
 
                         </div>
 
-
-                        <div className="mt-4">
-                            <label> Project Tags (up to 5)</label>
-                            <TagSelect
+                        <div>
+                            <label> Skill Tags </label>
+                            <AsyncSelect<SkillOption, true, GroupBase<SkillOption>>
                                 isMulti
-                                options={postValues.tags.length >= 5 ? [] : TAG_DIRECTORY}
-                                value={postValues.tags
-                                    .filter((tag) => tag.trim())
-                                    .map((tag) => ({ value: tag.trim(), label: tag.trim() }))}
-                                onChange={(selected) => {
-                                    const tags = (selected as { value: string; label: string }[])
-                                        .map((option) => option.value.trim())
-                                        .slice(0, 5);
-                                    setPostValues({ ...postValues, tags });
+                                cacheOptions
+                                loadOptions={async (inputValue: string) => {
+                                    if (!inputValue || inputValue.length < 2) return [];
+                                    const results = await skillDirectory(inputValue);
+                                    return results.map((skill: { id: string; label: string }) => ({
+                                        value: skill.label,
+                                        label: skill.label,
+                                    }));
                                 }}
-                                placeholder="Add tags to define your idea"
-                                closeMenuOnSelect={false}
-                                isClearable
-                                styles={customSelectStyles}
-                                components={{ MultiValueRemove: CustomMultiValueRemove }}
-                                noOptionsMessage={() => null}
-                            />
-
-                            <div className="text-sm text-gray-400 mt-1">
-                                {postValues.tags.length}/5 tags
-                            </div>
-                        </div>
-
-                        <div className="mt-4">
-                            <label> Skill Tags (up to 5)</label>
-                            <TagSelect
-                                isMulti
-                                options={postValues.skills.length >= 5 ? [] : SKILL_DIRECTORY}
-                                value={postValues.skills
-                                    .filter((skill) => skill.trim())
-                                    .map((skill) => ({ value: skill.trim(), label: skill.trim() }))}
+                                defaultOptions={[]}
+                                value={postValues.skills.map((skill) => ({
+                                    value: skill.trim(),
+                                    label: skill.trim(),
+                                }))}
                                 onChange={(selected) => {
-                                    const skills = (selected as { value: string; label: string }[])
-                                        .map((option) => option.value.trim())
-                                        .slice(0, 5);
+                                    const skills = (selected || []).map((option) => option.value.trim()).slice(0, 5);
                                     setPostValues({ ...postValues, skills });
                                 }}
                                 placeholder="Add tags to define the skills needed for your idea"
@@ -719,15 +701,35 @@ export default function PostPage() {
                                 isClearable
                                 styles={customSelectStyles}
                                 components={{ MultiValueRemove: CustomMultiValueRemove }}
-                                noOptionsMessage={() => null}
+                                noOptionsMessage={() => "No skills found"}
                             />
-
-                            <div className="text-sm text-gray-400 mt-1">
-                                {postValues.skills.length}/5 tags
-                            </div>
-
                         </div>
 
+                        <div>
+                            <label> Project Tags </label>
+                            <AsyncSelect<SkillOption, true, GroupBase<SkillOption>>
+                                isMulti
+                                cacheOptions
+                                defaultOptions={projectCategories} // preload local categories
+                                loadOptions={handleProjectTags}
+                                value={postValues.tags.map((tag) => ({
+                                    value: tag.trim(),
+                                    label: tag.trim(),
+                                }))}
+                                onChange={(selected) => {
+                                    const tags = (selected || [])
+                                        .map((option) => option.value.trim())
+                                        .slice(0, 5);
+                                    setPostValues({ ...postValues, tags });
+                                }}
+                                placeholder="Add tags to define the skills needed for your idea"
+                                closeMenuOnSelect={false}
+                                isClearable
+                                styles={customSelectStyles}
+                                components={{ MultiValueRemove: CustomMultiValueRemove }}
+                                noOptionsMessage={() => "No project tags found"}
+                            />
+                        </div>
                         <div className="mt-4 flex gap-8">
                             <div className="w-1/4">
                                 <label className="block mb-2">Number of Roles Needed</label>

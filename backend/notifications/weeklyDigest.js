@@ -24,7 +24,7 @@ const weeklyDigest = async () => {
 
     try {
         const users = await pool.query(
-            'SELECT id, email, first_name FROM users WHERE (first_name IS NOT NULL OR last_name IS NOT NULL) AND hasPosted = false'
+            'SELECT id, email, first_name FROM users WHERE (first_name IS NOT NULL OR last_name IS NOT NULL) AND "hasPosted" = false'
         );
 
         const emails = users.rows.map(user => user.email);
@@ -153,7 +153,7 @@ const weeklyDigest = async () => {
             SELECT id, email, first_name
             FROM users
             WHERE (first_name IS NOT NULL OR last_name IS NOT NULL)
-            AND hasPosted = true
+            AND "hasPosted" = true
         `);
 
         const userIds = post_users.rows.map(u => u.id);

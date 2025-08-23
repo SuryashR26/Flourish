@@ -137,7 +137,7 @@ const createPost = async (req, res) => {
             const result = await pool.query(query, values);
 
             const result2 = await pool.query(
-                'UPDATE users set hasPosted = true where id = $1',
+                'UPDATE users set "hasPosted" = true where id = $1',
                 [userId]
             )
 
@@ -234,7 +234,7 @@ const cleanupFailedPost = async (req, res) => {
 
         if (result2.rowCount === 0) {
             await pool.query(
-                'UPDATE users set hasPosted = false where id = $1',
+                'UPDATE users set "hasPosted" = false where id = $1',
                 [userId]
             )
         }
