@@ -26,7 +26,10 @@ const StatsCounter: React.FC<StatsCounterProps> = ({
             ([entry]) => {
                 if (entry.isIntersecting) {
                     setIsIntersecting(true);
-                    observer.disconnect();
+                } else {
+                    // Reset when element goes out of view
+                    setIsIntersecting(false);
+                    setCount(0);
                 }
             },
             {

@@ -7,6 +7,7 @@ import Cards from "@/components/cards/cards"
 import gsap from "gsap"
 import { SplitText } from "gsap/SplitText"
 import Navbar from "@/components/layout/navbar"
+import ScrollTextAnimation from "@/components/ui/ScrollTextAnimation"
 // Register the SplitText plugin
 gsap.registerPlugin(SplitText)
 
@@ -165,6 +166,7 @@ export default function Home() {
 
       {/* Cards Section */}
       <Cards />
+      
       <style jsx global>{`
         .description-text div {
           font-weight: 400 !important;

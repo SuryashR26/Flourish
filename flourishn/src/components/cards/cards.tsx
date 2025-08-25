@@ -6,6 +6,8 @@ import { gsap } from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import StatsSection from '../ui/StatsSection'
 import FaqSection from '../ui/FaqSection'
+import IdeasNeedTeamsSection from '../ui/IdeasNeedTeamsSection'
+import ScrollTextAnimation from '../ui/ScrollTextAnimation'
 
 interface CardData {
     title: string
@@ -14,17 +16,18 @@ interface CardData {
     image: string
 }
 
-const FLIP_HEIGHT = 270 // px for each flip (slower flip)
-const PAUSE_HEIGHT = 320 // px for pause between flips
-const PAUSE_FIRST_CARD = 2000; // px to pause on the first card
+const FLIP_HEIGHT = 270
+const PAUSE_HEIGHT = 320
+const PAUSE_FIRST_CARD = 2000
+const MOBILE_BREAKPOINT = 1024
 
-export default function Cards() {
+export default function ResponsiveCards() {
     const cardRef = useRef<HTMLDivElement>(null)
     const cardsSectionRef = useRef<HTMLDivElement>(null)
-    const [stage, setStage] = useState(0) // which flip we're on
+    const [stage, setStage] = useState(0)
     const [rotation, setRotation] = useState(0)
+    const [isMobile, setIsMobile] = useState(false)
     const textBlocksRef = useRef<(HTMLDivElement | null)[]>([])
-    const wordsRef = useRef<(HTMLSpanElement | null)[]>([])
 
     const cardData: CardData[] = [
         {
@@ -54,126 +57,139 @@ export default function Cards() {
     ]
 
     useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+        }
+        
+        checkMobile()
+        window.addEventListener('resize', checkMobile)
+        
+        return () => window.removeEventListener('resize', checkMobile)
+    }, [])
+
+    useEffect(() => {
         gsap.registerPlugin(ScrollTrigger)
 
-        // Get all word elements
-        const words = document.querySelectorAll('.word')
-        wordsRef.current = Array.from(words) as HTMLSpanElement[]
+        // Only set up flip animation on desktop
+        let scrollHandler: (() => void) | null = null
+        
+        if (!isMobile) {
+            scrollHandler = () => {
+                const scrollY = window.scrollY;
+                if (scrollY < PAUSE_FIRST_CARD) {
+                    setStage(0);
+                    setRotation(0);
+                    return;
+                }
+                const totalCards = cardData.length;
+                const localScroll = scrollY - PAUSE_FIRST_CARD;
+                let currentStage = Math.floor(localScroll / (FLIP_HEIGHT + PAUSE_HEIGHT));
+                currentStage = Math.min(currentStage, totalCards - 2);
+                currentStage = Math.max(currentStage, 0);
+                const stageStart = currentStage * (FLIP_HEIGHT + PAUSE_HEIGHT);
+                const stageProgress = (localScroll - stageStart) / FLIP_HEIGHT;
+                const rotation = Math.min(Math.max(stageProgress * 180, 0), 180);
+                setStage(currentStage);
+                setRotation(rotation);
+            };
+            
+            window.addEventListener("scroll", scrollHandler, { passive: true });
+            scrollHandler();
+        }
 
-        // Create scroll trigger for text animation
-        ScrollTrigger.create({
-            trigger: ".text-4xl",
-            start: "top 80%",
-            end: "bottom center",
-            onUpdate: (self) => {
-                const progress = self.progress
-                const totalWords = wordsRef.current.length
-                const wordsToHighlight = Math.floor(progress * totalWords)
-
-                wordsRef.current.forEach((word, index) => {
-                    if (word) {
-                        if (index < wordsToHighlight) {
-                            word.style.color = "white"
-                        } else {
-                            word.style.color = "#374151" // text-gray-700
-                        }
-                    }
-                })
+        return () => {
+            if (scrollHandler) {
+                window.removeEventListener("scroll", scrollHandler);
             }
-        })
+        }
+    }, [isMobile, cardData.length]);
 
-        const handleScroll = () => {
-            const scrollY = window.scrollY;
-            console.log(`Scrolled: ${scrollY}px`);
-            if (scrollY < PAUSE_FIRST_CARD) {
-                setStage(0);
-                setRotation(0);
-                console.log(`Card flip stage: 0, rotation: 0 (First card paused)`);
-                return;
-            }
-            const totalCards = cardData.length;
-            const localScroll = scrollY - PAUSE_FIRST_CARD;
-            let currentStage = Math.floor(localScroll / (FLIP_HEIGHT + PAUSE_HEIGHT));
-            currentStage = Math.min(currentStage, totalCards - 2);
-            currentStage = Math.max(currentStage, 0);
-            const stageStart = currentStage * (FLIP_HEIGHT + PAUSE_HEIGHT);
-            const stageProgress = (localScroll - stageStart) / FLIP_HEIGHT;
-            const rotation = Math.min(Math.max(stageProgress * 180, 0), 180);
-            setStage(currentStage);
-            setRotation(rotation);
-            console.log(`Card flip stage: ${currentStage}, rotation: ${rotation}`);
-        };
-        window.addEventListener("scroll", handleScroll, { passive: true });
-        handleScroll();
-        return () => window.removeEventListener("scroll", handleScroll);
-    }, []);
-
-    // Get the current front and back cards based on stage
     const front = cardData[stage]
     const back = cardData[stage + 1]
 
     return (
-        <div className="min-h-[2000px] relative cards-section">
-            {/* Animated Text Section */}
-            <div className="w-full flex justify-center items-center bg-black relative z-20" style={{ minHeight: '0', paddingTop: '11rem', paddingBottom: '11rem' }}>
-                {/* To adjust line breaks, tweak the maxWidth value below (e.g., 700px for 2 lines) */}
-                <div className="w-full mx-auto text-center flex flex-col justify-center" style={{ maxWidth: '900px' }}>
-                    <div className="text-4xl md:text-5xl leading-snug font-semibold">
-                        <span className="word transition-colors duration-300 text-gray-700">Ideas</span>{" "}
-                        <span className="word transition-colors duration-300 text-gray-700">need</span>{" "}
-                        <span className="word transition-colors duration-300 text-gray-700">teams.</span>{" "}
-                        <span className="word transition-colors duration-300 text-gray-700">We</span>{" "}
-                        <span className="word transition-colors duration-300 text-gray-700">make</span>{" "}
-                        <span className="word transition-colors duration-300 text-gray-700">that</span>{" "}
-                        <span className="word transition-colors duration-300 text-gray-700">easy.</span>
-                        <br />
-                        <span className="word transition-colors duration-300 text-gray-700">At</span>{" "}
-                        <span className="word transition-colors duration-300 text-gray-700">Flourish,</span>{" "}
-                        <span className="word transition-colors duration-300 text-gray-700">projects</span>{" "}
-                        <span className="word transition-colors duration-300 text-gray-700">find</span>{" "}
-                        <span className="word transition-colors duration-300 text-gray-700">their</span>{" "}
-                        <span className="word transition-colors duration-300 text-gray-700">people.</span>
-                    </div>
-                </div>
-            </div>
+        <div className={`${isMobile ? 'min-h-[100vh]' : 'min-h-[2000px]'} relative cards-section w-full`}>
+
+            {/* Ideas Need Teams Section */}
+            <IdeasNeedTeamsSection />
+
             {/* Dashboard Image Section */}
             <div className="w-full flex justify-center items-center py-10 px-5 bg-black relative z-20">
-                <div className="w-full max-w-6xl mx-0 flex justify-center relative">
+                <div className="w-full max-w-6xl mx-auto flex justify-center relative">
                     <Image
                         src="/images/dashboard2.png"
                         alt="IdeaBoard Dashboard"
                         width={1000}
                         height={600}
-                        className="dashboard-image w-[90%] max-w-4xl h-auto rounded-2xl shadow-2xl object-contain border-3 border-[#2f3542]"
+                        className="dashboard-image w-full lg:w-[90%] max-w-4xl h-auto rounded-2xl shadow-2xl object-contain border-3 border-[#2f3542]"
                     />
                 </div>
             </div>
-            {/* Spacer to move cards further down */}
-            <div className="w-full h-[4rem]" />
 
-            {/* Flipping Cards Section */}
-            {/* Spacer to move cards section down */}
-            <div className="h-20"></div>
+            <div className="w-full h-16 lg:h-[4rem]" />
+
+            {/* Desktop: Flipping Cards | Mobile: Stacked Cards */}
+            <div className="h-10 lg:h-20"></div>
             <div className="relative w-full bg-black" ref={cardsSectionRef}>
-                <div className="container mx-auto px-12 md:px-20">
-                    <div className="flex">
-                        <div className="max-w-5xl mx-auto flex flex-col lg:flex-row gap-8 pt-80 pb-20 justify-center">
-                            {/* Spacer Column for left margin on large screens */}
-                            <div className="hidden lg:block" style={{ minWidth: '650px' }}></div>
+                {/* Mobile Layout: Stacked cards */}
+                <div className="block lg:hidden">
+                    <div className="container mx-auto px-4 sm:px-8">
+                        <div className="space-y-16 py-10">
+                            {cardData.map((card, index) => (
+                                <div key={index} className="mobile-card-block">
+                                    <div className="text-block mb-8">
+                                        <h2 className="text-3xl sm:text-4xl leading-tight text-white whitespace-pre-line mb-4">
+                                            {card.title}
+                                        </h2>
+                                        <p className="text-base sm:text-lg leading-relaxed text-gray-400 mb-4">
+                                            {card.text}
+                                        </p>
+                                        <a
+                                            href="#"
+                                            className="text-blue-400 no-underline text-base sm:text-lg inline-flex items-center hover:text-blue-300 transition-colors duration-200 group"
+                                        >
+                                            {card.link}
+                                            <span className="ml-2 transition-transform duration-200 group-hover:translate-x-1">→</span>
+                                        </a>
+                                    </div>
+                                    <div className="card-image-container">
+                                        <div className="relative w-full aspect-[4/3] max-w-md mx-auto">
+                                            <Image
+                                                src={card.image}
+                                                alt={card.title}
+                                                fill
+                                                className="object-cover rounded-2xl shadow-xl"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Desktop Layout: Flip animation */}
+                <div className="hidden lg:block w-full">
+                    <div className="w-full max-w-[1400px] mx-auto px-8 xl:px-12">
+                        <div className="grid grid-cols-2 gap-12 xl:gap-16 pt-80 pb-20">
                             {/* Text Block Column */}
-                            <div className="space-y-32">
+                            <div className="space-y-32 flex flex-col items-end" style={{ marginLeft: 'clamp(2rem, 6vw, 4rem)' }}>
                                 {cardData.map((card, index) => (
                                     <div
                                         key={index}
                                         ref={el => { textBlocksRef.current[index] = el; }}
-                                        className="text-block min-h-[80vh] min-w-[70vh] flex flex-col justify-center bg-black relative z-10 text-left"
+                                        className="text-block min-h-[80vh] flex flex-col justify-center bg-black relative z-10 text-right w-full max-w-[500px]"
                                         id={`text-block-${index}`}
                                     >
-                                        <h2 className="text-5xl leading-tight text-white whitespace-pre-line" style={{ marginBottom: '1rem' }}>{card.title}</h2>
-                                        <p className="text-lg leading-relaxed text-gray-400 max-w-lg" style={{ marginBottom: '1rem' }}>{card.text}</p>
+                                        <h2 className="text-4xl xl:text-5xl leading-tight text-white whitespace-pre-line mb-6 text-right">
+                                            {card.title}
+                                        </h2>
+                                        <p className="text-lg xl:text-xl leading-relaxed text-gray-400 mb-6 max-w-[500px] text-right">
+                                            {card.text}
+                                        </p>
                                         <a
                                             href="#"
-                                            className="text-blue-400 no-underline text-lg inline-flex items-center hover:text-blue-300 transition-colors duration-200 group"
+                                            className="text-blue-400 no-underline text-lg xl:text-xl inline-flex items-center hover:text-blue-300 transition-colors duration-200 group justify-start"
                                         >
                                             {card.link}
                                             <span className="ml-2 transition-transform duration-200 group-hover:translate-x-1">→</span>
@@ -182,12 +198,10 @@ export default function Cards() {
                                 ))}
                             </div>
 
-                            {/* Spacer Column for right margin on large screens */}
-                            <div className="hidden lg:block" style={{ minWidth: '10px' }}></div>
-                            {/* Card Image Column */}
-                            <div className="flex-1 flex justify-end">
-                                <div className="sticky top-24 h-[80vh] flex items-center justify-center ml-80 min-w-[80vh] max-w-[85vh]">
-                                    <div className="perspective-1000 w-full h-[50vh]">
+                            {/* Card Image Column - Only visible on desktop */}
+                            <div className="flex justify-center items-start" style={{ marginRight: 'clamp(2rem, 6vw, 5rem)' }}>
+                                <div className="sticky top-32 h-[75vh] flex items-center justify-center w-full max-w-[550px] min-w-[400px]">
+                                    <div className="perspective-1000 w-full h-auto aspect-[4/3] max-h-[450px]">
                                         <div
                                             ref={cardRef}
                                             className="relative w-full h-full"
@@ -212,38 +226,50 @@ export default function Cards() {
                                                 />
                                             </div>
                                             {/* Back card */}
-                                            <div
-                                                className="absolute w-full h-full rounded-[35px] shadow-2xl backface-hidden overflow-hidden"
-                                                style={{
-                                                    transform: "rotateX(180deg) translateZ(0)",
-                                                }}
-                                            >
-                                                <Image
-                                                    src={back.image}
-                                                    alt={back.title}
-                                                    fill
-                                                    className="object-cover w-full h-full rounded-[35px]"
-                                                />
-                                            </div>
+                                            {back && (
+                                                <div
+                                                    className="absolute w-full h-full rounded-[35px] shadow-2xl backface-hidden overflow-hidden"
+                                                    style={{
+                                                        transform: "rotateX(180deg) translateZ(0)",
+                                                    }}
+                                                >
+                                                    <Image
+                                                        src={back.image}
+                                                        alt={back.title}
+                                                        fill
+                                                        className="object-cover w-full h-full rounded-[35px]"
+                                                    />
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            {/* Spacer Column for right margin on large screens */}
-                            <div className="hidden lg:block" style={{ minWidth: '60px' }}></div>
                         </div>
                     </div>
                 </div>
             </div>
 
+            {/* Spacer above Scroll Text Animation */}
+            <div className="h-32 lg:h-48"></div>
+
+            {/* Scroll Text Animation Section */}
+            <ScrollTextAnimation />
+
+            {/* Spacer below Scroll Text Animation */}
+            <div className="h-32 lg:h-48"></div>
+
             {/* Spacer above Chatbot Section */}
-            <div style={{ height: '8rem' }}></div>
+            <div className="h-16 lg:h-32"></div>
+
             {/* Chatbot Section */}
             <div className="w-full flex justify-center items-center pb-10 px-5 bg-black relative z-20">
-                <div className="w-full max-w-6xl mx-0 flex flex-col justify-center items-center relative">
-                    <h2 className="text-4xl md:text-5xl leading-snug font-semibold text-white text-center mb-64">Meet Flo — your personal idea partner</h2>
-                    <div className="w-full flex justify-center">
-                        <div className="w-[90%] max-w-4xl h-auto rounded-2xl shadow-2xl object-contain mt-64 flex items-center justify-center" style={{ minHeight: '400px' }}>
+                <div className="w-full max-w-6xl mx-auto flex flex-col justify-center items-center relative">
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl leading-snug font-semibold text-white text-center mb-8 lg:mb-16 px-4">
+                        Meet Flo — your personal idea partner
+                    </h2>
+                    <div className="w-full flex justify-center px-4">
+                        <div className="w-full lg:w-[90%] max-w-4xl h-auto rounded-2xl shadow-2xl object-contain flex items-center justify-center">
                             <Image
                                 src="/images/chatbot.png"
                                 alt="Flo - Your Personal Idea Partner"
@@ -255,44 +281,165 @@ export default function Cards() {
                     </div>
                 </div>
             </div>
-            <div style={{ height: '16rem' }}></div>
+
+            <div className="h-16 lg:h-64"></div>
             <StatsSection />
-            <div style={{ height: '16rem' }}></div>
+            <div className="h-16 lg:h-64"></div>
+            
             <FaqSection />
-            <div style={{ height: '8rem' }}></div>
+            <div className="h-8 lg:h-32"></div>
 
             <style jsx global>{`
-                @media (prefers-reduced-motion: no-preference) {
-                .dashboard-image {
-                    scale: 0.5;
-                    opacity: 1;
-                    animation: dashboard-fade-in linear both;
-                    animation-timeline: view();
-                    animation-range: entry 0% entry 100%;
+                .perspective-1000 {
+                    perspective: 1000px;
                 }
-                @keyframes dashboard-fade-in {
-                    from {
-                        scale: 0.85;
-                        opacity: 0.3;
-                    }
-                    to {
-                        scale: 1;
-                        opacity: 1;
-                    }
+                
+                .backface-hidden {
+                    backface-visibility: hidden;
                 }
+                
+                /* Ensure text blocks are properly right-aligned */
                 .text-block {
-                    opacity: 0;
-                    animation: text-fade-in linear forwards;
-                    animation-timeline: view();
-                    animation-range: entry 300px;
+                    text-align: right !important;
                 }
-                @keyframes text-fade-in {
-                    to {
-                        opacity: 1;
+                
+                .text-block h2,
+                .text-block p,
+                .text-block a {
+                    text-align: right !important;
+                }
+                
+                /* Responsive image container behavior */
+                .cards-section {
+                    --text-scale: 1;
+                    --image-scale: 0.95;
+                    --image-top-offset: 10rem;
+                }
+                
+                @media (max-width: 1400px) {
+                    .cards-section {
+                        --text-scale: 0.99;
+                        --image-scale: 0.85;
+                        --image-top-offset: 12rem;
+                    }
+                    
+                    .cards-section .grid {
+                        gap: 2.5rem !important;
                     }
                 }
+                
+                @media (max-width: 1200px) {
+                    .cards-section {
+                        --text-scale: 0.95;
+                        --image-scale: 0.75;
+                        --image-top-offset: 14rem;
+                    }
+                    
+                    .cards-section .grid {
+                        gap: 2rem !important;
+                    }
                 }
-                `}</style>
+                
+                @media (max-width: 1100px) {
+                    .cards-section {
+                        --text-scale: 0.9;
+                        --image-scale: 0.65;
+                        --image-top-offset: 16rem;
+                    }
+                    
+                    .cards-section .grid {
+                        gap: 1.5rem !important;
+                    }
+                }
+                
+                @media (max-width: 1024px) {
+                    .cards-section .hidden.lg\\:block {
+                        display: none !important;
+                    }
+                }
+                
+                /* Apply scaling to text elements - only when scaling is active */
+                @media (max-width: 1400px) {
+                    .cards-section .text-block h2 {
+                        font-size: calc(2.25rem * var(--text-scale)) !important;
+                        line-height: calc(2.5rem * var(--text-scale)) !important;
+                    }
+                    
+                    .cards-section .text-block p {
+                        font-size: calc(1.125rem * var(--text-scale)) !important;
+                        line-height: calc(1.625rem * var(--text-scale)) !important;
+                    }
+                    
+                    .cards-section .text-block a {
+                        font-size: calc(1.125rem * var(--text-scale)) !important;
+                    }
+                }
+                
+                /* Apply scaling to image container and fix positioning */
+                .cards-section .max-w-\[550px\] {
+                    max-width: calc(550px * var(--image-scale)) !important;
+                }
+                
+                .cards-section .h-\[75vh\] {
+                    height: calc(75vh * var(--image-scale)) !important;
+                }
+                
+                .cards-section .sticky {
+                    top: var(--image-top-offset) !important;
+                }
+                
+                @media (prefers-reduced-motion: no-preference) {
+                    .dashboard-image {
+                        scale: 0.5;
+                        opacity: 1;
+                        animation: dashboard-fade-in linear both;
+                        animation-timeline: view();
+                        animation-range: entry 0% entry 100%;
+                    }
+                    
+                    @keyframes dashboard-fade-in {
+                        from {
+                            scale: 0.85;
+                            opacity: 0.3;
+                        }
+                        to {
+                            scale: 1;
+                            opacity: 1;
+                        }
+                    }
+                    
+                    .text-block {
+                        opacity: 0;
+                        animation: text-fade-in linear forwards;
+                        animation-timeline: view();
+                        animation-range: entry 300px;
+                    }
+                    
+                    @keyframes text-fade-in {
+                        to {
+                            opacity: 1;
+                        }
+                    }
+                    
+                    /* Mobile card animations */
+                    @media (max-width: 1023px) {
+                        .mobile-card-block {
+                            opacity: 0;
+                            transform: translateY(20px);
+                            animation: mobile-fade-in 0.6s ease-out forwards;
+                            animation-timeline: view();
+                            animation-range: entry 10% cover 30%;
+                        }
+                        
+                        @keyframes mobile-fade-in {
+                            to {
+                                opacity: 1;
+                                transform: translateY(0);
+                            }
+                        }
+                    }
+                }
+            `}</style>
         </div>
     )
 }
