@@ -256,12 +256,12 @@ export async function searchUsers(query?: string) {
     return await res.json();
 }
 
-export async function bookmarkProject(projectId: string) {
+export async function bookmarkProject(projectId: string, post_title: string, user_image: string) {
     const res = await fetch(`http://localhost:8080/bookmark/`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ projectId }),
+        body: JSON.stringify({ projectId, post_title, user_image }),
     });
 
     const data = await res.json();
@@ -354,12 +354,12 @@ export async function updatePassword(passwordData: {
     }
 }
 
-export async function storeViewProject(projectId: string) {
+export async function storeViewProject(projectId: string, post_title: string, user_image: string) {
     const res = await fetch('http://localhost:8080/storeView', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ projectId }),
+        body: JSON.stringify({ projectId, post_title, user_image }),
     });
 
     if (!res.ok) {

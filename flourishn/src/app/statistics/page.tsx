@@ -255,10 +255,13 @@ export default function StatisticsPage() {
     }, []);
 
     useEffect(() => {
-        if (query == 'Notifications') {
-            setPage(2)
+        if (query === 'Notifications') {
+            setPage(2);
         }
-    }, [query]);
+        if (query === 'yourPosts') {
+            setPage(3);
+        }
+    }, [query, router, searchParams]);
     useEffect(() => {
         if (!isLoggedIn) {
             router.push('/login')
@@ -311,7 +314,12 @@ export default function StatisticsPage() {
                                     group w-full h-12 flex items-center justify-center lg:justify-start gap-3 px-0 lg:px-5 rounded-lg text-white font-medium transition-colors mb-2
                                     hover:bg-[#1f98f4] ${page === 1 ? "bg-[#1f98f4]" : ""}
                                 `}
-                            onClick={() => setPage(1)}
+                            onClick={() => {
+                                setPage(1);
+                                const newParams = new URLSearchParams(searchParams.toString());
+                                newParams.delete('query');
+                                router.replace(`?${newParams.toString()}`);
+                            }}
                         >
                             <BarChart3 className="w-5 h-5" />
                             <span className="hidden lg:inline">Overview</span>
@@ -322,7 +330,13 @@ export default function StatisticsPage() {
                                     group w-full h-12 flex items-center justify-center lg:justify-start gap-3 px-0 lg:px-5 rounded-lg text-white font-medium transition-colors mb-2
                                      hover:bg-[#1f98f4] ${page === 2 ? "bg-[#1f98f4]" : ""}
                                 `}
-                            onClick={() => setPage(2)}
+                            onClick={() => {
+                                setPage(2);
+
+                                const newParams = new URLSearchParams('');
+                                newParams.set('query', 'Notifications'); // set query param
+                                router.replace(`?${newParams.toString()}`);
+                            }}
                         >
                             <Bell className="w-5 h-5" />
                             <span className="hidden lg:inline">Notifications</span>
@@ -333,7 +347,14 @@ export default function StatisticsPage() {
                                     group w-full h-12 flex items-center justify-center lg:justify-start gap-3 px-0 lg:px-5 rounded-lg text-white font-medium transition-colors
                                     hover:bg-[#1f98f4] ${page === 3 ? "bg-[#1f98f4]" : ""}
                                 `}
-                            onClick={() => setPage(3)}
+                            onClick={() => {
+                                setPage(3);
+
+                                // Remove the query param so it doesn't trigger effects again
+                                const newParams = new URLSearchParams('');
+                                newParams.set('query', 'yourPosts'); // set query param
+                                router.replace(`?${newParams.toString()}`);
+                            }}
                         >
                             <FileText className="w-5 h-5" />
                             <span className="hidden lg:inline">Your Posts</span>
@@ -406,22 +427,6 @@ export default function StatisticsPage() {
                                         notifications
                                             .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
                                             .map((notif, index) => {
-                                                const initials = notif.actor_name
-                                                    ? notif.actor_name
-                                                        .split(" ")
-                                                        .map((n: string) => n[0].toUpperCase())
-                                                        .join("")
-                                                    : "⚡"
-
-                                                const avatarColors = [
-                                                    "bg-gradient-to-br from-emerald-400 to-emerald-600",
-                                                    "bg-gradient-to-br from-violet-400 to-violet-600",
-                                                    "bg-gradient-to-br from-amber-400 to-amber-600",
-                                                    "bg-gradient-to-br from-rose-400 to-rose-600",
-                                                    "bg-gradient-to-br from-cyan-400 to-cyan-600",
-                                                ]
-                                                const avatarColor = avatarColors[index % avatarColors.length]
-
                                                 return (
                                                     <div
                                                         key={index}
@@ -429,9 +434,21 @@ export default function StatisticsPage() {
                                                     >
                                                         <div className="flex items-start gap-4">
                                                             <div
-                                                                className={`w-12 h-12 rounded-full ${avatarColor} flex-shrink-0 flex items-center justify-center text-white font-semibold text-sm shadow-lg group-hover:scale-105 transition-transform duration-300`}
+                                                                className="w-12 h-12 rounded-full flex-shrink-0  bg-[#1f98f4] flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-300 overflow-hidden"
                                                             >
-                                                                {initials}
+                                                                {notif.type !== 'view' ? (
+                                                                    <img
+                                                                        src={notif?.user_image || "/images/defaultProfile.jpg"}
+                                                                        alt={user?.first_name || "User"}
+                                                                        className="w-full h-full object-cover rounded-full"
+                                                                        onError={(e) => {
+                                                                            e.currentTarget.onerror = null;
+                                                                            e.currentTarget.src = "/images/defaultProfile.jpg";
+                                                                        }}
+                                                                    />
+                                                                ) : (
+                                                                    '⚡'
+                                                                )}
                                                             </div>
                                                             <div className="flex-1 min-w-0">
                                                                 <div className="text-gray-100 mb-3 font-medium">{notif.message}</div>
@@ -475,22 +492,6 @@ export default function StatisticsPage() {
                                             .filter(notif => notif.type === "view")
                                             .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
                                             .map((notif, index) => {
-                                                const initials = notif.actor_name
-                                                    ? notif.actor_name
-                                                        .split(" ")
-                                                        .map((n: string) => n[0].toUpperCase())
-                                                        .join("")
-                                                    : "⚡"
-
-                                                const avatarColors = [
-                                                    "bg-gradient-to-br from-emerald-400 to-emerald-600",
-                                                    "bg-gradient-to-br from-violet-400 to-violet-600",
-                                                    "bg-gradient-to-br from-amber-400 to-amber-600",
-                                                    "bg-gradient-to-br from-rose-400 to-rose-600",
-                                                    "bg-gradient-to-br from-cyan-400 to-cyan-600",
-                                                ]
-                                                const avatarColor = avatarColors[index % avatarColors.length]
-
                                                 return (
                                                     <div
                                                         key={index}
@@ -498,9 +499,21 @@ export default function StatisticsPage() {
                                                     >
                                                         <div className="flex items-start gap-4">
                                                             <div
-                                                                className={`w-12 h-12 rounded-full ${avatarColor} flex-shrink-0 flex items-center justify-center text-white font-semibold text-sm shadow-lg group-hover:scale-105 transition-transform duration-300`}
+                                                                className="w-12 h-12 rounded-full flex-shrink-0 flex items-center bg-[#1f98f4] justify-center shadow-lg group-hover:scale-105 transition-transform duration-300 overflow-hidden"
                                                             >
-                                                                {initials}
+                                                                {notif.type !== 'view' ? (
+                                                                    <img
+                                                                        src={notif?.user_image || "/images/defaultProfile.jpg"}
+                                                                        alt={user?.first_name || "User"}
+                                                                        className="w-full h-full object-cover rounded-full"
+                                                                        onError={(e) => {
+                                                                            e.currentTarget.onerror = null;
+                                                                            e.currentTarget.src = "/images/defaultProfile.jpg";
+                                                                        }}
+                                                                    />
+                                                                ) : (
+                                                                    '⚡'
+                                                                )}
                                                             </div>
                                                             <div className="flex-1 min-w-0">
                                                                 <div className="text-gray-100 mb-3 font-medium">{notif.message}</div>
@@ -542,22 +555,6 @@ export default function StatisticsPage() {
                                             .filter(notif => notif.type === "click")
                                             .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
                                             .map((notif, index) => {
-                                                const initials = notif.actor_name
-                                                    ? notif.actor_name
-                                                        .split(" ")
-                                                        .map((n: string) => n[0].toUpperCase())
-                                                        .join("")
-                                                    : "⚡"
-
-                                                const avatarColors = [
-                                                    "bg-gradient-to-br from-emerald-400 to-emerald-600",
-                                                    "bg-gradient-to-br from-violet-400 to-violet-600",
-                                                    "bg-gradient-to-br from-amber-400 to-amber-600",
-                                                    "bg-gradient-to-br from-rose-400 to-rose-600",
-                                                    "bg-gradient-to-br from-cyan-400 to-cyan-600",
-                                                ]
-                                                const avatarColor = avatarColors[index % avatarColors.length]
-
                                                 return (
                                                     <div
                                                         key={index}
@@ -565,9 +562,17 @@ export default function StatisticsPage() {
                                                     >
                                                         <div className="flex items-start gap-4">
                                                             <div
-                                                                className={`w-12 h-12 rounded-full ${avatarColor} flex-shrink-0 flex items-center justify-center text-white font-semibold text-sm shadow-lg group-hover:scale-105 transition-transform duration-300`}
+                                                                className="w-12 h-12 rounded-full flex-shrink-0 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-300 overflow-hidden"
                                                             >
-                                                                {initials}
+                                                                <img
+                                                                    src={notif?.user_image || "/images/defaultProfile.jpg"}
+                                                                    alt={user?.first_name || "User"}
+                                                                    className="w-full h-full object-cover rounded-full"
+                                                                    onError={(e) => {
+                                                                        e.currentTarget.onerror = null;
+                                                                        e.currentTarget.src = "/images/defaultProfile.jpg";
+                                                                    }}
+                                                                />
                                                             </div>
                                                             <div className="flex-1 min-w-0">
                                                                 <div className="text-gray-100 mb-3 font-medium">{notif.message}</div>
@@ -610,22 +615,6 @@ export default function StatisticsPage() {
                                             .filter(notif => notif.type === "bookmark")
                                             .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
                                             .map((notif, index) => {
-                                                const initials = notif.actor_name
-                                                    ? notif.actor_name
-                                                        .split(" ")
-                                                        .map((n: string) => n[0].toUpperCase())
-                                                        .join("")
-                                                    : "⚡"
-
-                                                const avatarColors = [
-                                                    "bg-gradient-to-br from-emerald-400 to-emerald-600",
-                                                    "bg-gradient-to-br from-violet-400 to-violet-600",
-                                                    "bg-gradient-to-br from-amber-400 to-amber-600",
-                                                    "bg-gradient-to-br from-rose-400 to-rose-600",
-                                                    "bg-gradient-to-br from-cyan-400 to-cyan-600",
-                                                ]
-                                                const avatarColor = avatarColors[index % avatarColors.length]
-
                                                 return (
                                                     <div
                                                         key={index}
@@ -633,9 +622,17 @@ export default function StatisticsPage() {
                                                     >
                                                         <div className="flex items-start gap-4">
                                                             <div
-                                                                className={`w-12 h-12 rounded-full ${avatarColor} flex-shrink-0 flex items-center justify-center text-white font-semibold text-sm shadow-lg group-hover:scale-105 transition-transform duration-300`}
+                                                                className="w-12 h-12 rounded-full flex-shrink-0 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-300 overflow-hidden"
                                                             >
-                                                                {initials}
+                                                                <img
+                                                                    src={notif?.user_image || "/images/defaultProfile.jpg"}
+                                                                    alt={user?.first_name || "User"}
+                                                                    className="w-full h-full object-cover rounded-full"
+                                                                    onError={(e) => {
+                                                                        e.currentTarget.onerror = null;
+                                                                        e.currentTarget.src = "/images/defaultProfile.jpg";
+                                                                    }}
+                                                                />
                                                             </div>
                                                             <div className="flex-1 min-w-0">
                                                                 <div className="text-gray-100 mb-3 font-medium">{notif.message}</div>

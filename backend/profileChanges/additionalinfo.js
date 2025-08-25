@@ -6,7 +6,7 @@ const additionalInfo = async (req, res) => {
     }
 
     const user_id = req.session.userId;
-    const { birthday, phoneNumber, interest } = req.body;
+    const { birthday, phoneNumber, interest, displayName } = req.body;
 
     if (!birthday || !interest) {
         return res.status(400).json({
@@ -16,10 +16,20 @@ const additionalInfo = async (req, res) => {
     }
 
     try {
-        if (phoneNumber) {
+        if (phoneNumber && displayName) {
             await pool.query(
-                `UPDATE users SET birthday = $2, phone_number = $3, personal_preferences = $4, code = null WHERE id = $1`,
-                [user_id, birthday, phoneNumber, interest]
+                `UPDATE users SET birthday = $2, phone_number = $3, personal_preferences = $4, display_name = $5, code = null WHERE id = $1`,
+                [user_id, birthday, phoneNumber, interest, displayName]
+            );
+        } else if (displayName) {
+            await pool.query(
+                `UPDATE users SET birthday = $2, personal_preferences = $3, display_name = $4 code = null WHERE id = $1`,
+                [user_id, birthday, interest, displayName]
+            );
+        } else if (phoneNumber) {
+            await pool.query(
+                `UPDATE users SET birthday = $2, personal_preferences = $3, phone_number = $4 code = null WHERE id = $1`,
+                [user_id, birthday, interest, phoneNumber]
             );
         } else {
             await pool.query(

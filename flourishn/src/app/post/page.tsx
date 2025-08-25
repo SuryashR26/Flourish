@@ -12,7 +12,7 @@ import dynamic from "next/dynamic"
 import { components } from "react-select"
 import { X } from "lucide-react"
 import type { GroupBase, StylesConfig } from "react-select"
-import { projectCategories, ProjectCategory } from "../types/projectCategory"
+import { projectCategories, advancedSkills } from "../types/projectCategory"
 import type { CSSObjectWithLabel, ControlProps, MultiValueRemoveProps, OptionProps } from 'react-select';
 import { useUser } from "@/context/UserContext"
 
@@ -259,15 +259,14 @@ export default function PostPage() {
         if (!inputValue || inputValue.length < 2) return [];
 
         try {
-            // Filter local project categories first
+
             const localMatches = projectCategories.filter(cat =>
                 cat.label.toLowerCase().includes(inputValue.toLowerCase())
             );
 
-            // Fetch ESCO results
+
             const escoResults: SkillOption[] = await skillDirectory(inputValue);
 
-            // Merge local + ESCO results, avoiding duplicates
             const merged: SkillOption[] = [...localMatches];
 
             escoResults.forEach((esco) => {
@@ -276,7 +275,35 @@ export default function PostPage() {
                 }
             });
 
-            // Return only the first 10 combined results
+
+            return merged.slice(0, 10);
+        } catch (error) {
+            console.error("Error fetching tags:", error);
+            return [];
+        }
+    };
+
+    const handleSkillTags = async (inputValue: string) => {
+        if (!inputValue || inputValue.length < 2) return [];
+
+        try {
+
+            const localMatches = advancedSkills.filter(cat =>
+                cat.label.toLowerCase().includes(inputValue.toLowerCase())
+            );
+
+
+            const escoResults: SkillOption[] = await skillDirectory(inputValue);
+
+            const merged: SkillOption[] = [...localMatches];
+
+            escoResults.forEach((esco) => {
+                if (!merged.some(local => local.label === esco.label)) {
+                    merged.push(esco);
+                }
+            });
+
+
             return merged.slice(0, 10);
         } catch (error) {
             console.error("Error fetching tags:", error);
@@ -679,15 +706,8 @@ export default function PostPage() {
                             <AsyncSelect<SkillOption, true, GroupBase<SkillOption>>
                                 isMulti
                                 cacheOptions
-                                loadOptions={async (inputValue: string) => {
-                                    if (!inputValue || inputValue.length < 2) return [];
-                                    const results = await skillDirectory(inputValue);
-                                    return results.map((skill: { id: string; label: string }) => ({
-                                        value: skill.label,
-                                        label: skill.label,
-                                    }));
-                                }}
-                                defaultOptions={[]}
+                                defaultOptions={advancedSkills}
+                                loadOptions={handleSkillTags}
                                 value={postValues.skills.map((skill) => ({
                                     value: skill.trim(),
                                     label: skill.trim(),

@@ -128,6 +128,7 @@ export function ChartLineDefault() {
                   axisLine={false}
                   tickMargin={8}
                   tick={{ fill: "white", fontSize: 12 }}
+                  interval={0}
                 />
                 <YAxis
                   tickLine={false}

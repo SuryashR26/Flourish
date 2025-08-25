@@ -41,6 +41,7 @@ export interface SignUpValues2 {
     birthday: string;
     phoneNumber: string;
     interest: string[];
+    displayName: string;
 }
 
 export interface Notification {
@@ -51,4 +52,6 @@ export interface Notification {
     message: string;
     created_at: string;
     read_at: string;
+    user_image: string
+    post_title: string
 };

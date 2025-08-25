@@ -4,6 +4,7 @@ const pool = require('../sql/dB');
 const storeViewProject = async (req, res) => {
     const postId = req.body.projectId;
     const userId = req.session.userId;
+    const post_title = req.body.post_title;
     if (!userId) {
         return res.status(401).json({ error: 'Not Authenticated' });
     }
@@ -14,11 +15,12 @@ const storeViewProject = async (req, res) => {
     try {
 
         const userPost = await pool.query(
-            'SELECT user_id FROM postdata WHERE id = $1',
+            'SELECT user_id, user_image FROM postdata WHERE id = $1',
             [postId]
         );
 
         const recipientId = userPost.rows[0].user_id;
+        const reciepent_image = req.body.user_image
         const user_name = await pool.query(
             'SELECT first_name from users where id = $1',
             [userId]
@@ -28,16 +30,11 @@ const storeViewProject = async (req, res) => {
         if (userPost.rows[0].user_id === userId) {
             return res.status(405).json({ message: 'Cannot view your own post' });
         }
-        await pool.query(
-            `INSERT INTO post_views (post_id, user_id)
-             VALUES ($1, $2)`,
-            [postId, userId]
-        );
 
         await pool.query(
-            `INSERT INTO notifications (event_type, actor_id, actor_name, recipient_id, target_id)
-             VALUES ($1, $2, $3, $4, $5)`,
-            ['click', userId, actorName, recipientId, postId]
+            `INSERT INTO notifications (event_type, actor_id, actor_name, recipient_id, target_id, user_image, post_title)
+             VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+            ['click', userId, actorName, recipientId, postId, reciepent_image, post_title]
         );
 
 

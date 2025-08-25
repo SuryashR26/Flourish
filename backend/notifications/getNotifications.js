@@ -13,12 +13,27 @@ const getNotifications = async (req, res) => {
         // Aggregated views (no actor needed here)
         // Aggregated views
         const views = await pool.query(
-            `SELECT target_id, COUNT(*) AS total_views, MAX(created_at) AS latest_view, MAX(read_at) AS read_at
-     FROM notifications
-     WHERE recipient_id = $1
-       AND event_type = 'view'
-       AND created_at >= NOW() - INTERVAL '30 days'
-     GROUP BY target_id`,
+            `
+            SELECT 
+                n.target_id, 
+                COUNT(*) AS total_views, 
+                MAX(n.created_at) AS latest_view, 
+                MAX(n.read_at) AS read_at,
+                n.post_title,
+                n.user_image
+            FROM notifications n
+            WHERE n.recipient_id = $1
+              AND n.event_type = 'view'
+              AND n.created_at >= NOW() - INTERVAL '30 days'
+            GROUP BY n.target_id, n.post_title, n.user_image
+            HAVING 
+                COUNT(*) < 5
+             OR (COUNT(*) BETWEEN 5 AND 50 AND COUNT(*) % 5 = 0)
+             OR (COUNT(*) BETWEEN 51 AND 100 AND COUNT(*) % 10 = 0)
+             OR (COUNT(*) BETWEEN 101 AND 500 AND COUNT(*) % 50 = 0)
+             OR (COUNT(*) > 500 AND COUNT(*) <= 1000 AND COUNT(*) % 100 = 0)
+             OR (COUNT(*) > 1000 AND COUNT(*) % 1000 = 0)
+            `,
             [userId]
         );
 
@@ -27,23 +42,40 @@ const getNotifications = async (req, res) => {
                 type: 'view',
                 targetId: row.target_id,
                 actorId: null,
+                user_image: '⚡',
+                post_title: row.post_title,
                 actor_name: '⚡',
-                message: `Your post got ${row.total_views} views`,
+                message: `${row.post_title} got ${row.total_views} views`,
                 created_at: row.latest_view,
                 read_at: row.read_at || "unread"
             });
         });
 
-        // Clicks
         const clicks = await pool.query(
-            `SELECT DISTINCT ON (actor_id, target_id, date_trunc('day', created_at))
-             actor_id, actor_name, target_id, created_at, read_at
-             FROM notifications
-             WHERE recipient_id = $1
-             AND event_type = 'click'
-             AND created_at >= NOW() - INTERVAL '30 days'
-             ORDER BY actor_id, target_id, date_trunc('day', created_at) DESC`,
-            [userId]
+            `
+            SELECT 
+                n.target_id, 
+                n.actor_id, 
+                n.actor_name, 
+                COUNT(*) AS total_clicks, 
+                MAX(n.created_at) AS latest_click, 
+                MAX(n.read_at) AS read_at,
+                n.post_title,
+                n.user_image
+            FROM notifications n
+            WHERE n.recipient_id = $1
+              AND n.event_type = 'click'
+              AND n.created_at >= NOW() - INTERVAL '30 days'
+            GROUP BY n.target_id, n.actor_id, n.actor_name, n.post_title, n.user_image
+            HAVING 
+                COUNT(*) < 5
+             OR (COUNT(*) BETWEEN 5 AND 50 AND COUNT(*) % 5 = 0)
+             OR (COUNT(*) BETWEEN 51 AND 100 AND COUNT(*) % 10 = 0)
+             OR (COUNT(*) BETWEEN 101 AND 500 AND COUNT(*) % 50 = 0)
+             OR (COUNT(*) > 500 AND COUNT(*) <= 1000 AND COUNT(*) % 100 = 0)
+             OR (COUNT(*) > 1000 AND COUNT(*) % 1000 = 0)
+            `
+            , [userId]
         );
 
         clicks.rows.forEach(row => {
@@ -51,16 +83,18 @@ const getNotifications = async (req, res) => {
                 type: 'click',
                 actorId: row.actor_id,
                 actor_name: row.actor_name,
+                user_image: row.user_image,
+                post_title: row.post_title,
                 targetId: row.target_id,
-                message: `${row.actor_name} clicked your post`,
-                created_at: row.created_at,
+                message: `${row.actor_name} clicked your ${row.post_title}`,
+                created_at: row.latest_click,  // use MAX(created_at)
                 read_at: row.read_at || "unread"
             });
         });
 
         // Bookmarks
         const bookmarks = await pool.query(
-            `SELECT actor_id, actor_name, target_id, created_at, read_at
+            `SELECT actor_id, actor_name, target_id, created_at, read_at, post_title, user_image
              FROM notifications
              WHERE recipient_id = $1
              AND event_type = 'bookmark'
@@ -73,8 +107,10 @@ const getNotifications = async (req, res) => {
                 type: 'bookmark',
                 actorId: row.actor_id,
                 actor_name: row.actor_name,
+                user_image: row.user_image,
+                post_title: row.post_title,
                 targetId: row.target_id,
-                message: `${row.actor_name} bookmarked your post`,
+                message: `${row.actor_name} bookmarked your post: ${row.post_title}`,
                 created_at: row.created_at,
                 read_at: row.read_at || "unread"
             });

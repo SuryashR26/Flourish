@@ -2,14 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import { getPresignedUrl } from '@/api/apiClient';
-import { FaPlus, FaTimes } from 'react-icons/fa';
+import { FaPlus, FaTimes, FaArrowRight, FaArrowLeft, FaCheck } from 'react-icons/fa';
 import { useUser } from '@/context/UserContext';
 import { setCookie } from '@/utils/cookies';
 import dynamic from "next/dynamic"
 import { components } from "react-select"
 import { SignUpValues2 } from '@/app/types/projectTypes';
-import { additionalInfo } from "@/api/apiClient"
+import { additionalInfo, skillDirectory } from "@/api/apiClient"
 
+import AsyncSelect from "react-select/async";
+import type { GroupBase, StylesConfig } from "react-select"
+import { advancedSkills } from "../types/projectCategory"
 import type { CSSObjectWithLabel, ControlProps, MultiValueRemoveProps, OptionProps } from 'react-select';
 
 
@@ -23,25 +26,32 @@ interface FormErrors {
     phoneNumber?: string
 }
 
+type SkillOption = {
+    value: string
+    label: string
+}
+
+
 export default function ProfileUploader() {
     const [file, setFile] = useState<File | null>(null);
     const { user, setUser } = useUser();
     const [submitPhoto, setSubmitPhoto] = useState(false);
+    const [currentStep, setCurrentStep] = useState(1);
 
 
     const [signUpValues, setSignUpValues] = useState<SignUpValues2>({
         birthday: '',
         phoneNumber: '',
-        interest: []
+        interest: [],
+        displayName: '',
     });
-
 
 
     const customSelectStyles = {
         control: (provided: CSSObjectWithLabel, state: ControlProps<any, true>): CSSObjectWithLabel => ({
             ...provided,
-            backgroundColor: '#0B0809',
-            border: state.isFocused ? '1px solid #1f98f4' : '1px solid #2f3542',
+            backgroundColor: '#1f2937',
+            border: state.isFocused ? '2px solid #0EA5E9' : '1px solid #374151',
             borderRadius: 8,
             color: 'white',
             fontWeight: 400,
@@ -49,23 +59,26 @@ export default function ProfileUploader() {
             boxShadow: 'none',
             flexWrap: 'wrap',
             '&:hover': {
-                border: state.isFocused ? '1px solid #1f98f4' : '1px solid #2f3542',
+                border: state.isFocused ? '2px solid #0EA5E9' : '1px solid #4b5563',
             },
         }),
         menu: (provided: CSSObjectWithLabel): CSSObjectWithLabel => ({
             ...provided,
-            backgroundColor: '#0B0809',
+            backgroundColor: '#1f2937',
             color: 'white',
-            border: '1px solid #2f3542',
+            border: '1px solid #374151',
             borderRadius: 8,
             zIndex: 20,
         }),
         option: (provided: CSSObjectWithLabel, state: OptionProps<any, true>): CSSObjectWithLabel => ({
             ...provided,
-            backgroundColor: state.isFocused ? '#181c23' : '#0B0809',
+            backgroundColor: state.isFocused ? '#374151' : '#1f2937',
             color: 'white',
             fontWeight: 400,
             cursor: 'pointer',
+            '&:hover': {
+                backgroundColor: '#374151',
+            },
         }),
         input: (provided: CSSObjectWithLabel): CSSObjectWithLabel => ({
             ...provided,
@@ -74,42 +87,45 @@ export default function ProfileUploader() {
         }),
         multiValue: (provided: CSSObjectWithLabel): CSSObjectWithLabel => ({
             ...provided,
-            backgroundColor: '#181c23',
+            backgroundColor: '#0EA5E9',
             color: 'white',
-            borderRadius: 8,
-            minHeight: 32,
-            height: 32,
+            borderRadius: 16,
+            minHeight: 28,
+            height: 28,
             display: 'flex',
             alignItems: 'center',
-            fontSize: 18,
+            fontSize: 14,
             paddingLeft: 8,
-            paddingRight: 8,
-            marginTop: 4,
-            marginBottom: 4,
+            paddingRight: 4,
+            marginTop: 2,
+            marginBottom: 2,
         }),
         multiValueLabel: (provided: CSSObjectWithLabel): CSSObjectWithLabel => ({
             ...provided,
             color: 'white',
             fontWeight: 400,
-            fontSize: 14,
-            paddingRight: 5,
+            fontSize: 13,
+            paddingRight: 4,
             display: 'flex',
             alignItems: 'center',
         }),
         multiValueRemove: (provided: CSSObjectWithLabel): CSSObjectWithLabel => ({
             ...provided,
             color: 'white',
-            fontSize: 18,
+            fontSize: 14,
             display: 'flex',
             alignItems: 'center',
+            paddingLeft: 4,
+            paddingRight: 4,
             ':hover': {
-                backgroundColor: '#2f3542',
+                backgroundColor: 'rgba(255,255,255,0.2)',
                 color: 'white',
+                borderRadius: '50%',
             },
         }),
         placeholder: (provided: CSSObjectWithLabel): CSSObjectWithLabel => ({
             ...provided,
-            color: '#b0b8c1',
+            color: '#9ca3af',
             fontWeight: 400,
         }),
     };
@@ -117,7 +133,7 @@ export default function ProfileUploader() {
     const CustomMultiValueRemove = (props: MultiValueRemoveProps<any>) => (
         <components.MultiValueRemove {...props}>
             <svg
-                width={20} height={20} viewBox="0 0 24 24"
+                width={14} height={14} viewBox="0 0 24 24"
                 style={{ display: "block" }}
                 aria-hidden="true"
                 focusable="false"
@@ -131,27 +147,6 @@ export default function ProfileUploader() {
 
     const [errors, setErrors] = useState<FormErrors>({});
     const [isOpen, setIsOpen] = useState(true);
-
-    const Select = dynamic(() => import("react-select"), { ssr: false });
-
-    const TAG_DIRECTORY = [
-        { value: "Web Development", label: "Web Development" },
-        { value: "JavaScript", label: "JavaScript" },
-        { value: "React", label: "React" },
-        { value: "Node.js", label: "Node.js" },
-        { value: "UI Design", label: "UI Design" },
-        { value: "TypeScript", label: "TypeScript" },
-        { value: "Python", label: "Python" },
-        // ...add more as needed
-    ]
-    const SKILL_DIRECTORY = [
-        { value: "React", label: "React" },
-        { value: "Node.js", label: "Node.js" },
-        { value: "UI Design", label: "UI Design" },
-        { value: "TypeScript", label: "TypeScript" },
-        { value: "Python", label: "Python" },
-        // ...add more as needed
-    ]
 
 
     // Disable scroll when modal is open
@@ -174,6 +169,33 @@ export default function ProfileUploader() {
         setFile(selected);
     };
 
+    const handleSkillTags = async (inputValue: string) => {
+        if (!inputValue || inputValue.length < 2) return [];
+        try {
+
+            const localMatches = advancedSkills.filter(cat =>
+                cat.label.toLowerCase().includes(inputValue.toLowerCase())
+            );
+
+
+            const escoResults: SkillOption[] = await skillDirectory(inputValue);
+
+            const merged: SkillOption[] = [...localMatches];
+
+            escoResults.forEach((esco) => {
+                if (!merged.some(local => local.label === esco.label)) {
+                    merged.push(esco);
+                }
+            });
+
+
+            return merged.slice(0, 10);
+        } catch (error) {
+            console.error("Error fetching tags:", error);
+            return [];
+        }
+    };
+
 
     const uploadFile = async (selected: File, interests: string[]) => {
         try {
@@ -186,6 +208,8 @@ export default function ProfileUploader() {
             });
 
             if (!uploadRes.ok) throw new Error('Upload failed');
+
+            console.log(signUpValues.interest)
 
             if (user) {
                 const updatedUser = {
@@ -200,6 +224,17 @@ export default function ProfileUploader() {
             console.error('Error uploading file:', err);
         }
     };
+
+    const uploadInterest = (interests: string[]) => {
+        if (user) {
+            const updatedUser = {
+                ...user,
+                personal_preferences: [...interests]
+            };
+            setUser(updatedUser);
+            setCookie('user', JSON.stringify(updatedUser));
+        }
+    }
 
 
     const handleSubmit = async (): Promise<boolean> => {
@@ -220,6 +255,10 @@ export default function ProfileUploader() {
             setSubmitPhoto(true);
             if (file) {
                 await uploadFile(file, signUpValues.interest);
+                return true;
+            }
+            if (signUpValues.interest) {
+                uploadInterest(signUpValues.interest)
             }
             return true;
         } catch (error) {
@@ -233,6 +272,32 @@ export default function ProfileUploader() {
         if (success) {
             handleClose();
         }
+    };
+
+    const handleNext = () => {
+
+        if (signUpValues.birthday === '') {
+            setErrors(prev => ({
+                ...prev,
+                birthday: 'Please set a birthday',
+            }));
+            return false;
+        }
+        if (signUpValues.phoneNumber?.length > 0 && signUpValues.phoneNumber.length < 10) {
+            setErrors(prev => ({
+                ...prev,
+                phoneNumber: 'Please finish your phone number',
+            }));
+            return false;
+        }
+        if (errors.birthday || errors.phoneNumber) {
+            return false;
+        }
+        setCurrentStep(2);
+    };
+
+    const handlePrevious = () => {
+        setCurrentStep(1);
     };
 
 
@@ -325,157 +390,217 @@ export default function ProfileUploader() {
     }
 
     return (
-        <div className="modal-overlay">
-            {/* Backdrop blur overlay */}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 ">
             <div
-                className="absolute inset-0 backdrop-blur-md"
+                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
                 onClick={handleClose}
             />
 
-            {/* Modal content */}
-            <div className="relative z-10 w-full max-w-2xl mx-6">
-                {/* Header with close button */}
-                <div className="bg-gray-800 rounded-t-3xl px-16 pt-12 pb-8 relative">
-                    {/* Close button */}
+
+            <div className="relative w-full max-w-2xl bg-black rounded-2xl shadow-2xl overflow-hidden border border-gray-800">
+                {/* Header */}
+                <div className="relative px-8 pt-8 pb-6 bg-black">
                     <button
                         onClick={handleClose}
-                        className="absolute top-8 right-8 w-12 h-12 hover:bg-gray-700 rounded-full flex items-center justify-center text-gray-400 hover:text-white transition-all duration-200"
+                        className="absolute top-6 right-6 w-8 h-8 rounded-full bg-gray-800/50 hover:bg-gray-700 flex items-center justify-center text-gray-400 hover:text-white transition-all duration-200"
                         aria-label="Close modal"
                     >
-                        <FaTimes className="text-xl" />
+                        <FaTimes className="text-sm" />
                     </button>
 
-                    <div className="text-center pr-16">
-                        <h1 className="text-4xl font-bold text-white mb-4">Complete Your Profile</h1>
-                        <p className="text-gray-400 text-lg">Add your photo and details</p>
+                    {/* Step Indicator */}
+                    <div className="flex items-center justify-center !mb-3 !mt-3">
+                        <div className="flex items-center space-x-4">
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 ${currentStep >= 1 ? 'bg-[#0EA5E9] text-white' : 'bg-gray-700 text-gray-400'
+                                }`}>
+                                {currentStep > 1 ? <FaCheck className="text-xs" /> : '1'}
+                            </div>
+                            <div className={`w-12 h-0.5 transition-all duration-300 ${currentStep >= 2 ? 'bg-[#0EA5E9]' : 'bg-gray-700'
+                                }`} />
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 ${currentStep >= 2 ? 'bg-[#0EA5E9] text-white' : 'bg-gray-700 text-gray-400'
+                                }`}>
+                                2
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="text-center">
+                        <h1 className="text-2xl font-bold text-white mb-2">Complete Your Profile</h1>
+                        <p className="text-gray-400">
+                            {currentStep === 1 ? 'Personal Information' : 'Skills & Photo'}
+                        </p>
                     </div>
                 </div>
 
-                <div className="bg-gray-800 rounded-b-3xl px-16 py-12 shadow-2xl">
-                    {/* Profile Photo Circle */}
-                    <div className="flex justify-center mb-12">
-                        <div className="relative">
-                            <input
-                                type="file"
-                                id="fileInput"
-                                onChange={handleFileChange}
-                                accept="image/jpeg, image/png, image/webp"
-                                className="hidden"
-                            />
-                            <label
-                                htmlFor="fileInput"
-                                className="flex items-center justify-center w-36 h-36 bg-gray-700 rounded-full border-3 border-dashed border-gray-500 hover:border-blue-400 hover:bg-gray-600 cursor-pointer transition-all duration-200 group shadow-lg"
-                                title="Upload profile photo"
-                            >
-                                {file ? (
-                                    <img
-                                        src={URL.createObjectURL(file)}
-                                        alt="Profile preview"
-                                        className="w-full h-full rounded-full object-cover"
-                                    />
-                                ) : (
-                                    <FaPlus className="text-white text-4xl group-hover:text-blue-400 transition-colors" />
+                {/* Content */}
+                <div className="px-8 py-8 min-h-[400px]">
+                    {currentStep === 1 && (
+                        <div className="!space-y-6 !ml-3 !mr-3">
+                            {/* Display Name */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-300 !mb-2">
+                                    Display Name
+                                    <span className="text-gray-500 font-normal ml-1">(optional)</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    name="displayName"
+                                    value={signUpValues.displayName}
+                                    onChange={handleChange}
+                                    maxLength={100}
+                                    placeholder="Your Display Name"
+                                    className="w-full !px-4 !py-3 bg-gray-800 border border-gray-700 rounded-lg !text-white !placeholder-gray focus:outline-none focus:ring-2 focus:ring-[#0EA5E9] focus:border-transparent transition-all duration-200"
+                                />
+                            </div>
+
+                            {/* Birthday */}
+                            <div>
+                                <label className="!block text-sm !font-medium text-gray-300 !mb-2">
+                                    Birthday
+                                </label>
+                                <input
+                                    type="date"
+                                    name="birthday"
+                                    value={signUpValues.birthday}
+                                    onChange={handleChange}
+                                    className={`w-full !px-4 !py-3 bg-gray-800 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#0EA5E9] focus:border-transparent transition-all duration-200 ${errors.birthday ? 'border-red-500' : 'border-gray-700'
+                                        }`}
+                                />
+                                {errors.birthday && (
+                                    <p className="text-red-400 text-sm mt-2">{errors.birthday}</p>
                                 )}
-                            </label>
-                        </div>
-                    </div>
+                            </div>
 
-                    {/* Choose Photo Text */}
-                    <div className="text-center mb-12">
-                        <p className="text-gray-300 text-lg font-medium">
-                            {file ? 'Photo selected' : 'Choose photo'}
-                        </p>
-                        {file && (
-                            <p className="text-gray-500 text-base mt-3">{file.name}</p>
-                        )}
-                    </div>
-
-                    {/* Form Fields */}
-                    <div className="space-y-10">
-                        {/* Birthday Field */}
-                        <div>
-                            <label htmlFor="birthday" className="block text-lg font-semibold text-gray-200 mb-4">
-                                Birthday
-                            </label>
-                            <input
-                                type="date"
-                                id="birthday"
-                                name="birthday"
-                                value={signUpValues.birthday}
-                                onChange={handleChange}
-                                className={`w-full p-2 rounded-md border bg-[#181c23] text-white focus:outline-none focus:ring-3 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${errors.birthday ? "!border-[#ff3860]" : "border-gray-300"}`}
-                            />
-                            {errors.birthday && <div className="contact-error-message contact-error-birthday text-red-500 text-xs mt-1">{errors.birthday}</div>}
+                            {/* Phone Number */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-300 !mb-2">
+                                    Phone Number
+                                    <span className="text-gray-500 font-normal ml-1">(optional)</span>
+                                </label>
+                                <input
+                                    type="tel"
+                                    name="phoneNumber"
+                                    value={signUpValues.phoneNumber}
+                                    onChange={handleChange}
+                                    placeholder="123-456-7890"
+                                    className={`w-full !px-4 !py-3 bg-gray-800 border rounded-lg text-white !placeholder-gray focus:outline-none focus:ring-2 focus:ring-[#0EA5E9] focus:border-transparent transition-all duration-200 ${errors.phoneNumber ? 'border-red-500' : 'border-gray-700'
+                                        }`}
+                                />
+                                {errors.phoneNumber && (
+                                    <p className="text-red-400 text-sm mt-2">{errors.phoneNumber}</p>
+                                )}
+                            </div>
                         </div>
+                    )}
 
-                        {/* Phone Number Field */}
-                        <div>
-                            <label htmlFor="phoneNumber" className="block text-lg font-semibold text-gray-200 mb-4">
-                                Phone Number <span className="text-gray-500 font-normal text-base">(optional)</span>
-                            </label>
-                            <input
-                                type="tel"
-                                id="phoneNumber"
-                                name="phoneNumber"
-                                value={signUpValues.phoneNumber}
-                                onChange={handleChange}
-                                placeholder="123-456-7890"
-                                className={`w-full p-2 rounded-md border bg-[#181c23] text-white focus:outline-none focus:ring-3 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${errors.phoneNumber ? "!border-[#ff3860]" : "border-gray-300"}`}
-                            />
-                            {errors.phoneNumber && <div className="contact-error-message contact-error-phoneNumber text-red-500 text-xs mt-1">{errors.phoneNumber}</div>}
-                        </div>
-                    </div>
-                    <div className="filter-section !mb-6 !mt-10">
-                        <div className={`filter-content !pl-2`}>
-                            <div className="tags-container relative">
-                                <Select
+                    {currentStep === 2 && (
+                        <div className="!space-y-8">
+                            {/* Profile Photo */}
+                            <div className="text-center !mt-5">
+                                <label className="block text-sm font-medium text-gray-300 !mb-3">
+                                    Profile Photo
+                                </label>
+                                <div className="flex justify-center">
+                                    <div className="relative">
+                                        <input
+                                            type="file"
+                                            id="fileInput"
+                                            onChange={handleFileChange}
+                                            accept="image/jpeg, image/png, image/webp"
+                                            className="hidden"
+                                        />
+                                        <label
+                                            htmlFor="fileInput"
+                                            className="flex items-center justify-center !w-36 !h-36 bg-gray-800 rounded-full border-2 border-dashed border-gray-600 hover:border-[#0EA5E9] hover:bg-gray-700 cursor-pointer transition-all duration-200 group"
+                                            title="Upload profile photo"
+                                        >
+                                            {file ? (
+                                                <img
+                                                    src={URL.createObjectURL(file)}
+                                                    alt="Profile preview"
+                                                    className="w-full h-full rounded-full object-cover"
+                                                />
+                                            ) : (
+                                                <FaPlus className="text-gray-400 text-xl group-hover:text-[#0EA5E9] transition-colors" />
+                                            )}
+                                        </label>
+                                    </div>
+                                </div>
+                                <p className="text-gray-400 text-sm mt-3">
+                                    {file ? file.name : 'Click to upload photo'}
+                                </p>
+                            </div>
+
+                            {/* Skills */}
+                            <div className='!ml-3 !mr-3'>
+                                <label className="block text-sm font-medium text-gray-300 !mb-2">
+                                    Interests & Skills
+                                    <span className="text-gray-500 text-xs ml-2">(max 5)</span>
+                                </label>
+                                <AsyncSelect<SkillOption, true, GroupBase<SkillOption>>
                                     isMulti
-                                    options={SKILL_DIRECTORY}
-                                    value={signUpValues.interest.map(interest => ({ value: interest, label: interest }))}
-                                    onChange={selected => {
-                                        // selected is array of {value,label}
-                                        const interest = (selected as { value: string; label: string }[]).map(option => option.value).slice(0, 5);
-                                        setSignUpValues({ ...signUpValues, interest });
+                                    cacheOptions
+                                    defaultOptions={advancedSkills}
+                                    loadOptions={handleSkillTags}
+                                    value={signUpValues.interest.map((inter) => ({
+                                        value: inter.trim(),
+                                        label: inter.trim(),
+                                    }))}
+                                    onChange={(selected) => {
+                                        const skills = (selected || []).map((option) => option.value.trim()).slice(0, 5);
+                                        setSignUpValues({
+                                            ...signUpValues,
+                                            interest: skills,
+                                        });
                                     }}
-                                    placeholder="Search skills..."
+                                    placeholder="Search and add your interests & skills"
                                     closeMenuOnSelect={false}
                                     isClearable
                                     styles={customSelectStyles}
                                     components={{ MultiValueRemove: CustomMultiValueRemove }}
-                                    noOptionsMessage={() => null}
-                                    className="tags-input !w-full !py-2.5 !px-3 !bg-[#0B0809] !border !border-[#2f3542] !rounded-lg !text-white !text-[14px] !mb-2 cursor-pointer"
+                                    noOptionsMessage={() => "No matches found - try different keywords"}
                                 />
-                                <div className="selected-tags flex flex-wrap !gap-1 !mt-2 !mb-2">
-                                    {signUpValues.interest.map((interest, i) => (
-                                        <span key={i} className="tag-chip !bg-[#181c23] !text-white !px-2 !py-1 !rounded !text-[12px] flex items-center !gap-1">
-                                            {interest}
-                                            <span
-                                                className="tag-remove !text-[#888] !text-[14px] cursor-pointer hover:!text-white"
-                                                onClick={() => {
-                                                    const interestArr = [...signUpValues.interest];
-                                                    interestArr.splice(i, 1);
-                                                    setSignUpValues({ ...signUpValues, interest: interestArr });
-                                                }}
-                                            >
-                                                ×
-                                            </span>
-                                        </span>
-                                    ))}
-                                </div>
-                                <div className="tag-limit !text-[11px] !text-[#666] !mt-1">
-                                    {signUpValues.interest.length}/5 skills selected
-                                </div>
+                                <p className="text-gray-500 text-xs mt-2">
+                                    {signUpValues.interest.length}/5 selected
+                                </p>
                             </div>
                         </div>
+                    )}
+                </div>
 
+                {/* Footer */}
+                <div className="px-8 py-6 bg-gray-800/50 border-t border-gray-800">
+                    <div className="flex justify-between items-center">
+                        {currentStep === 1 ? (
+                            <>
+                                <div></div>
+                                <button
+                                    onClick={handleNext}
+                                    className="flex items-center space-x-2 bg-[#0EA5E9] hover:bg-[#0284C7] text-white font-medium !px-6 !py-3 rounded-lg transition-all duration-200"
+                                >
+                                    <span>Next</span>
+                                    <FaArrowRight className="text-sm" />
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <button
+                                    onClick={handlePrevious}
+                                    className="flex items-center space-x-2 text-gray-400 hover:text-white font-medium !px-4 !py-3 rounded-lg transition-all duration-200"
+                                >
+                                    <FaArrowLeft className="text-sm" />
+                                    <span>Back</span>
+                                </button>
+                                <button
+                                    onClick={onSubmit}
+                                    className="flex !items-center !space-x-2 bg-green-600 hover:bg-green-700 text-white font-medium !px-6 !py-3 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+                                >
+                                    <FaCheck className="text-sm" />
+                                    <span>Save Profile</span>
+                                </button>
+                            </>
+                        )}
                     </div>
-
-                    {/* Submit Button */}
-                    <button className="w-full mt-12 bg-blue-600 hover:bg-blue-700 text-white font-bold py-5 px-8 rounded-2xl transition-all duration-200 focus:outline-none focus:ring-3 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 text-xl shadow-xl hover:shadow-2xl hover:scale-105 transform"
-                        onClick={onSubmit}
-                    >
-                        Save Profile
-                    </button>
                 </div>
             </div>
         </div>

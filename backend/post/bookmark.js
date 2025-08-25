@@ -4,6 +4,8 @@ const pool = require('../sql/dB');
 const bookmarkPost = async (req, res) => {
     const postId = req.body.projectId;
     const userId = req.session.userId;
+    const post_title = req.body.post_title
+    const user_image = req.body.user_image
 
     if (!userId) {
         return res.status(401).json({ error: 'Not Authenticated' });
@@ -15,7 +17,7 @@ const bookmarkPost = async (req, res) => {
 
     try {
         const res2 = await pool.query(
-            'SELECT user_id, user_name FROM postdata WHERE id = $1',
+            'SELECT user_id FROM postdata WHERE id = $1',
             [postId]
         )
 
@@ -43,9 +45,9 @@ const bookmarkPost = async (req, res) => {
         );
 
         await pool.query(
-            `INSERT INTO notifications (event_type, actor_id, actor_name, recipient_id, target_id)
-             VALUES ($1, $2, $3, $4, $5)`,
-            ['bookmark', userId, actorName, recipient_id, postId]
+            `INSERT INTO notifications (event_type, actor_id, actor_name, recipient_id, target_id, post_title, user_image)
+             VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+            ['bookmark', userId, actorName, recipient_id, postId, post_title, user_image]
         );
 
         res.json({ success: true, message: 'Post bookmarked' });

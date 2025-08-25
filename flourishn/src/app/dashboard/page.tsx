@@ -135,14 +135,7 @@ function SkillsRow({ skills = [] }: { skills: string[] }) {
     );
 }
 
-const getInitials = (name: string) => {
-    return name
-        .split(' ')
-        .map(word => word.charAt(0))
-        .join('')
-        .toUpperCase()
-        .slice(0, 2);
-};
+
 
 // Enhanced category colors with updated palette for project cards
 const getCategoryColor = (category: string) => {
@@ -253,7 +246,6 @@ export default function DashboardPage() {
 
 
     // Show more/less toggles for each section
-    const [showAllRecommended, setShowAllRecommended] = useState(false);
     const [showAllYour, setShowAllYour] = useState(false);
     const [showAllBookmarked, setShowAllBookmarked] = useState(false);
     const router = useRouter();
@@ -265,7 +257,6 @@ export default function DashboardPage() {
     const [interests, setInterests] = useState<string[]>([]);
     const [unreadNotification, setUnreadNotification] = useState(false);
     const [notifications, setNotifications] = useState<Notification[]>([]);
-    const firstTimeSignUp = useSearchParams();
     useEffect(() => {
         setInterests(user?.personal_preferences || []);
     }, [user]);
@@ -319,11 +310,16 @@ export default function DashboardPage() {
 
 
     useEffect(() => {
-        if (isInitialized && !isLoggedIn) {
-            router.push('/login')
-        }
-        if (firstTimeSignUp.get('true') === 'true') {
+        const firstTime = localStorage.getItem("firstTimeSignUp");
+        console.log("first-time state is" + firstTime)
+
+        if (firstTime === "true") {
             setShowProfileUploader(true);
+            localStorage.removeItem("firstTimeSignUp");
+        }
+
+        if (isInitialized && !isLoggedIn) {
+            router.push("/login");
         }
     }, [isInitialized, isLoggedIn, router]);
 
@@ -363,7 +359,21 @@ export default function DashboardPage() {
 
                                 return (
                                     <div key={index} className="activity-item">
-                                        <div className="activity-avatar user">{initials}</div>
+                                        <div className="activity-avatar user">
+                                            {notif.type !== 'view' ? (
+                                                <img
+                                                    src={notif?.user_image || "/images/defaultProfile.jpg"}
+                                                    alt={user?.first_name || "User"}
+                                                    className="w-full h-full object-cover rounded-full"
+                                                    onError={(e) => {
+                                                        e.currentTarget.onerror = null;
+                                                        e.currentTarget.src = "/images/defaultProfile.jpg";
+                                                    }}
+                                                />
+                                            ) : (
+                                                '⚡'
+                                            )}
+                                        </div>
                                         <div className="activity-content">
                                             <div className="activity-text">{notif.message}</div>
                                             {notif.created_at && (
@@ -376,7 +386,9 @@ export default function DashboardPage() {
                                 );
                             })
                     ) : (
-                        <div>No notifications yet</div>
+                        <div className="text-center py-6 text-gray-400">
+                            <p className="text-sm">You’ll see updates here when someone interacts with your projects.</p>
+                        </div>
                     )}
 
                     <a
@@ -450,11 +462,11 @@ export default function DashboardPage() {
                             }}
                             className="!text-[#1f98f4] !no-underline !text-sm !font-medium !py-2 !px-4 !border !border-[#1f98f4] !rounded-lg !transition-all !duration-200 hover:!bg-[#1f98f4] hover:!text-white"
                         >
-                            {showAllRecommended ? "Show Less" : "View All"}
+                            {"View All"}
                         </button>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 mb-12">
-                        {(showAllRecommended ? recommendedProjects : recommendedProjects.slice(0, 3)).map((project, idx) => {
+                        {(recommendedProjects.slice(0, 3)).map((project, idx) => {
                             const category = getProjectCategory(project.project_tags);
                             const categoryColors = getCategoryColor(category);
                             const isRemote = project.location_preference;
@@ -466,22 +478,30 @@ export default function DashboardPage() {
                                     className="bg-[#1a1a1a] border border-[#333] rounded-xl overflow-hidden cursor-pointer transition-all duration-300 relative flex flex-col hover:border-[#555] hover:-translate-y-0.5 hover:shadow-2xl min-h-[380px]"
                                 >
                                     {/* Project Image or Category Gradient Background */}
-                                    <div
-                                        className="w-full h-32 flex items-center justify-center relative overflow-hidden"
-                                        style={{ background: categoryColors.gradient }}
-                                    >
-                                        {/* Optional overlay for better text readability */}
-                                        <div
-                                            className="absolute inset-0"
-                                            style={{ background: categoryColors.gradientOverlay }}
+                                    {project.photourl ? (
+                                        <img
+                                            src={project.photourl}
+                                            alt={project.title}
+                                            className="w-full h-32 object-cover rounded-none"
                                         />
-                                        <span
-                                            className="relative text-xs uppercase tracking-wider font-semibold drop-shadow-lg z-10"
-                                            style={{ color: categoryColors.textColor }}
+                                    ) : (
+                                        <div
+                                            className="w-full h-32 flex items-center justify-center relative overflow-hidden"
+                                            style={{ background: getCategoryColor(category).gradient }}
                                         >
-                                            {getCategoryPlaceholder(category)}
-                                        </span>
-                                    </div>
+                                            <div
+                                                className="absolute inset-0"
+                                                style={{ background: getCategoryColor(category).gradientOverlay }}
+                                            />
+                                            <span
+                                                className="relative text-xs uppercase tracking-wider font-semibold drop-shadow-lg z-10"
+                                                style={{ color: getCategoryColor(category).textColor }}
+                                            >
+                                                {getCategoryPlaceholder(category)}
+                                            </span>
+                                        </div>
+                                    )}
+
                                     {/* Card Content */}
                                     <div className="!p-5 flex flex-col flex-1">
                                         {/* Card Header */}
@@ -559,7 +579,8 @@ export default function DashboardPage() {
                             {showAllYour ? "Show Less" : "Manage All"}
                         </button>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 mb-12">
+
+                    {userProjects && userProjects.length > 0 ? (<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 mb-12">
                         {(showAllYour ? userProjects : userProjects.slice(0, 3)).map((project, idx) => {
                             const category = getProjectCategory(project.project_tags);
                             const categoryColors = getCategoryColor(category);
@@ -648,7 +669,12 @@ export default function DashboardPage() {
                                 </div>
                             );
                         })}
-                    </div>
+                    </div>) : (
+                        <div className="text-center py-12 text-gray-400">
+                            <p className="text-lg font-semibold mb-2">No projects yet</p>
+                            <p className="text-sm">Start your first project to showcase your ideas</p>
+                        </div>
+                    )}
                 </div>*
 
                 {/* Bookmarked Projects */}
@@ -662,99 +688,106 @@ export default function DashboardPage() {
                             {showAllBookmarked ? "Show Less" : "View All"}
                         </button>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 mb-12">
-                        {(showAllBookmarked
-                            ? (bookmarkedProjects || [])
-                            : (bookmarkedProjects || []).slice(0, 3)
-                        ).map((project, idx) => {
-                            const category = getProjectCategory(project.project_tags);
-                            const categoryColors = getCategoryColor(category);
-                            const isRemote = project.location_preference;
-                            const locationBadgeText = isRemote === 'remote' ? "Remote" : "In Person";
-                            const timePosted = project.created_at ? timeAgo(new Date(project.created_at)) : "recently";
-                            return (
-                                <div
-                                    key={project.id || idx}
-                                    className="bg-[#1a1a1a] border border-[#333] rounded-xl overflow-hidden cursor-pointer transition-all duration-300 relative flex flex-col hover:border-[#555] hover:-translate-y-0.5 hover:shadow-2xl min-h-[380px]"
-                                >
-                                    {/* Project Image or Category Gradient Background */}
+                    {bookmarkedProjects && bookmarkedProjects.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 mb-12">
+                            {(showAllBookmarked
+                                ? (bookmarkedProjects || [])
+                                : (bookmarkedProjects || []).slice(0, 3)
+                            ).map((project, idx) => {
+                                const category = getProjectCategory(project.project_tags);
+                                const categoryColors = getCategoryColor(category);
+                                const isRemote = project.location_preference;
+                                const locationBadgeText = isRemote === 'remote' ? "Remote" : "In Person";
+                                const timePosted = project.created_at ? timeAgo(new Date(project.created_at)) : "recently";
+                                return (
                                     <div
-                                        className="w-full h-32 flex items-center justify-center relative overflow-hidden"
-                                        style={{ background: categoryColors.gradient }}
+                                        key={project.id || idx}
+                                        className="bg-[#1a1a1a] border border-[#333] rounded-xl overflow-hidden cursor-pointer transition-all duration-300 relative flex flex-col hover:border-[#555] hover:-translate-y-0.5 hover:shadow-2xl min-h-[380px]"
                                     >
-                                        {/* Optional overlay for better text readability */}
+                                        {/* Project Image or Category Gradient Background */}
                                         <div
-                                            className="absolute inset-0"
-                                            style={{ background: categoryColors.gradientOverlay }}
-                                        />
-                                        <span
-                                            className="relative text-xs uppercase tracking-wider font-semibold drop-shadow-lg z-10"
-                                            style={{ color: categoryColors.textColor }}
+                                            className="w-full h-32 flex items-center justify-center relative overflow-hidden"
+                                            style={{ background: categoryColors.gradient }}
                                         >
-                                            {getCategoryPlaceholder(category)}
-                                        </span>
-                                    </div>
-                                    {/* Card Content */}
-                                    <div className="!p-5 flex flex-col flex-1">
-                                        <div className="flex justify-between items-start !gap-3 !mb-3">
-                                            <h3 className="text-lg font-semibold text-white leading-tight flex-1">
-                                                {project.title}
-                                            </h3>
+                                            {/* Optional overlay for better text readability */}
+                                            <div
+                                                className="absolute inset-0"
+                                                style={{ background: categoryColors.gradientOverlay }}
+                                            />
                                             <span
-                                                className="!py-1 !px-2 !rounded !text-[13px] !font-medium flex-shrink-0"
-                                                style={{
-                                                    backgroundColor: categoryColors.bgColor,
-                                                    color: categoryColors.primary,
-                                                    border: `1px solid ${categoryColors.primary}20`
-                                                }}
+                                                className="relative text-xs uppercase tracking-wider font-semibold drop-shadow-lg z-10"
+                                                style={{ color: categoryColors.textColor }}
                                             >
-                                                {category}
+                                                {getCategoryPlaceholder(category)}
                                             </span>
                                         </div>
-                                        <div className="flex items-center !gap-2 !mb-3">
-                                            <span className={`!py-1 !px-2 !rounded !text-[13px] !font-medium ${isRemote === 'remote' ? "bg-[#1d4ed8] text-[#dbeafe]" : "bg-[#2a2a2a] text-[#e5e5e5]"}`}>
-                                                {locationBadgeText}
-                                            </span>
-                                            {!project.location_preference && (
-                                                <span className="!text-[13px] !text-gray-400">
-                                                    {project.location}
-                                                </span>
-                                            )}
-                                        </div>
-                                        <div className="!mb-4 flex-1">
-                                            <p className="!text-gray-300 !text-sm leading-snug line-clamp-3">
-                                                {project.content}
-                                            </p>
-                                        </div>
-                                        <div className="!mb-4">
-                                            <SkillsRow skills={project.skill_tags || []} />
-                                        </div>
-                                        <div className="flex justify-between items-center !gap-3 !mt-auto">
-                                            <div className="flex items-center !gap-2">
-                                                <div className="w-7 h-7 !rounded-full bg-indigo-900 flex items-center justify-center !text-indigo-200 !text-xs !font-semibold flex-shrink-0">
-                                                    <img
-                                                        src={project.user_image || '/images/defaultProfile.jpg'}
-                                                        alt={project.user_name || 'User'}
-                                                        className="w-full h-full object-cover rounded-full"
-                                                        onError={(e) => {
-                                                            e.currentTarget.onerror = null; // prevents infinite loop if fallback fails
-                                                            e.currentTarget.src = '/images/defaultProfile.jpg';
-                                                        }}
-                                                    />
-                                                </div>
-                                                <span className="!text-[#888] !text-sm !font-medium">
-                                                    {project.user_name || "Unknown Author"}
+                                        {/* Card Content */}
+                                        <div className="!p-5 flex flex-col flex-1">
+                                            <div className="flex justify-between items-start !gap-3 !mb-3">
+                                                <h3 className="text-lg font-semibold text-white leading-tight flex-1">
+                                                    {project.title}
+                                                </h3>
+                                                <span
+                                                    className="!py-1 !px-2 !rounded !text-[13px] !font-medium flex-shrink-0"
+                                                    style={{
+                                                        backgroundColor: categoryColors.bgColor,
+                                                        color: categoryColors.primary,
+                                                        border: `1px solid ${categoryColors.primary}20`
+                                                    }}
+                                                >
+                                                    {category}
                                                 </span>
                                             </div>
-                                            <span className="!text-[13px] !text-gray-400">
-                                                {timePosted}
-                                            </span>
+                                            <div className="flex items-center !gap-2 !mb-3">
+                                                <span className={`!py-1 !px-2 !rounded !text-[13px] !font-medium ${isRemote === 'remote' ? "bg-[#1d4ed8] text-[#dbeafe]" : "bg-[#2a2a2a] text-[#e5e5e5]"}`}>
+                                                    {locationBadgeText}
+                                                </span>
+                                                {!project.location_preference && (
+                                                    <span className="!text-[13px] !text-gray-400">
+                                                        {project.location}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <div className="!mb-4 flex-1">
+                                                <p className="!text-gray-300 !text-sm leading-snug line-clamp-3">
+                                                    {project.content}
+                                                </p>
+                                            </div>
+                                            <div className="!mb-4">
+                                                <SkillsRow skills={project.skill_tags || []} />
+                                            </div>
+                                            <div className="flex justify-between items-center !gap-3 !mt-auto">
+                                                <div className="flex items-center !gap-2">
+                                                    <div className="w-7 h-7 !rounded-full bg-indigo-900 flex items-center justify-center !text-indigo-200 !text-xs !font-semibold flex-shrink-0">
+                                                        <img
+                                                            src={project.user_image || '/images/defaultProfile.jpg'}
+                                                            alt={project.user_name || 'User'}
+                                                            className="w-full h-full object-cover rounded-full"
+                                                            onError={(e) => {
+                                                                e.currentTarget.onerror = null; // prevents infinite loop if fallback fails
+                                                                e.currentTarget.src = '/images/defaultProfile.jpg';
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <span className="!text-[#888] !text-sm !font-medium">
+                                                        {project.user_name || "Unknown Author"}
+                                                    </span>
+                                                </div>
+                                                <span className="!text-[13px] !text-gray-400">
+                                                    {timePosted}
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            );
-                        })}
-                    </div>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <div className="text-center py-12 text-gray-400">
+                            <p className="text-lg font-semibold mb-2">No bookmarked projects yet</p>
+                            <p className="text-sm">Save interesting projects to easily find them later</p>
+                        </div>
+                    )}
                 </div>
 
                 {/* Stats and Quick Note Cards */}

@@ -54,30 +54,43 @@ const search = async (req, res) => {
                 ? interests
                 : [interests]
             : [];
+
         if (interestArray.length > 0) {
-
+            // --- 1. Skill tags array overlap ---
             const interestCondition = `skill_tags && $${index}::text[]`;
-            values.push(interestArray);
-            index++;
-
-            const tsQuery = interestArray
-                .map(interest => interest.toLowerCase().split(/\s+/).join(' | '))
-                .join(' | ');
-            const fullTextCondition = `document_with_weights @@ to_tsquery('english', $${index})`;
-            values.push(tsQuery);
-            index++;
-
-            const fuzzyCondition = `
-                 EXISTS (
-                 SELECT 1 FROM unnest(skill_tags) AS skill_tag
-                 WHERE skill_tag % ANY($${index})
-                 )
-              `;
+            // Normalize skill tags to lowercase for consistency
             values.push(interestArray.map(s => s.toLowerCase()));
             index++;
 
+            // --- 2. Full-text search on document ---
+            // Use plainto_tsquery for safer parsing of multi-word phrases
+            const tsQuery = interestArray.join(' ');
+            const fullTextCondition = `document_with_weights @@ plainto_tsquery('english', $${index})`;
+            values.push(tsQuery);
+            index++;
+
+            // --- 3. Fuzzy trigram search ---
+            // Split multi-word interests into single words for trigram
+            const fuzzyWords = interestArray
+                .flatMap(i => i.toLowerCase().split(/\s+/));
+            const fuzzyCondition = `
+            EXISTS (
+                SELECT 1 FROM unnest(skill_tags) AS skill_tag
+                WHERE skill_tag % ANY($${index})
+            )
+            OR
+            EXISTS (
+                SELECT 1 FROM unnest(project_tags) AS project_tag
+                WHERE project_tag % ANY($${index})
+            )
+        `;
+            values.push(fuzzyWords);
+            index++;
+
+            // --- Combine all conditions ---
             conditions.push(`(${interestCondition} OR ${fullTextCondition} OR ${fuzzyCondition})`);
         }
+
 
 
         if (difficulty && Array.isArray(difficulty)) {
@@ -293,18 +306,19 @@ const search = async (req, res) => {
                 continue;
             }
 
-            placeholders.push(`($${paramIndex}, $${paramIndex + 1}, $${paramIndex + 2}, $${paramIndex + 3}, $${paramIndex + 4})`);
+            placeholders.push(`($${paramIndex}, $${paramIndex + 1}, $${paramIndex + 2}, $${paramIndex + 3}, $${paramIndex + 4}, $${paramIndex + 5})`);
 
             values2.push('view');        // event_type
             values2.push(actorId);       // actor_id
             values2.push(actorName);     // actor_name
             values2.push(post.user_id);  // recipient_id
             values2.push(post.id);       // target_id
+            values2.push(post.title)
 
-            paramIndex += 5;
+            paramIndex += 6;
         }
         const query2 = `
-            INSERT INTO notifications (event_type, actor_id, actor_name, recipient_id, target_id)
+            INSERT INTO notifications (event_type, actor_id, actor_name, recipient_id, target_id, post_title)
             VALUES ${placeholders.join(', ')}
         `;
 

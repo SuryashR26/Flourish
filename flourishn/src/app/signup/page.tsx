@@ -61,12 +61,12 @@ export default function SignUp() {
     const [errors, setErrors] = useState<FormErrors>({});
     const [showPassword, setShowPassword] = useState(false);
     const [showPassword2, setShowPassword2] = useState(false);
-    const [firstTimeSignUp, setFirstTimeSignUp] = useState('');
     const [verificationCode, setVerificationCode] = useState(["", "", "", "", "", ""]);
     const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
     const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
     const [timer, setTimer] = useState(0);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
+    const [firstTime, setFirstTime] = useState(false)
 
     const { signUp, isLoggedIn } = useUser();
 
@@ -75,7 +75,12 @@ export default function SignUp() {
     useEffect(() => {
         if (isLoggedIn) {
             console.log("User is already logged in, redirecting to dashboard");
-            router.push('/dashboard');
+            if (firstTime) {
+                localStorage.setItem("firstTimeSignUp", "true");
+                router.push("/dashboard");
+            } else {
+                router.push('/dashboard');
+            }
         }
     }, [isLoggedIn, router]);
 
@@ -211,8 +216,8 @@ export default function SignUp() {
                 birthYear: '',
                 verificationCode: '', // Reset verification code
             });
-            setFirstTimeSignUp('true')
-            router.push(`/dashboard?query=${encodeURIComponent(firstTimeSignUp.trim())}`);
+
+            router.push("/dashboard?firstTimeSignUp=true");
             setErrors({});
 
             signUp(signUpValues.email, signUpValues.firstName, signUpValues.lastName, signUpValues.password, signUpValues.verificationCode)
@@ -241,6 +246,7 @@ export default function SignUp() {
                 setErrors(prev => ({ ...prev, verificationCode: "Incorrect Code. Please try again." }));
             } else {
                 setErrors(prev => ({ ...prev, verificationCode: undefined }));
+                setFirstTime(true)
                 setCurrentStep(3);
                 if (timerRef.current) clearInterval(timerRef.current);
 

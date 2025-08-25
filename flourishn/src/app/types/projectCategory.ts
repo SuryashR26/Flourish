@@ -103,3 +103,129 @@ export const projectCategories: ProjectCategory[] = [
     { value: "innovation", label: "Innovation & Creativity" },
     { value: "future-tech", label: "Future Technologies" },
 ];
+
+
+// src/data/advancedSkills.ts
+
+export interface Skill {
+    value: string;
+    label: string;
+}
+
+export const advancedSkills: Skill[] = [
+    // Programming Languages & Frameworks
+    { value: 'Node.js', label: 'Node.js' },
+    { value: 'React.js', label: 'React.js' },
+    { value: 'Angular', label: 'Angular' },
+    { value: 'Vue.js', label: 'Vue.js' },
+    { value: 'Svelte', label: 'Svelte' },
+    { value: 'TypeScript', label: 'TypeScript' },
+    { value: 'Dart', label: 'Dart' },
+    { value: 'Rust', label: 'Rust' },
+    { value: 'Go', label: 'Go' },
+    { value: 'Elixir', label: 'Elixir' },
+    { value: 'Kotlin', label: 'Kotlin' },
+    { value: 'Swift', label: 'Swift' },
+    { value: 'Scala', label: 'Scala' },
+    { value: 'Clojure', label: 'Clojure' },
+    { value: 'Haskell', label: 'Haskell' },
+    { value: 'Solidity', label: 'Solidity' },
+    { value: 'GraphQL', label: 'GraphQL' },
+    { value: 'Next.js', label: 'Next.js' },
+    { value: 'NestJS', label: 'NestJS' },
+    { value: 'Spring Boot', label: 'Spring Boot' },
+
+    // Software Development & Architecture
+    { value: 'Microservices Architecture', label: 'Microservices Architecture' },
+    { value: 'Serverless Computing', label: 'Serverless Computing' },
+    { value: 'Event-Driven Architecture', label: 'Event-Driven Architecture' },
+    { value: 'Domain-Driven Design', label: 'Domain-Driven Design (DDD)' },
+    { value: 'Test-Driven Development', label: 'Test-Driven Development (TDD)' },
+    { value: 'Behavior-Driven Development', label: 'Behavior-Driven Development (BDD)' },
+    { value: 'CI/CD', label: 'Continuous Integration/Continuous Deployment (CI/CD)' },
+    { value: 'DevOps Practices', label: 'DevOps Practices' },
+    { value: 'Docker', label: 'Docker' },
+    { value: 'Kubernetes', label: 'Kubernetes' },
+    { value: 'API Gateway Management', label: 'API Gateway Management' },
+    { value: 'Service Mesh', label: 'Service Mesh Implementation' },
+    { value: 'Infrastructure as Code', label: 'Infrastructure as Code (IaC)' },
+    { value: 'Git', label: 'Version Control with Git' },
+    { value: 'Code Review', label: 'Code Review Practices' },
+    { value: 'Agile Methodologies', label: 'Agile Methodologies' },
+    { value: 'Scrum', label: 'Scrum Framework' },
+    { value: 'Kanban', label: 'Kanban System' },
+    { value: 'Extreme Programming', label: 'Extreme Programming (XP)' },
+    { value: 'Pair Programming', label: 'Pair Programming' },
+
+    // Cloud Computing & Platforms
+    { value: 'Amazon Web Services (AWS)', label: 'Amazon Web Services (AWS)' },
+    { value: 'Microsoft Azure', label: 'Microsoft Azure' },
+    { value: 'Google Cloud Platform (GCP)', label: 'Google Cloud Platform (GCP)' },
+    { value: 'Cloud Security Best Practices', label: 'Cloud Security Best Practices' },
+    { value: 'Cloud Cost Optimization', label: 'Cloud Cost Optimization' },
+    { value: 'Cloud Migration Strategies', label: 'Cloud Migration Strategies' },
+    { value: 'Hybrid Cloud Solutions', label: 'Hybrid Cloud Solutions' },
+    { value: 'Multi-Cloud Management', label: 'Multi-Cloud Management' },
+    { value: 'Cloud-Native Application Development', label: 'Cloud-Native Application Development' },
+    { value: 'Serverless Architectures', label: 'Serverless Architectures' },
+
+    // Data Engineering & Analysis
+    { value: 'Data Warehousing', label: 'Data Warehousing' },
+    { value: 'ETL Processes', label: 'ETL Processes' },
+    { value: 'Data Pipeline Orchestration', label: 'Data Pipeline Orchestration' },
+    { value: 'Apache Kafka', label: 'Apache Kafka' },
+    { value: 'Apache Spark', label: 'Apache Spark' },
+    { value: 'Big Data Technologies', label: 'Big Data Technologies' },
+    { value: 'Data Lake Implementation', label: 'Data Lake Implementation' },
+    { value: 'Data Governance', label: 'Data Governance' },
+    { value: 'Data Quality Assurance', label: 'Data Quality Assurance' },
+    { value: 'Data Visualization Tools', label: 'Data Visualization Tools (Tableau, Power BI)' },
+
+    // AI & Machine Learning
+    { value: 'Machine Learning Algorithms', label: 'Machine Learning Algorithms' },
+    { value: 'Deep Learning Techniques', label: 'Deep Learning Techniques' },
+    { value: 'Natural Language Processing', label: 'Natural Language Processing (NLP)' },
+    { value: 'Computer Vision', label: 'Computer Vision' },
+    { value: 'Reinforcement Learning', label: 'Reinforcement Learning' },
+    { value: 'AI Model Deployment', label: 'AI Model Deployment' },
+    { value: 'TensorFlow', label: 'TensorFlow' },
+    { value: 'PyTorch', label: 'PyTorch' },
+    { value: 'Scikit-learn', label: 'Scikit-learn' },
+    { value: 'Keras', label: 'Keras' },
+
+    // Cybersecurity
+    { value: 'Network Security', label: 'Network Security' },
+    { value: 'Application Security', label: 'Application Security' },
+    { value: 'Penetration Testing', label: 'Penetration Testing' },
+    { value: 'Cryptography', label: 'Cryptography' },
+    { value: 'Identity and Access Management (IAM)', label: 'Identity and Access Management (IAM)' },
+    { value: 'SIEM', label: 'Security Information and Event Management (SIEM)' },
+    { value: 'Incident Response', label: 'Incident Response' },
+    { value: 'Threat Intelligence', label: 'Threat Intelligence' },
+    { value: 'Vulnerability Assessment', label: 'Vulnerability Assessment' },
+    { value: 'Security Auditing', label: 'Security Auditing' },
+
+    // Web & Mobile Development
+    { value: 'Progressive Web Apps (PWA)', label: 'Progressive Web Apps (PWA)' },
+    { value: 'Single Page Applications (SPA)', label: 'Single Page Applications (SPA)' },
+    { value: 'Responsive Web Design', label: 'Responsive Web Design' },
+    { value: 'Mobile App Development', label: 'Mobile App Development (iOS/Android)' },
+    { value: 'Cross-Platform Mobile Development', label: 'Cross-Platform Mobile Development (Flutter, React Native)' },
+    { value: 'WebAssembly', label: 'WebAssembly' },
+    { value: 'WebSockets', label: 'WebSockets' },
+    { value: 'WebRTC', label: 'WebRTC' },
+    { value: 'CMS', label: 'Content Management Systems (CMS)' },
+    { value: 'Web Accessibility', label: 'Web Accessibility Standards' },
+
+    // Soft Skills
+    { value: 'Critical Thinking', label: 'Critical Thinking' },
+    { value: 'Problem-Solving', label: 'Problem-Solving' },
+    { value: 'Communication Skills', label: 'Communication Skills' },
+    { value: 'Team Collaboration', label: 'Team Collaboration' },
+    { value: 'Leadership Abilities', label: 'Leadership Abilities' },
+    { value: 'Time Management', label: 'Time Management' },
+    { value: 'Adaptability', label: 'Adaptability' },
+    { value: 'Conflict Resolution', label: 'Conflict Resolution' },
+    { value: 'Emotional Intelligence', label: 'Emotional Intelligence' },
+    { value: 'Continuous Learning Mindset', label: 'Continuous Learning Mindset' },
+];

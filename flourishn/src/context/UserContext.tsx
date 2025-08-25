@@ -116,6 +116,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
                     const parsedUser = JSON.parse(userCookie);
                     setUser(parsedUser);
                     setIsLoggedIn(true);
+                    console.log(userCookie)
                 }
                 else {
                     setUser(null);

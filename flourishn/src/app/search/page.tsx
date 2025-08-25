@@ -315,7 +315,7 @@ function page() {
     useEffect(() => {
         if (isLoggedIn) {
             if (selectedProject) {
-                storeViewProject(selectedProject.id);
+                storeViewProject(selectedProject.id, selectedProject.title, user_image);
             }
         }
     })
@@ -456,6 +456,8 @@ function page() {
             default: return 'Tech';
         }
     };
+
+    const user_image = user?.profileurl || '';
 
     // Helper function for time ago
     const timeAgo = (date: Date) => {
@@ -1110,7 +1112,7 @@ function page() {
                                         className="flex-1 !bg-[#1f98f4] !text-white !px-6 !py-3 !rounded-xl !font-medium hover:!bg-[#1a7bc8] !transition-all !duration-200 hover:!-translate-y-0.5"
                                         onClick={async () => {
                                             console.log('Joining project:', selectedProject.id);
-                                            const result = await bookmarkProject(selectedProject.id)
+                                            const result = await bookmarkProject(selectedProject.id, selectedProject.title, user_image)
                                             if (result.status == 401) {
                                                 router.push('/login');
                                                 return;
@@ -1287,7 +1289,7 @@ function page() {
                                             className="flex-1 !bg-[#1f98f4] !text-white !px-6 !py-3 !rounded-xl !font-medium hover:!bg-[#1a7bc8] !transition-all !duration-200 hover:!-translate-y-0.5"
                                             onClick={async () => {
                                                 console.log('Joining project:', selectedProject.id);
-                                                const result = await bookmarkProject(selectedProject.id)
+                                                const result = await bookmarkProject(selectedProject.id, selectedProject.title, user_image)
                                                 if (result.status == 401) {
                                                     router.push('/login');
                                                     return;
