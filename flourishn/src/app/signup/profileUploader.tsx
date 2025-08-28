@@ -5,7 +5,7 @@ import { getPresignedUrl } from '@/api/apiClient';
 import { FaPlus, FaTimes, FaArrowRight, FaArrowLeft, FaCheck } from 'react-icons/fa';
 import { useUser } from '@/context/UserContext';
 import { setCookie } from '@/utils/cookies';
-import dynamic from "next/dynamic"
+
 import { components } from "react-select"
 import { SignUpValues2 } from '@/app/types/projectTypes';
 import { additionalInfo, skillDirectory } from "@/api/apiClient"
@@ -15,6 +15,11 @@ import type { GroupBase, StylesConfig } from "react-select"
 import { advancedSkills } from "../types/projectCategory"
 import type { CSSObjectWithLabel, ControlProps, MultiValueRemoveProps, OptionProps } from 'react-select';
 
+
+type OptionType = {
+    value: string;
+    label: string;
+};
 
 
 interface FormErrors {
@@ -35,7 +40,6 @@ type SkillOption = {
 export default function ProfileUploader() {
     const [file, setFile] = useState<File | null>(null);
     const { user, setUser } = useUser();
-    const [submitPhoto, setSubmitPhoto] = useState(false);
     const [currentStep, setCurrentStep] = useState(1);
 
 
@@ -47,8 +51,8 @@ export default function ProfileUploader() {
     });
 
 
-    const customSelectStyles = {
-        control: (provided: CSSObjectWithLabel, state: ControlProps<any, true>): CSSObjectWithLabel => ({
+    const customSelectStyles: StylesConfig<OptionType, true> = {
+        control: (provided: CSSObjectWithLabel, state: ControlProps<OptionType, true>) => ({
             ...provided,
             backgroundColor: '#1f2937',
             border: state.isFocused ? '2px solid #0EA5E9' : '1px solid #374151',
@@ -62,82 +66,24 @@ export default function ProfileUploader() {
                 border: state.isFocused ? '2px solid #0EA5E9' : '1px solid #4b5563',
             },
         }),
-        menu: (provided: CSSObjectWithLabel): CSSObjectWithLabel => ({
-            ...provided,
-            backgroundColor: '#1f2937',
-            color: 'white',
-            border: '1px solid #374151',
-            borderRadius: 8,
-            zIndex: 20,
-        }),
-        option: (provided: CSSObjectWithLabel, state: OptionProps<any, true>): CSSObjectWithLabel => ({
+        option: (provided: CSSObjectWithLabel, state: OptionProps<OptionType, true>) => ({
             ...provided,
             backgroundColor: state.isFocused ? '#374151' : '#1f2937',
             color: 'white',
             fontWeight: 400,
             cursor: 'pointer',
-            '&:hover': {
-                backgroundColor: '#374151',
-            },
+            '&:hover': { backgroundColor: '#374151' },
         }),
-        input: (provided: CSSObjectWithLabel): CSSObjectWithLabel => ({
-            ...provided,
-            color: 'white',
-            fontWeight: 400,
-        }),
-        multiValue: (provided: CSSObjectWithLabel): CSSObjectWithLabel => ({
-            ...provided,
-            backgroundColor: '#0EA5E9',
-            color: 'white',
-            borderRadius: 16,
-            minHeight: 28,
-            height: 28,
-            display: 'flex',
-            alignItems: 'center',
-            fontSize: 14,
-            paddingLeft: 8,
-            paddingRight: 4,
-            marginTop: 2,
-            marginBottom: 2,
-        }),
-        multiValueLabel: (provided: CSSObjectWithLabel): CSSObjectWithLabel => ({
-            ...provided,
-            color: 'white',
-            fontWeight: 400,
-            fontSize: 13,
-            paddingRight: 4,
-            display: 'flex',
-            alignItems: 'center',
-        }),
-        multiValueRemove: (provided: CSSObjectWithLabel): CSSObjectWithLabel => ({
-            ...provided,
-            color: 'white',
-            fontSize: 14,
-            display: 'flex',
-            alignItems: 'center',
-            paddingLeft: 4,
-            paddingRight: 4,
-            ':hover': {
-                backgroundColor: 'rgba(255,255,255,0.2)',
-                color: 'white',
-                borderRadius: '50%',
-            },
-        }),
-        placeholder: (provided: CSSObjectWithLabel): CSSObjectWithLabel => ({
-            ...provided,
-            color: '#9ca3af',
-            fontWeight: 400,
-        }),
+        input: (provided: CSSObjectWithLabel) => ({ ...provided, color: 'white', fontWeight: 400 }),
+        multiValue: (provided: CSSObjectWithLabel) => ({ ...provided, backgroundColor: '#0EA5E9', color: 'white', borderRadius: 16, minHeight: 28, height: 28, display: 'flex', alignItems: 'center', fontSize: 14, paddingLeft: 8, paddingRight: 4, marginTop: 2, marginBottom: 2 }),
+        multiValueLabel: (provided: CSSObjectWithLabel) => ({ ...provided, color: 'white', fontWeight: 400, fontSize: 13, paddingRight: 4, display: 'flex', alignItems: 'center' }),
+        multiValueRemove: (provided: CSSObjectWithLabel) => ({ ...provided, color: 'white', fontSize: 14, display: 'flex', alignItems: 'center', paddingLeft: 4, paddingRight: 4, ':hover': { backgroundColor: 'rgba(255,255,255,0.2)', color: 'white', borderRadius: '50%' } }),
+        placeholder: (provided: CSSObjectWithLabel) => ({ ...provided, color: '#9ca3af', fontWeight: 400 }),
     };
 
-    const CustomMultiValueRemove = (props: MultiValueRemoveProps<any>) => (
+    const CustomMultiValueRemove = (props: MultiValueRemoveProps<OptionType, true, GroupBase<OptionType>>) => (
         <components.MultiValueRemove {...props}>
-            <svg
-                width={14} height={14} viewBox="0 0 24 24"
-                style={{ display: "block" }}
-                aria-hidden="true"
-                focusable="false"
-            >
+            <svg width={14} height={14} viewBox="0 0 24 24" style={{ display: "block" }} aria-hidden="true" focusable="false">
                 <line x1="6" y1="6" x2="18" y2="18" stroke="white" strokeWidth="2" />
                 <line x1="6" y1="18" x2="18" y2="6" stroke="white" strokeWidth="2" />
             </svg>
@@ -252,7 +198,6 @@ export default function ProfileUploader() {
 
         try {
             await additionalInfo(signUpValues);
-            setSubmitPhoto(true);
             if (file) {
                 await uploadFile(file, signUpValues.interest);
                 return true;

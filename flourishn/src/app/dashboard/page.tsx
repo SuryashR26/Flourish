@@ -5,9 +5,9 @@ import Navbar from "@/components/layout/navbar"
 import ProfileUploader from "../signup/profileUploader";
 import { useRouter } from 'next/navigation';
 import { useUser } from "@/context/UserContext";
-import { useSearchParams } from 'next/navigation';
+
 import { getBookmarkedPosts, getUserPosts, getRecommendedProjects, getNotifications, markNotificationsRead } from "@/api/apiClient";
-import LoadingScreen from "@/components/ui/LoadingScreen";
+
 
 import { Project, Notification } from '@/app/types/projectTypes';
 
@@ -254,13 +254,8 @@ export default function DashboardPage() {
     const [bookmarkedProjects, setBookmarkedProject] = useState<Project[]>([]);
     const [userProjects, setUserProjects] = useState<Project[]>([]);
     const [recommendedProjects, setRecommendedProjects] = useState<Project[]>([]);
-    const [interests, setInterests] = useState<string[]>([]);
     const [unreadNotification, setUnreadNotification] = useState(false);
     const [notifications, setNotifications] = useState<Notification[]>([]);
-    useEffect(() => {
-        setInterests(user?.personal_preferences || []);
-    }, [user]);
-
 
     const fetchPosts = useCallback(async () => {
         try {
@@ -349,14 +344,6 @@ export default function DashboardPage() {
                             .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) // newest first
                             .slice(0, 3)
                             .map((notif, index) => {
-                                const initials = notif.actor_name
-                                    ? notif.actor_name
-                                        .split(' ')
-                                        .map((n: string) => n[0].toUpperCase())
-                                        .join('')
-                                    : '⚡';
-
-
                                 return (
                                     <div key={index} className="activity-item">
                                         <div className="activity-avatar user">

@@ -1,18 +1,21 @@
 "use client"
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useLayoutEffect, useCallback, useRef } from "react"
 import Navbar from "@/components/layout/navbar"
 // import NotesApp from "./notes"
 import { useRouter } from 'next/navigation';
 import { useUser } from "@/context/UserContext";
-
+import { Pagination } from '@/components/ui/pagination'
 import { ChartLineDefault } from "@/components/ui/chart-line-default"
+import { ChartLineDefault2 } from "@/components/ui/chart-line-default2"
 import { useSearchParams } from 'next/navigation';
-import { getUserPosts, getNotifications, markNotificationsRead } from "@/api/apiClient";
+import { getUserPosts, getNotifications, markNotificationsRead, getTotalPostBookmarks, getTotalPostClicks, getTotalPostViews } from "@/api/apiClient";
 import { BarChart3, Bell, FileText } from "lucide-react"
+import { X } from 'lucide-react'
 
 import { Project, Notification } from '@/app/types/projectTypes';
 
 const getCategoryColor = (category: string) => {
+    if (!category) { category = 'tech' }
     switch (category.toLowerCase()) {
         case 'tech':
             return {
@@ -65,130 +68,8 @@ const getCategoryColor = (category: string) => {
     }
 };
 
-const dashboardStyles = `
-  .sidebar-section {
-    margin-bottom: 32px !important;
-  }
-  .sidebar-title {
-    font-size: 18px !important;
-    font-weight: 600 !important;
-    margin-bottom: 16px !important;
-    color: #fff !important;
-    display: flex !important;
-    align-items: center !important;
-    gap: 8px !important;
-  }
-  .activity-item {
-    display: flex !important;
-    gap: 12px !important;
-    padding: 12px 0 !important;
-    border-bottom: 1px solid #2f3542 !important;
-    position: relative !important;
-  }
-  .activity-item:last-child {
-    border-bottom: none !important;
-  }
-  .activity-item.urgent::before {
-    content: '' !important;
-    position: absolute !important;
-    left: -8px !important;
-    top: 16px !important;
-    width: 8px !important;
-    height: 8px !important;
-    border-radius: 50% !important;
-    background: #ef4444 !important;
-  }
-  .activity-item.notification::before {
-    content: '' !important;
-    position: absolute !important;
-    left: -8px !important;
-    top: 16px !important;
-    width: 8px !important;
-    height: 8px !important;
-    border-radius: 50% !important;
-    background: #1f98f4 !important;
-  }
-  .activity-avatar {
-    width: 32px !important;
-    height: 32px !important;
-    border-radius: 50% !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    font-size: 12px !important;
-    font-weight: 600 !important;
-    flex-shrink: 0 !important;
-  }
-  .activity-avatar.user {
-    background: #1f98f4 !important;
-    color: white !important;
-  }
-  .activity-avatar.system {
-    background: rgba(16, 185, 129, 0.2) !important;
-    color: #10b981 !important;
-    font-size: 14px !important;
-  }
-  .activity-avatar.notification {
-    background: rgba(31, 152, 244, 0.2) !important;
-    color: #1f98f4 !important;
-    font-size: 14px !important;
-  }
-  .activity-avatar.urgent {
-    background: rgba(239, 68, 68, 0.2) !important;
-    color: #ef4444 !important;
-    font-size: 14px !important;
-  }
-  .activity-content {
-    flex: 1 !important;
-  }
-  .activity-text {
-    font-size: 13px !important;
-    color: #ccc !important;
-    margin-bottom: 4px !important;
-    line-height: 1.4 !important;
-  }
-  .activity-time {
-    font-size: 11px !important;
-    color: #888 !important;
-  }
-  .view-all-activity {
-    color: #1f98f4 !important;
-    font-size: 12px !important;
-    text-decoration: none !important;
-    margin-top: 12px !important;
-    display: block !important;
-    text-align: center !important;
-    padding: 8px !important;
-    border: 1px solid #1f98f4 !important;
-    border-radius: 6px !important;
-    transition: all 0.2s !important;
-  }
-  .view-all-activity:hover {
-    background: #1f98f4 !important;
-    color: #fff !important;
-  }
-`;
 
 
-
-const getProjectCategory = (tags: string[] = []) => {
-    const tagString = tags.join(' ').toLowerCase();
-    if (tagString.includes('creative') || tagString.includes('design') || tagString.includes('art') ||
-        tagString.includes('film') || tagString.includes('podcast') || tagString.includes('storytelling')) {
-        return 'Creative';
-    }
-    if (tagString.includes('business') || tagString.includes('impact') || tagString.includes('startup') ||
-        tagString.includes('marketplace') || tagString.includes('fintech')) {
-        return 'Business';
-    }
-    if (tagString.includes('sustainability') || tagString.includes('environment') || tagString.includes('policy')) {
-        return 'Environment';
-    }
-    if (tagString.includes('research') || tagString.includes('study') || tagString.includes('analysis')) {
-        return 'Research';
-    }
-    return 'Tech';
-};
 
 const getCategoryPlaceholder = (category: string) => {
     switch (category) {
@@ -221,6 +102,106 @@ const timeAgo = (date: Date) => {
     return "just now";
 };
 
+function SkillsRow({ skills = [] }: { skills: string[] }) {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [visibleCount, setVisibleCount] = useState(skills.length);
+
+    const calculateVisibleCount = () => {
+        if (!containerRef.current) return;
+        const container = containerRef.current;
+        const parent = container.parentElement;
+        if (!parent) return;
+        const maxWidth = parent.offsetWidth * 0.8;
+        const tagWidths: number[] = [];
+        Array.from(container.children).forEach((child) => {
+            if (child instanceof HTMLElement) {
+                tagWidths.push(child.offsetWidth);
+            }
+        });
+        let total = 0;
+        let count = skills.length;
+        // Always include the '+ x more skills' tag if not all fit
+        if (skills.length > 0) {
+            // Create a hidden moreTag to measure its width
+            const moreTag = document.createElement('span');
+            moreTag.className = '!mt-[6px] !text-[14px] !text-gray-400';
+            moreTag.style.visibility = 'hidden';
+            moreTag.innerText = `+${skills.length - 1} more skills`;
+            container.appendChild(moreTag);
+            const moreWidth = moreTag.offsetWidth;
+            container.removeChild(moreTag);
+            // Try to fit as many as possible, always including the moreTag if not all fit
+            total = 0;
+            count = 0;
+            for (let i = 0; i < tagWidths.length; i++) {
+                // If not all fit, reserve space for the moreTag
+                if (total + tagWidths[i] + (i < skills.length - 1 ? moreWidth : 0) > maxWidth) break;
+                total += tagWidths[i];
+                count++;
+            }
+            // If nothing fits, show only '+N more skills'
+            if (count === 0 && skills.length > 0) {
+                count = 0;
+            }
+        }
+        setVisibleCount(count);
+    };
+
+    useLayoutEffect(() => {
+        calculateVisibleCount();
+    }, [skills]);
+
+    useLayoutEffect(() => {
+        const handleResize = () => {
+            setTimeout(calculateVisibleCount, 100);
+        };
+        window.addEventListener('resize', handleResize);
+        let resizeObserver: ResizeObserver | null = null;
+        if (containerRef.current && window.ResizeObserver) {
+            resizeObserver = new ResizeObserver(() => {
+                setTimeout(calculateVisibleCount, 100);
+            });
+            resizeObserver.observe(containerRef.current);
+        }
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            if (resizeObserver) {
+                resizeObserver.disconnect();
+            }
+        };
+    }, [skills.length]);
+
+
+
+    return (
+        <div ref={containerRef} className="flex flex-wrap !gap-2">
+            {visibleCount > 0 && skills.slice(0, visibleCount).map((skill, i) => (
+                <span
+                    key={i}
+                    className={`skill-tag !py-1 !px-2 !rounded !text-[13px] !font-medium ${i < 2
+                        ? 'bg-[#1d4ed8] text-[#dbeafe]'
+                        : 'bg-[#2a2a2a] text-[#e5e5e5]'
+                        }`}
+                >
+                    {skill}
+                </span>
+            ))}
+            {visibleCount > 0 && visibleCount < skills.length && (
+                <span className="!mt-[6px] !text-[14px] !text-gray-400">
+                    +{skills.length - visibleCount} more skills
+                </span>
+            )}
+            {visibleCount === 0 && skills.length > 0 && (
+                <span className="!mt-[6px] !text-[14px] !text-gray-400">
+                    +{skills.length} more skills
+                </span>
+            )}
+        </div>
+    );
+}
+
+
+
 
 export default function StatisticsPage() {
 
@@ -228,7 +209,18 @@ export default function StatisticsPage() {
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [userProjects, setUserProjects] = useState<Project[]>([]);
     const [notificationSelection, setNotificationSelection] = useState(1)
+    const [selectedProject, setSelectedProject] = useState<null | Project>(null);
+    const [currentPage, setCurrentPage] = useState(1)
     const { user, isLoggedIn } = useUser();
+    const [postStats, setPostStats] = useState<{
+        views: number;
+        clicks: number;
+        bookmarks: number;
+    }>({
+        views: 0,
+        clicks: 0,
+        bookmarks: 0,
+    });
     const router = useRouter();
     const searchParams = useSearchParams();
     const query = searchParams.get('query') || '';
@@ -241,18 +233,56 @@ export default function StatisticsPage() {
                 setNotifications(result4)
             setUserProjects(result2);
 
-        } catch (error: any) {
-            if (error.message.includes("401")) {
-                router.push('/login')
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                if (error.message.includes("401")) {
+                    router.push('/login');
+                }
+                console.error('Search failed:', error);
+            } else {
+                console.error('Search failed with unknown error:', error);
             }
-            console.error('Search failed:', error);
         }
     }, []);
 
+    const projectPerPage = 10;
+
+    const totalInteractions = postStats.views + postStats.clicks + postStats.bookmarks;
+
+    const pageCount = Math.ceil(userProjects.length / projectPerPage);
+    const paginatedProjects = userProjects.slice(
+        (currentPage - 1) * projectPerPage,
+        currentPage * projectPerPage
+    );
+
+    const fetchPostStats = async (postId: string) => {
+        try {
+            const [viewsRes, clicksRes, bookmarksRes] = await Promise.all([
+                getTotalPostViews(postId),
+                getTotalPostClicks(postId),
+                getTotalPostBookmarks(postId),
+            ]);
+
+            setPostStats({
+                views: viewsRes.total || 0,
+                clicks: clicksRes.total || 0,
+                bookmarks: bookmarksRes.total || 0,
+            });
+        } catch (error) {
+            console.error("Error fetching post stats:", error);
+            setPostStats({ views: 0, clicks: 0, bookmarks: 0 });
+        }
+    };
 
     useEffect(() => {
         fetchPosts()
     }, []);
+
+    useEffect(() => {
+        if (selectedProject?.id) {
+            fetchPostStats(selectedProject.id);
+        }
+    }, [selectedProject]);
 
     useEffect(() => {
         if (query === 'Notifications') {
@@ -478,7 +508,7 @@ export default function StatisticsPage() {
                                             </div>
                                             <div className="text-xl font-semibold mb-2 text-gray-300">No notifications yet</div>
                                             <div className="text-gray-500 max-w-md mx-auto !ml-50">
-                                                When you start getting activity on your posts, you'll see all the updates here
+                                                When you start getting activity on your posts, you`&apos;`ll see all the updates here
                                             </div>
                                         </div>
                                     )}
@@ -670,8 +700,389 @@ export default function StatisticsPage() {
                     )}
 
                     {page === 3 && (
-                        <div className="flex items-center justify-center h-full">
-                            <div className="text-gray-400 text-lg">Your Posts Page</div>
+                        <div className="flex flex-col h-full">
+                            <div className="!px-6 !py-4 !ml-100 !mt-30 ">
+                                <h1 className="text-white text-3xl font-bold whitespace-nowrap">Your Posts</h1>
+                            </div>
+
+
+                            <div className="flex-1 !ml-100 !mr-10 overflow-y-auto">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 !mt-3 !mb-2">
+                                    {paginatedProjects.map((project, idx) => {
+                                        const category = project.project_category
+                                        /*const categoryClass = category === 'Tech'
+                                            ? 'bg-blue-900/10 text-blue-400 border border-blue-400/20'
+                                            : category === 'Creative'
+                                                ? 'bg-pink-600/10 text-pink-300 border border-pink-300/20'
+                                                : 'bg-green-900/10 text-green-400 border border-green-400/20';
+                                            */
+                                        const isRemote = project.location_preference;
+
+                                        // const locationBadgeClass = isRemote ? 'bg-indigo-900 text-indigo-200' : 'bg-green-900 text-green-300';
+                                        const locationBadgeText = isRemote === 'remote' ? 'Remote' : 'In Person';
+                                        // const locationText = isRemote ? 'Open to remote collaboration' : project.location;
+                                        const timePosted = project.created_at ? timeAgo(new Date(project.created_at)) : 'recently';
+
+                                        return (
+                                            <div
+                                                key={project.id || idx}
+                                                className="bg-[#1a1a1a] border border-[#333] rounded-xl overflow-hidden cursor-pointer transition-all duration-300 relative flex flex-col hover:border-[#555] hover:-translate-y-0.5 hover:shadow-2xl min-h-[380px]"
+                                                onClick={() => setSelectedProject(project)}
+                                            >
+                                                {/* Urgent indicator */}
+                                                {/*{project.urgent && (
+                                    <div className="absolute top-3 right-3 bg-red-600 text-white px-2 py-1 rounded text-[10px] font-bold uppercase z-10">
+                                        Due Soon
+                                    </div>
+                                )}*/}
+                                                {project.is_draft && (
+                                                    <div className="absolute top-3 right-3 bg-red-600 text-white px-2 py-1 rounded text-[10px] font-bold uppercase z-10">
+                                                        Draft
+                                                    </div>
+                                                )}
+
+                                                {/* Project Image or Placeholder */}
+                                                {project.photourl ? (
+                                                    <img
+                                                        src={project.photourl}
+                                                        alt={project.title}
+                                                        className="w-full h-32 object-cover rounded-none"
+                                                    />
+                                                ) : (
+                                                    <div
+                                                        className="w-full h-32 flex items-center justify-center relative overflow-hidden"
+                                                        style={{ background: getCategoryColor(category).gradient }}
+                                                    >
+                                                        <div
+                                                            className="absolute inset-0"
+                                                            style={{ background: getCategoryColor(category).gradientOverlay }}
+                                                        />
+                                                        <span
+                                                            className="relative text-xs uppercase tracking-wider font-semibold drop-shadow-lg z-10"
+                                                            style={{ color: getCategoryColor(category).textColor }}
+                                                        >
+                                                            {getCategoryPlaceholder(category)}
+                                                        </span>
+                                                    </div>
+                                                )}
+
+                                                {/* Card Content */}
+                                                <div className="!p-5 flex flex-col flex-1">
+                                                    {/* Card Header */}
+                                                    <div className="flex justify-between items-start !gap-3 !mb-3 !mt-2">
+                                                        <h3 className="text-lg font-semibold text-white leading-tight flex-1">
+                                                            {project.title}
+                                                        </h3>
+                                                        <span
+                                                            className="!py-1 !px-2 !rounded !text-[13px] !font-medium flex-shrink-0"
+                                                            style={{
+                                                                backgroundColor: getCategoryColor(category).bgColor,
+                                                                color: getCategoryColor(category).primary,
+                                                                border: `1px solid ${getCategoryColor(category).primary}20`
+                                                            }}
+                                                        >
+                                                            {category?.toUpperCase()}
+                                                        </span>
+                                                    </div>
+
+                                                    {/* In Person/Remote tag and location */}
+                                                    <div className="flex items-center !gap-2 !mb-3">
+                                                        <span className={`!py-1 !px-2 !rounded !text-[13px] !font-medium ${isRemote === 'remote' ? 'bg-[#1d4ed8] text-[#dbeafe]' : 'bg-[#2a2a2a] text-[#e5e5e5]'}`}>
+                                                            {locationBadgeText}
+                                                        </span>
+                                                        {!isRemote && (
+                                                            <span className="!text-[13px] !text-gray-400">
+                                                                {project.location}
+                                                            </span>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Description - Remove flex-1 and reduce margin */}
+                                                    <div className="!mb-3">
+                                                        <p className="!text-gray-300 !text-sm leading-snug line-clamp-3">
+                                                            {project.content}
+                                                        </p>
+                                                    </div>
+
+                                                    {/* Skills Section */}
+                                                    <div className="!mb-4">
+                                                        <SkillsRow skills={project.skill_tags || []} />
+                                                    </div>
+
+                                                    {/* Footer - This will stick to bottom */}
+                                                    <div className="flex justify-between items-center !gap-3 !mt-auto">
+                                                        <div className="flex items-center !gap-2">
+                                                            <div className="w-7 h-7 rounded-full bg-indigo-900 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                                                <img
+                                                                    src={project.user_image || '/images/defaultProfile.jpg'}
+                                                                    alt={project.user_name || 'User'}
+                                                                    className="w-full h-full object-cover rounded-full"
+                                                                    onError={(e) => {
+                                                                        e.currentTarget.onerror = null; // prevents infinite loop if fallback fails
+                                                                        e.currentTarget.src = '/images/defaultProfile.jpg';
+                                                                    }}
+                                                                />
+                                                            </div>
+                                                            <span className="!text-[#888] !text-sm !font-medium">
+                                                                {project.user_name || 'Unknown Author'}
+                                                            </span>
+                                                        </div>
+                                                        <span className="!text-[13px] !text-gray-400">
+                                                            {timePosted}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+                            <div className="flex flex-row">
+                                {selectedProject && isLoggedIn && (
+                                    <div
+                                        className=" fixed left-0 !top-0 w-full h-full flex items-center justify-center !z-[10000] !p-4"
+                                        style={{ background: "rgba(0,0,0,0.8)" }}
+                                        onClick={e => { if (e.target === e.currentTarget) setSelectedProject(null); }}
+                                    >
+                                        <div className="flex flex-row gap-6 max-w-[90vw]">
+                                            <div className="!bg-[#181c23] !border !border-[#333] !rounded-2xl !w-[1200px] !max-h-[90vh] !overflow-y-auto !relative !shadow-2xl">
+                                                <div className="!p-8 !pb-6 !border-b !border-[#2f3542] !relative">
+                                                    <button
+                                                        onClick={() => setSelectedProject(null)}
+                                                        className="!absolute !top-5 !right-5 !text-[#888] hover:!text-white !text-2xl !p-2 !rounded-lg hover:!bg-[#2f3542] !transition-colors"
+                                                        aria-label="Close"
+                                                    >
+                                                        <X size={24} />
+                                                    </button>
+
+                                                    <h1 className="!text-3xl !font-bold !text-white !mb-4 !pr-12 !leading-tight">
+                                                        {selectedProject.title || 'Untitled Project'}
+                                                    </h1>
+
+                                                    <div className="flex items-center !gap-3 !mb-4">
+                                                        <div className="w-7 h-7 rounded-full bg-indigo-900 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                                            <img
+                                                                src={selectedProject.user_image || '/images/defaultProfile.jpg'}
+                                                                alt={selectedProject.user_name || 'User'}
+                                                                className="w-full h-full object-cover rounded-full"
+                                                                onError={(e) => {
+                                                                    e.currentTarget.onerror = null;
+                                                                    e.currentTarget.src = '/images/defaultProfile.jpg';
+                                                                }}
+                                                            />
+
+                                                        </div>
+                                                        <div className="flex flex-col">
+                                                            <div className="!text-white !font-medium">
+                                                                {selectedProject.user_name || 'Unknown Author'}
+                                                            </div>
+                                                            { /* <div className="!text-[#888] !text-sm">
+                                                                                {selectedProject.author?.title || 'Student'}
+                                                                            </div> */}
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="flex !gap-2 flex-wrap">
+                                                        {selectedProject.status && (
+                                                            <span className={`!px-3 !py-1 !text-sm !font-medium !rounded-full ${selectedProject.status === 'active' ? '!bg-green-900 !text-green-300' :
+                                                                selectedProject.status === 'completed' ? '!bg-blue-900 !text-blue-300' :
+                                                                    '!bg-yellow-900 !text-yellow-300'
+                                                                }`}>
+                                                                {selectedProject.status}
+                                                            </span>
+                                                        )}
+                                                        <span className={`!px-3 !py-1 !text-sm !font-medium !rounded-full ${selectedProject.location_preference === 'remote' ? '!bg-indigo-900 !text-indigo-200' : '!bg-green-900 !text-green-300'
+                                                            }`}>
+                                                            {selectedProject.location_preference === 'remote' ? 'Remote' : 'In Person'}
+                                                        </span>
+                                                        {/*selectedProject.urgent && (
+                                                                            <span className="!px-3 !py-1 !text-sm !font-medium !rounded-full !bg-red-600 !text-white">
+                                                                                Urgent
+                                                                            </span>
+                                                                        )*/}
+                                                    </div>
+                                                </div>
+
+                                                <div className="!p-8">
+                                                    {/* Project Details Grid */}
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 !gap-6 !mb-8 !p-5 !bg-white/[0.02] !border !border-[#2f3542] !rounded-xl">
+                                                        <div className="flex items-center !gap-3">
+                                                            <svg className="!w-5 !h-5 !text-[#1f98f4] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                            </svg>
+                                                            <span className="!text-[#ccc] !text-sm">
+                                                                {selectedProject.role_count || 0} collaborator{selectedProject.role_count !== 1 ? 's' : ''} needed
+                                                            </span>
+                                                        </div>
+
+                                                        {selectedProject.difficulty && (
+                                                            <div className="flex items-center !gap-3">
+                                                                <svg className="!w-5 !h-5 !text-[#1f98f4] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                                                </svg>
+                                                                <span className="!text-[#ccc] !text-sm !capitalize">
+                                                                    {selectedProject.difficulty} level
+                                                                </span>
+                                                            </div>
+                                                        )}
+
+                                                        <div className="flex items-center !gap-3">
+                                                            <svg className="!w-5 !h-5 !text-[#1f98f4] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                                                            </svg>
+                                                            <span className="!text-[#ccc] !text-sm">
+                                                                {selectedProject.location_preference ? 'Remote collaboration' : selectedProject.location}
+                                                            </span>
+                                                        </div>
+
+                                                        {selectedProject.time_commitment && (
+                                                            <div className="flex items-center !gap-3">
+                                                                <svg className="!w-5 !h-5 !text-[#1f98f4] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                                                                </svg>
+                                                                <span className="!text-[#ccc] !text-sm">
+                                                                    {selectedProject.time_commitment}
+                                                                </span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Project Description */}
+                                                    <div className="!mb-8">
+                                                        <h3 className="!text-lg !font-semibold !text-white !mb-3 flex items-center !gap-2">
+                                                            <div className="!w-1 !h-5 !bg-[#1f98f4] !rounded"></div>
+                                                            Project Description
+                                                        </h3>
+                                                        <p className="!text-[#ccc] !leading-relaxed !text-[15px] !whitespace-pre-line">
+                                                            {/*selectedProject.fullDescriptio*/ selectedProject.content || 'No description available'}
+                                                        </p>
+                                                    </div>
+
+                                                    {/* Required Skills */}
+                                                    {selectedProject.skill_tags && selectedProject.skill_tags.length > 0 && (
+                                                        <div className="!mb-8">
+                                                            <h3 className="!text-lg !font-semibold !text-white !mb-3 flex items-center !gap-2">
+                                                                <div className="!w-1 !h-5 !bg-[#1f98f4] !rounded"></div>
+                                                                Required Skills
+                                                            </h3>
+                                                            <div className="flex flex-wrap !gap-2">
+                                                                {selectedProject.skill_tags.map((skill, i) => (
+                                                                    <span
+                                                                        key={i}
+                                                                        className="!bg-[#1f2937] !text-[#1f98f4] !px-3 !py-2 !rounded-lg !text-sm !font-medium !border !border-[#1f98f4]/20"
+                                                                    >
+                                                                        {skill}
+                                                                    </span>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Project Tags */}
+                                                    {selectedProject.project_tags && selectedProject.project_tags.length > 0 && (
+                                                        <div className="!mb-8">
+                                                            <h3 className="!text-lg !font-semibold !text-white !mb-3 flex items-center !gap-2">
+                                                                <div className="!w-1 !h-5 !bg-[#1f98f4] !rounded"></div>
+                                                                Project Tags
+                                                            </h3>
+                                                            <div className="flex flex-wrap !gap-2">
+                                                                {selectedProject.project_tags.map((tag, i) => (
+                                                                    <span
+                                                                        key={i}
+                                                                        className="!bg-[#0B0809] !text-gray-300 !px-3 !py-2 !rounded-lg !text-sm !border !border-[#2f3542]"
+                                                                    >
+                                                                        {tag}
+                                                                    </span>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Action Buttons */}
+                                                    <div className="flex flex-col sm:flex-row !gap-3 !pt-6 !border-t !border-[#2f3542]">
+                                                        <button
+                                                            className="flex-1 !bg-[#1f98f4] !text-white !px-6 !py-3 !rounded-xl !font-medium hover:!bg-[#1a7bc8] !transition-all !duration-200 hover:!-translate-y-0.5"
+                                                            onClick={async () => {
+                                                                setSelectedProject(null);
+                                                            }}
+                                                        >
+                                                            Bookmark Project
+                                                        </button>
+                                                        <button
+                                                            className="flex-1 !bg-transparent !text-[#1f98f4] !border !border-[#1f98f4] !px-6 !py-3 !rounded-xl !font-medium hover:!bg-[#1f98f4] hover:!text-white !transition-colors"
+                                                            onClick={() => {
+                                                                console.log('Contacting author:', selectedProject.user_name);
+                                                                setSelectedProject(null);
+                                                            }}
+                                                        >
+                                                            Contact {selectedProject.user_name?.split(' ')[0] || 'Author'}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="!bg-[#181c23] border border-[#444] rounded-2xl !w-[1200px] max-h-[90vh] overflow-y-auto shadow-xl">
+                                                {/* Header */}
+                                                <div className="!p-8 !pb-6 !border-b !border-[#2f3542] !relative">
+                                                    <button
+                                                        onClick={() => setSelectedProject(null)}
+                                                        className="!absolute !top-5 !right-5 !text-[#888] hover:!text-white !text-2xl !p-2 !rounded-lg hover:!bg-[#2f3542] !transition-colors"
+                                                        aria-label="Close"
+                                                    >
+                                                        <X size={24} />
+                                                    </button>
+                                                    <h1 className="!text-3xl !font-bold !text-white !mb-4 !pr-12 !leading-tight">
+                                                        {'Project Stats'}
+                                                    </h1>
+                                                </div>
+
+                                                {/* Scrollable content */}
+                                                <div className="!p-8 !flex !flex-col !gap-6">
+                                                    <div className="!w-full !h-[300px] sm:h-[250px] lg:h-[400px]">
+                                                        <ChartLineDefault2 postId={selectedProject.id} />
+                                                    </div>
+
+                                                    {/* Stats Card */}
+                                                    <div className="!bg-[#1a1a1a] !border !border-[#333] !rounded-xl !mt-35 !p-6 !flex !flex-col !gap-4">
+                                                        <h3 className="!text-lg !font-semibold !text-white">Your Stats</h3>
+                                                        <div className="!grid !grid-cols-2 !gap-4">
+                                                            <div className="!bg-[#0f0f0f] !border !border-[#2f3542] !rounded-lg !p-4 !text-center">
+                                                                <div className="!text-2xl !font-bold !text-[#1f98f4] !mb-1">{totalInteractions}</div>
+                                                                <div className="!text-xs !text-[#888]">Total Interactions</div>
+                                                            </div>
+                                                            <div className="!bg-[#0f0f0f] !border !border-[#2f3542] !rounded-lg !p-4 !text-center">
+                                                                <div className="!text-2xl !font-bold !text-[#1f98f4] !mb-1">{postStats.views}</div>
+                                                                <div className="!text-xs !text-[#888]">Total Views</div>
+                                                            </div>
+                                                            <div className="!bg-[#0f0f0f] !border !border-[#2f3542] !rounded-lg !p-4 !text-center">
+                                                                <div className="!text-2xl !font-bold !text-[#1f98f4] !mb-1">{postStats.clicks}</div>
+                                                                <div className="!text-xs !text-[#888]">Clicks</div>
+                                                            </div>
+                                                            <div className="!bg-[#0f0f0f] !border !border-[#2f3542] !rounded-lg !p-4 !text-center">
+                                                                <div className="!text-2xl !font-bold !text-[#1f98f4] !mb-1">{postStats.bookmarks}</div>
+                                                                <div className="!text-xs !text-[#888]">Bookmarked</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+
+                            <div className="!mb-3 !mt-3 w-full z-50 flex justify-center py-4">
+                                <Pagination
+                                    pageCount={pageCount}
+                                    currentPage={currentPage}
+                                    onPageChange={(page: number) => {
+                                        setCurrentPage(page);
+                                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                                    }}
+                                    className="bg-black-100 text-white"
+                                />
+                            </div>
                         </div>
                     )}
                 </div>

@@ -129,6 +129,11 @@ export function ChartLineDefault() {
                   tickMargin={8}
                   tick={{ fill: "white", fontSize: 12 }}
                   interval={0}
+                  tickFormatter={(str: string) => {
+                    const d = new Date(str);
+                    return `${d.getMonth() + 1}/${d.getDate()}`;
+                    // e.g. "Aug 26"
+                  }}
                 />
                 <YAxis
                   tickLine={false}

@@ -8,12 +8,11 @@ import Navbar from "@/components/layout/navbar"
 import { createPostWithImage, cleanupFailedPost, skillDirectory } from "@/api/apiClient"
 import AsyncSelect from "react-select/async";
 // import { on } from "events"
-import dynamic from "next/dynamic"
 import { components } from "react-select"
 import { X } from "lucide-react"
 import type { GroupBase, StylesConfig } from "react-select"
 import { projectCategories, advancedSkills } from "../types/projectCategory"
-import type { CSSObjectWithLabel, ControlProps, MultiValueRemoveProps, OptionProps } from 'react-select';
+import type { MultiValueRemoveProps } from 'react-select';
 import { useUser } from "@/context/UserContext"
 
 
@@ -25,13 +24,13 @@ type SkillOption = {
 interface PostValues {
     title: string
     content: string
-    tags: string[]
-    locationS: boolean
-    locationL: string
+    project_tags: string[]
+    location_preference: string
+    location: string
     locked: boolean
-    roleCount: number
-    roleDescription: string[]
-    skills: string[]
+    role_count: number
+    role_description: string[]
+    skill_tags: string[]
     authorImage: string
     authorID: string
     status: string
@@ -44,13 +43,13 @@ interface PostValues {
 interface PostValuesErrors {
     title?: string
     content?: string
-    tags?: string[]
-    locationS?: boolean
-    locationL?: string
+    project_tags?: string[]
+    location_preference?: string
+    location?: string
     locked?: boolean
-    roleCount?: number
-    roleDescription?: string[]
-    skills?: string[]
+    role_count?: number
+    role_description?: string[]
+    skill_tags?: string[]
     authorImage?: string
     authorID?: string
     status?: string
@@ -62,7 +61,7 @@ interface PostValuesErrors {
 
 
 const customSelectStyles: StylesConfig<SkillOption, true, GroupBase<SkillOption>> = {
-    control: (provided, _state) => ({
+    control: (provided) => ({
         ...provided,
         backgroundColor: '#0B0809',
         border: '1px solid #2f3542',
@@ -84,7 +83,7 @@ const customSelectStyles: StylesConfig<SkillOption, true, GroupBase<SkillOption>
         borderRadius: 8,
         zIndex: 20,
     }),
-    option: (provided, _state) => ({
+    option: (provided) => ({
         ...provided,
         backgroundColor: '#0B0809',
         color: 'white',
@@ -135,11 +134,6 @@ const CustomMultiValueRemove = (props: MultiValueRemoveProps<SkillOption, true>)
     </components.MultiValueRemove>
 )
 
-interface SkillSelectProps {
-    postValues: PostValues
-    setPostValues: React.Dispatch<React.SetStateAction<PostValues>>
-}
-
 
 
 export default function PostPage() {
@@ -147,13 +141,13 @@ export default function PostPage() {
     const [postValues, setPostValues] = useState<PostValues>({
         title: "",
         content: "",
-        tags: [""],
-        locationS: false,
-        locationL: "",
+        project_tags: [""],
+        location_preference: 'remote',
+        location: "",
         locked: false,
-        roleCount: 1,
-        roleDescription: [""],
-        skills: [""],
+        role_count: 1,
+        role_description: [""],
+        skill_tags: [""],
         authorImage: "",
         authorID: "",
         status: "active",
@@ -191,14 +185,14 @@ export default function PostPage() {
             tempErrors.content = "Content is required"
             isValid = false
         }
-        if (postValues.roleDescription.some(desc => !desc.trim())) {
-            tempErrors.roleDescription = postValues.roleDescription.map(desc =>
+        if (postValues.role_description.some(desc => !desc.trim())) {
+            tempErrors.role_description = postValues.role_description.map(desc =>
                 desc.trim() ? "" : "Description is required"
             )
             isValid = false
         }
-        if (!postValues.locationS && !postValues.locationL.trim()) {
-            tempErrors.locationL = "Location is required for in-person posts"
+        if (!postValues.location_preference && !postValues.location.trim()) {
+            tempErrors.location = "Location is required for in-person posts"
             isValid = false
         }
 
@@ -328,15 +322,19 @@ export default function PostPage() {
             const postData = {
                 title: postValues.title,
                 content: postValues.content,
-                role_count: postValues.roleCount,
-                role_description: postValues.roleDescription,
-                project_tags: postValues.tags,
-                skill_tags: postValues.skills,
-                location_preference: postValues.locationS ? 'remote' : 'in-person',
-                location: postValues.locationL,
+                role_count: postValues.role_count,
+                role_description: postValues.role_description,
+                project_tags: postValues.project_tags,
+                skill_tags: postValues.skill_tags,
+                location_preference: postValues.location_preference,
+                location: postValues.location,
                 difficulty: postValues.difficulty,
                 confirmDuplicate: duplicateWarning.show,
                 status: postValues.status,
+                is_draft: false,
+                locked: false,
+                authorImage: '',
+                authorID: '',
                 time_commitment: postValues.time_commitment,
                 project_category: postValues.project_category
             };
@@ -387,13 +385,13 @@ export default function PostPage() {
                 setPostValues({
                     title: "",
                     content: "",
-                    tags: [""],
-                    locationS: false,
-                    locationL: "",
+                    project_tags: [""],
+                    location_preference: 'remote',
+                    location: "",
                     locked: false,
-                    roleCount: 1,
-                    roleDescription: [""],
-                    skills: [""],
+                    role_count: 1,
+                    role_description: [""],
+                    skill_tags: [""],
                     authorImage: "",
                     authorID: "",
                     status: "active",
@@ -438,16 +436,19 @@ export default function PostPage() {
             const postData = {
                 title: postValues.title,
                 content: postValues.content,
-                role_count: postValues.roleCount,
-                role_description: postValues.roleDescription,
-                project_tags: postValues.tags,
-                skill_tags: postValues.skills,
-                location_preference: postValues.locationS ? 'remote' : 'in-person',
-                location: postValues.locationL,
+                role_count: postValues.role_count,
+                role_description: postValues.role_description,
+                project_tags: postValues.project_tags,
+                skill_tags: postValues.skill_tags,
+                location_preference: postValues.location_preference,
+                location: postValues.location,
                 difficulty: postValues.difficulty,
                 confirmDuplicate: duplicateWarning.show,
                 status: postValues.status,
                 is_draft: true,
+                locked: false,
+                authorImage: '',
+                authorID: '',
                 time_commitment: postValues.time_commitment,
                 project_category: postValues.project_category
             };
@@ -498,13 +499,13 @@ export default function PostPage() {
                 setPostValues({
                     title: "",
                     content: "",
-                    tags: [""],
-                    locationS: false,
-                    locationL: "",
+                    project_tags: [""],
+                    location_preference: 'remote',
+                    location: "",
                     locked: false,
-                    roleCount: 1,
-                    roleDescription: [""],
-                    skills: [""],
+                    role_count: 1,
+                    role_description: [""],
+                    skill_tags: [""],
                     authorImage: "",
                     authorID: "",
                     status: "active",
@@ -570,30 +571,30 @@ export default function PostPage() {
                                 <button
                                     type="button"
                                     onClick={() => {
-                                        setPostValues({ ...postValues, locationS: true });
+                                        setPostValues({ ...postValues, location_preference: 'remote' });
                                         // Clear location error when switching to remote
                                         setErrors({
                                             ...errors,
-                                            locationL: undefined
+                                            location: undefined
                                         });
                                     }}
-                                    className={`font-medium transition-all duration-150 !rounded-r !rounded-r-none !bg-[#0B0809] !border !border-[#2f3542] ${postValues.locationS ? '!text-white' : '!text-[#9CA3AF]'} !text-base !font-normal`}
+                                    className={`font-medium transition-all duration-150 !rounded-r !rounded-r-none !bg-[#0B0809] !border !border-[#2f3542] ${postValues.location_preference === 'remote' ? '!text-white' : '!text-[#9CA3AF]'} !text-base !font-normal`}
                                 >
                                     Remote
                                 </button>
                                 <button
                                     type="button"
                                     onClick={() => {
-                                        setPostValues({ ...postValues, locationS: false });
+                                        setPostValues({ ...postValues, location_preference: 'in-person' });
                                         // Validate location when switching to in-person
-                                        if (!postValues.locationL.trim()) {
+                                        if (!postValues.location.trim()) {
                                             setErrors({
                                                 ...errors,
-                                                locationL: "Location is required for in-person posts"
+                                                location: "Location is required for in-person posts"
                                             });
                                         }
                                     }}
-                                    className={`font-medium transition-all duration-150 !rounded-l !rounded-l-none !bg-[#0B0809] !border !border-[#2f3542] ${!postValues.locationS ? '!text-white' : '!text-[#9CA3AF]'} !text-base !font-normal`}
+                                    className={`font-medium transition-all duration-150 !rounded-l !rounded-l-none !bg-[#0B0809] !border !border-[#2f3542] ${!postValues.location_preference ? '!text-white' : '!text-[#9CA3AF]'} !text-base !font-normal`}
                                 >
                                     In Person
                                 </button>
@@ -603,15 +604,15 @@ export default function PostPage() {
                                 <input
                                     type="text"
                                     id="locationL"
-                                    value={postValues.locationL}
+                                    value={postValues.location}
                                     onChange={handleChange}
-                                    className={errors.locationL ? '!border-red-500' : ''}
+                                    className={errors.location ? '!border-red-500' : ''}
                                     name="locationL"
                                     placeholder="City, State (if applicable)"
                                 />
-                                {errors.locationL && (
+                                {errors.location && (
                                     <div className="text-red-500 text-sm mt-1">
-                                        {errors.locationL}
+                                        {errors.location}
                                     </div>
                                 )}
                                 <div className="text-sm text-gray-400 mt-1 !w-full">
@@ -708,13 +709,13 @@ export default function PostPage() {
                                 cacheOptions
                                 defaultOptions={advancedSkills}
                                 loadOptions={handleSkillTags}
-                                value={postValues.skills.map((skill) => ({
+                                value={postValues.skill_tags.map((skill) => ({
                                     value: skill.trim(),
                                     label: skill.trim(),
                                 }))}
                                 onChange={(selected) => {
-                                    const skills = (selected || []).map((option) => option.value.trim()).slice(0, 5);
-                                    setPostValues({ ...postValues, skills });
+                                    const skill_tags = (selected || []).map((option) => option.value.trim()).slice(0, 5);
+                                    setPostValues({ ...postValues, skill_tags });
                                 }}
                                 placeholder="Add tags to define the skills needed for your idea"
                                 closeMenuOnSelect={false}
@@ -732,15 +733,15 @@ export default function PostPage() {
                                 cacheOptions
                                 defaultOptions={projectCategories} // preload local categories
                                 loadOptions={handleProjectTags}
-                                value={postValues.tags.map((tag) => ({
+                                value={postValues.project_tags.map((tag) => ({
                                     value: tag.trim(),
                                     label: tag.trim(),
                                 }))}
                                 onChange={(selected) => {
-                                    const tags = (selected || [])
+                                    const project_tags = (selected || [])
                                         .map((option) => option.value.trim())
                                         .slice(0, 5);
-                                    setPostValues({ ...postValues, tags });
+                                    setPostValues({ ...postValues, project_tags });
                                 }}
                                 placeholder="Add tags to define the skills needed for your idea"
                                 closeMenuOnSelect={false}
@@ -757,14 +758,14 @@ export default function PostPage() {
                                     type="number"
                                     min="1"
                                     max="4"
-                                    value={postValues.roleCount}
+                                    value={postValues.role_count}
                                     onChange={(e) => {
                                         const count = Math.min(4, Math.max(1, parseInt(e.target.value) || 1));
                                         setPostValues({
                                             ...postValues,
-                                            roleCount: count,
-                                            roleDescription: Array(count).fill("").map((_, i) =>
-                                                postValues.roleDescription[i] || ""
+                                            role_count: count,
+                                            role_description: Array(count).fill("").map((_, i) =>
+                                                postValues.role_description[i] || ""
                                             )
                                         });
 
@@ -773,44 +774,44 @@ export default function PostPage() {
                                 />
                             </div>
 
-                            {postValues.roleCount > 0 && (
+                            {postValues.role_count > 0 && (
                                 <div className="w-3/4">
                                     <label className="block !-mb-0">Define Your Roles</label>
                                     <div className="flex flex-col !-gap-5">
-                                        {Array.from({ length: postValues.roleCount }).map((_, index) => (
+                                        {Array.from({ length: postValues.role_count }).map((_, index) => (
                                             <div key={index} className="w-full">
                                                 <label className="text-sm text-gray-600 block mb-1">
                                                     Role {index + 1}
                                                 </label>
                                                 <textarea
-                                                    value={postValues.roleDescription[index] || ""}
+                                                    value={postValues.role_description[index] || ""}
                                                     onChange={(e) => {
-                                                        const newDescriptions = [...postValues.roleDescription];
+                                                        const newDescriptions = [...postValues.role_description];
                                                         newDescriptions[index] = e.target.value;
                                                         setPostValues({
                                                             ...postValues,
-                                                            roleDescription: newDescriptions
+                                                            role_description: newDescriptions
                                                         });
-                                                        const newErrors = [...(errors.roleDescription || [])];
+                                                        const newErrors = [...(errors.role_description || [])];
                                                         newErrors[index] = e.target.value.trim() ? "" : "Description is required";
                                                         setErrors({
                                                             ...errors,
-                                                            roleDescription: newErrors
+                                                            role_description: newErrors
                                                         });
                                                     }}
                                                     maxLength={200}
                                                     placeholder={`Describe role ${index + 1}`}
-                                                    className={`w-full !min-h-[50px] resize-none p-4 border rounded text-base ${errors.roleDescription?.[index] ? "!border-red-500" : ""
+                                                    className={`w-full !min-h-[50px] resize-none p-4 border rounded text-base ${errors.role_description?.[index] ? "!border-red-500" : ""
                                                         }`}
                                                     rows={6}
                                                 />
-                                                {errors.roleDescription?.[index] && (
+                                                {errors.role_description?.[index] && (
                                                     <div className="text-red-500 text-sm mt-1">
-                                                        {errors.roleDescription[index]}
+                                                        {errors.role_description[index]}
                                                     </div>
                                                 )}
                                                 <div className="text-sm text-gray-400 text-right mt-1">
-                                                    {(postValues.roleDescription[index] || "").length}/200 characters
+                                                    {(postValues.role_description[index] || "").length}/200 characters
                                                 </div>
                                             </div>
                                         ))}
@@ -927,9 +928,9 @@ export default function PostPage() {
                                                     {postValues.status}
                                                 </span>
                                             )}
-                                            <span className={`!px-3 !py-1 !text-sm !font-medium !rounded-full ${postValues.locationL ? '!bg-indigo-900 !text-indigo-200' : '!bg-green-900 !text-green-300'
+                                            <span className={`!px-3 !py-1 !text-sm !font-medium !rounded-full ${postValues.location ? '!bg-indigo-900 !text-indigo-200' : '!bg-green-900 !text-green-300'
                                                 }`}>
-                                                {postValues.locationL ? 'Remote' : 'In Person'}
+                                                {postValues.location ? 'Remote' : 'In Person'}
                                             </span>
 
                                         </div>
@@ -943,7 +944,7 @@ export default function PostPage() {
                                                     <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                 </svg>
                                                 <span className="!text-[#ccc] !text-sm">
-                                                    {postValues.roleCount || 0} collaborator{postValues.roleCount !== 1 ? 's' : ''} needed
+                                                    {postValues.role_count || 0} collaborator{postValues.role_count !== 1 ? 's' : ''} needed
                                                 </span>
                                             </div>
 
@@ -963,7 +964,7 @@ export default function PostPage() {
                                                     <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                                                 </svg>
                                                 <span className="!text-[#ccc] !text-sm">
-                                                    {postValues.locationL ? 'Remote collaboration' : postValues.locationS}
+                                                    {postValues.location ? 'Remote collaboration' : postValues.location_preference}
                                                 </span>
                                             </div>
                                             {postValues.time_commitment && (
@@ -994,9 +995,9 @@ export default function PostPage() {
                                                 Role Description
                                             </h3>
 
-                                            {postValues.roleDescription?.length > 0 ? (
+                                            {postValues.role_description?.length > 0 ? (
                                                 <div className="list-disc pl-5 space-y-2">
-                                                    {postValues.roleDescription.map((role, index) => (
+                                                    {postValues.role_description.map((role, index) => (
                                                         <p
                                                             key={index}
                                                             className="!text-[#ccc] !text-left !mt-3 !text-[15px]"
@@ -1014,14 +1015,14 @@ export default function PostPage() {
 
 
                                         {/* Required Skills */}
-                                        {postValues.skills && postValues.skills.length > 0 && (
+                                        {postValues.skill_tags && postValues.skill_tags.length > 0 && (
                                             <div className="!mb-8">
                                                 <h3 className="!text-lg !font-semibold !text-white !mb-3 flex items-center !gap-2">
                                                     <div className="!w-1 !h-5 !bg-[#1f98f4] !rounded"></div>
                                                     Required Skills
                                                 </h3>
                                                 <div className="flex flex-wrap !gap-2">
-                                                    {postValues.skills
+                                                    {postValues.skill_tags
                                                         .filter((s) => s.trim())
                                                         .map((skill, i) => (
                                                             <span
@@ -1036,14 +1037,14 @@ export default function PostPage() {
                                         )}
 
                                         {/* Project Tags */}
-                                        {postValues.tags && postValues.tags.length > 0 && (
+                                        {postValues.project_tags && postValues.project_tags.length > 0 && (
                                             <div className="!mb-8">
                                                 <h3 className="!text-lg !font-semibold !text-white !mb-3 flex items-center !gap-2">
                                                     <div className="!w-1 !h-5 !bg-[#1f98f4] !rounded"></div>
                                                     Project Tags
                                                 </h3>
                                                 <div className="flex flex-wrap !gap-2">
-                                                    {postValues.tags
+                                                    {postValues.project_tags
                                                         .filter((t) => t.trim())
                                                         .map((tags, i) => (
                                                             <span

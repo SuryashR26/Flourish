@@ -73,7 +73,7 @@ export default function LoginPage() {
             console.log("Login failed", errors);
             return;
         }
-        
+
         setIsLoading(true);
         try {
             const success = await login(loginValues.username, loginValues.password)
@@ -119,34 +119,6 @@ export default function LoginPage() {
         setErrors(tempErrors)
         return isValid
     }
-
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-
-        if (!showPasswordField) {
-            if (!loginValues.username.trim()) {
-                setErrors({ username: "Username or email is required" });
-                return;
-            }
-            setErrors({}); // Clear any errors
-            setShowPasswordField(true);
-            return;
-        }
-
-        const isValid = validateForm();
-        if (isValid) {
-            setLoginValues({
-                username: "",
-                password: "",
-            });
-            setErrors({});
-            console.log("Login successful");
-            router.push('/');
-        } else {
-            console.log("Login failed", errors);
-        }
-    };
-
     // Show loading screen during login process
     if (isLoading) {
         return <LoadingScreen />;

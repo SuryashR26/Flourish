@@ -15,23 +15,22 @@ import { search, bookmarkProject, storeViewProject } from "@/api/apiClient"
 import { Project, SearchFilter } from '@/app/types/projectTypes';
 import { useUser } from '@/context/UserContext';
 
-import type { CSSObjectWithLabel, ControlProps, MultiValueRemoveProps, OptionProps } from 'react-select';
+import type { CSSObjectWithLabel, ControlProps, MultiValueRemoveProps, OptionProps, StylesConfig, GroupBase } from 'react-select';
 import { useRouter } from 'next/navigation';
 
+type OptionType = {
+    value: string;
+    label: string;
+};
 
 
-const Select = dynamic(() => import("react-select"), { ssr: false });
+const Select = dynamic(() => import("react-select"), { ssr: false }) as React.ComponentType<
+    import("react-select").Props<OptionType, true>
+>;
 
-const TAG_DIRECTORY = [
-    { value: "Web Development", label: "Web Development" },
-    { value: "JavaScript", label: "JavaScript" },
-    { value: "React", label: "React" },
-    { value: "Node.js", label: "Node.js" },
-    { value: "UI Design", label: "UI Design" },
-    { value: "TypeScript", label: "TypeScript" },
-    { value: "Python", label: "Python" },
-    // ...add more as needed
-]
+
+
+
 const SKILL_DIRECTORY = [
     { value: "React", label: "React" },
     { value: "Node.js", label: "Node.js" },
@@ -41,8 +40,8 @@ const SKILL_DIRECTORY = [
     // ...add more as needed
 ]
 
-const customSelectStyles = {
-    control: (provided: CSSObjectWithLabel, state: ControlProps<any, true>): CSSObjectWithLabel => ({
+const customSelectStyles: StylesConfig<OptionType, true> = {
+    control: (provided: CSSObjectWithLabel, state: ControlProps<OptionType, true>): CSSObjectWithLabel => ({
         ...provided,
         backgroundColor: '#0B0809',
         border: state.isFocused ? '1px solid #1f98f4' : '1px solid #2f3542',
@@ -64,7 +63,7 @@ const customSelectStyles = {
         borderRadius: 8,
         zIndex: 20,
     }),
-    option: (provided: CSSObjectWithLabel, state: OptionProps<any, true>): CSSObjectWithLabel => ({
+    option: (provided: CSSObjectWithLabel, state: OptionProps<OptionType, true>): CSSObjectWithLabel => ({
         ...provided,
         backgroundColor: state.isFocused ? '#181c23' : '#0B0809',
         color: 'white',
@@ -118,7 +117,7 @@ const customSelectStyles = {
     }),
 };
 
-const CustomMultiValueRemove = (props: MultiValueRemoveProps<any>) => (
+const CustomMultiValueRemove = (props: MultiValueRemoveProps<OptionType, true, GroupBase<OptionType>>) => (
     <components.MultiValueRemove {...props}>
         <svg
             width={20} height={20} viewBox="0 0 24 24"
@@ -131,7 +130,6 @@ const CustomMultiValueRemove = (props: MultiValueRemoveProps<any>) => (
         </svg>
     </components.MultiValueRemove>
 );
-
 
 
 
@@ -234,7 +232,7 @@ function SkillsRow({ skills = [] }: { skills: string[] }) {
     );
 }
 
-function page() {
+function Page() {
     const initialSearchFilter: SearchFilter = {
         LocationS: { remote: false, inPerson: false },
         LocationL: '',
@@ -341,15 +339,7 @@ function page() {
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
-    // Helper function to get initials from name
-    const getInitials = (name: string) => {
-        return name
-            .split(' ')
-            .map(n => n[0])
-            .join('')
-            .toUpperCase()
-            .slice(0, 2);
-    };
+
 
     // Enhanced category colors with updated palette for project cards
     const getCategoryColor = (category: string) => {
@@ -406,24 +396,6 @@ function page() {
         }
     };
 
-    const getProjectCategory = (tags: string[] = []) => {
-        const tagString = tags.join(' ').toLowerCase();
-        if (tagString.includes('creative') || tagString.includes('design') || tagString.includes('art') ||
-            tagString.includes('film') || tagString.includes('podcast') || tagString.includes('storytelling')) {
-            return 'Creative';
-        }
-        if (tagString.includes('business') || tagString.includes('impact') || tagString.includes('startup') ||
-            tagString.includes('marketplace') || tagString.includes('fintech')) {
-            return 'Business';
-        }
-        if (tagString.includes('sustainability') || tagString.includes('environment') || tagString.includes('policy')) {
-            return 'Environment';
-        }
-        if (tagString.includes('research') || tagString.includes('study') || tagString.includes('analysis')) {
-            return 'Research';
-        }
-        return 'Tech';
-    };
 
     function shuffleProjects(projects: Project[]) {
         const shuffled = [...projects];
@@ -590,10 +562,12 @@ function page() {
                                     isMulti
                                     options={SKILL_DIRECTORY}
                                     value={searchFilter.skills.map(skill => ({ value: skill, label: skill }))}
-                                    onChange={selected => {
-                                        // selected is array of {value,label}
-                                        setUsePreferences(true)
-                                        const skills = (selected as { value: string; label: string }[]).map(option => option.value).slice(0, 5);
+                                    onChange={(selected) => {
+                                        const options = selected as { value: string; label: string }[] | null;
+                                        setUsePreferences(true);
+                                        const skills = options
+                                            ? options.map(option => option.value).slice(0, 5)
+                                            : [];
                                         setSearchFilter({ ...searchFilter, skills });
                                     }}
                                     placeholder="Search skills..."
@@ -604,6 +578,7 @@ function page() {
                                     noOptionsMessage={() => null}
                                     className="tags-input !w-full !py-2.5 !px-3 !bg-[#0B0809] !border !border-[#2f3542] !rounded-lg !text-white !text-[14px] !mb-2 cursor-pointer"
                                 />
+
                                 <div className="selected-tags flex flex-wrap !gap-1 !mt-2 !mb-2">
                                     {searchFilter.skills.map((skill, i) => (
                                         <span key={i} className="tag-chip !bg-[#181c23] !text-white !px-2 !py-1 !rounded !text-[12px] flex items-center !gap-1">
@@ -772,7 +747,7 @@ function page() {
             >
                 <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 !mb-4">
                     <p className="text-gray-400 text-lg lg:text-lg font-medium">
-                        Showing {projectCards.length} results for "{searchQuery || 'all projects'}"
+                        Showing {projectCards.length} results for `&quot;`{searchQuery || 'all projects'}`&quot;`
                     </p>
                     <div className='relative'>
 
@@ -1386,4 +1361,4 @@ function page() {
     )
 }
 
-export default page
+export default Page

@@ -9,6 +9,12 @@ interface NotificationContainerProps {
 
 let notificationCounter = 0
 
+declare global {
+    interface Window {
+        showNotification?: (notification: Omit<NotificationProps, 'id'>) => void
+    }
+}
+
 const NotificationContainer: React.FC<NotificationContainerProps> = ({ children }) => {
     const [notifications, setNotifications] = useState<NotificationProps[]>([])
 
@@ -18,7 +24,7 @@ const NotificationContainer: React.FC<NotificationContainerProps> = ({ children 
             ...notification,
             id,
         }
-        
+
         setNotifications(prev => [...prev, newNotification])
     }, [])
 
@@ -29,10 +35,10 @@ const NotificationContainer: React.FC<NotificationContainerProps> = ({ children 
     // Expose addNotification method globally
     React.useEffect(() => {
         if (typeof window !== 'undefined') {
-            ;(window as any).showNotification = addNotification
+            window.showNotification = addNotification
         }
     }, [addNotification])
-    
+
     return (
         <>
             {children}
@@ -73,9 +79,13 @@ const NotificationContainer: React.FC<NotificationContainerProps> = ({ children 
 }
 
 // Helper functions for easy access
-export const showSuccessNotification = (title: string, message: string, duration?: number) => {
-    if (typeof window !== 'undefined' && (window as any).showNotification) {
-        ;(window as any).showNotification({
+export const showSuccessNotification = (
+    title: string,
+    message: string,
+    duration?: number
+) => {
+    if (typeof window !== 'undefined' && window.showNotification) {
+        window.showNotification({
             type: 'success',
             title,
             message,
@@ -84,9 +94,14 @@ export const showSuccessNotification = (title: string, message: string, duration
     }
 }
 
-export const showErrorNotification = (title: string, message: string, duration?: number) => {
-    if (typeof window !== 'undefined' && (window as any).showNotification) {
-        ;(window as any).showNotification({
+
+export const showErrorNotification = (
+    title: string,
+    message: string,
+    duration?: number
+) => {
+    if (typeof window !== 'undefined' && window.showNotification) {
+        window.showNotification({
             type: 'error',
             title,
             message,
@@ -94,5 +109,6 @@ export const showErrorNotification = (title: string, message: string, duration?:
         })
     }
 }
+
 
 export default NotificationContainer 

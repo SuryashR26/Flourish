@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { FaCog, FaUser, FaFolder, FaHandshake, FaBell, FaLock, FaLink, FaUserCircle, FaTimes } from 'react-icons/fa';
+import { FaCog, FaUser, /*FaFolder*/ FaHandshake, FaBell, FaLock, FaLink, FaUserCircle, FaTimes } from 'react-icons/fa';
 import { getSettings, updateSettings } from '@/api/apiClient';
 import PasswordChangeModal from './PasswordChangeModal';
 
@@ -23,7 +23,6 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
   const [activePanel, setActivePanel] = useState('general');
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [settings, setSettings] = useState<UserSettings | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [displayName, setDisplayName] = useState('');
   const [bio, setBio] = useState('');
@@ -35,9 +34,8 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
   useEffect(() => {
     const fetchSettings = async () => {
       if (!isOpen) return;
-      
+
       try {
-        setIsLoading(true);
         const response = await getSettings();
         if (response.success) {
           const userSettings = response.settings;
@@ -51,7 +49,6 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
       } catch (error) {
         console.error('Failed to fetch settings:', error);
       } finally {
-        setIsLoading(false);
       }
     };
 
@@ -86,8 +83,8 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
   };
 
   const toggleInterest = (interest: string) => {
-    setSelectedInterests(prev => 
-      prev.includes(interest) 
+    setSelectedInterests(prev =>
+      prev.includes(interest)
         ? prev.filter(item => item !== interest)
         : [...prev, interest]
     );
@@ -126,191 +123,191 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
         <div className="settings-main-content">
           {/* Sidebar */}
           <div className="settings-sidebar">
-          <div className="settings-close" onClick={onClose}>
-            <FaTimes />
-          </div>
-          
-          <div 
-            className={`settings-nav-item ${activePanel === 'general' ? 'active' : ''}`} 
-            onClick={() => switchPanel('general')}
-          >
-            <span className="settings-nav-icon"><FaCog /></span>
-            <span>General</span>
-          </div>
-          
-          <div 
-            className={`settings-nav-item ${activePanel === 'profile' ? 'active' : ''}`} 
-            onClick={() => switchPanel('profile')}
-          >
-            <span className="settings-nav-icon"><FaUser /></span>
-            <span>Profile & Interests</span>
-          </div>
-          
-{/* <div 
+            <div className="settings-close" onClick={onClose}>
+              <FaTimes />
+            </div>
+
+            <div
+              className={`settings-nav-item ${activePanel === 'general' ? 'active' : ''}`}
+              onClick={() => switchPanel('general')}
+            >
+              <span className="settings-nav-icon"><FaCog /></span>
+              <span>General</span>
+            </div>
+
+            <div
+              className={`settings-nav-item ${activePanel === 'profile' ? 'active' : ''}`}
+              onClick={() => switchPanel('profile')}
+            >
+              <span className="settings-nav-icon"><FaUser /></span>
+              <span>Profile & Interests</span>
+            </div>
+
+            {/* <div 
             className={`settings-nav-item ${activePanel === 'projects' ? 'active' : ''}`} 
             onClick={() => switchPanel('projects')}
           >
             <span className="settings-nav-icon"><FaFolder /></span>
             <span>Project Preferences</span>
           </div> */}
-          
-          <div 
-            className={`settings-nav-item ${activePanel === 'collaboration' ? 'active' : ''}`} 
-            onClick={() => switchPanel('collaboration')}
-          >
-            <span className="settings-nav-icon"><FaHandshake /></span>
-            <span>Collaboration</span>
-          </div>
-          
-          <div 
-            className={`settings-nav-item ${activePanel === 'notifications' ? 'active' : ''}`} 
-            onClick={() => switchPanel('notifications')}
-          >
-            <span className="settings-nav-icon"><FaBell /></span>
-            <span>Notifications</span>
-          </div>
-          
-          <div 
-            className={`settings-nav-item ${activePanel === 'privacy' ? 'active' : ''}`} 
-            onClick={() => switchPanel('privacy')}
-          >
-            <span className="settings-nav-icon"><FaLock /></span>
-            <span>Privacy & Security</span>
-          </div>
-          
-          <div 
-            className={`settings-nav-item ${activePanel === 'connected' ? 'active' : ''}`} 
-            onClick={() => switchPanel('connected')}
-          >
-            <span className="settings-nav-icon"><FaLink /></span>
-            <span>Connected Apps</span>
-          </div>
-          
-          <div 
-            className={`settings-nav-item ${activePanel === 'account' ? 'active' : ''}`} 
-            onClick={() => switchPanel('account')}
-          >
-            <span className="settings-nav-icon"><FaUserCircle /></span>
-            <span>Account</span>
-          </div>
-        </div>
 
-        {/* Content Area */}
-        <div className="settings-content">
-          {/* General Panel */}
-          <div className={`settings-panel ${activePanel === 'general' ? 'active' : ''}`}>
-            <h2 className="settings-title">General</h2>
-            
-            <div className="settings-row">
-              <div className="settings-label-group">
-                <label className="settings-label">Theme</label>
-                <p className="settings-description">Choose your preferred color theme</p>
-              </div>
-              <div className="settings-control">
-                <select className="settings-select">
-                  <option>System</option>
-                  <option>Dark</option>
-                  <option>Light</option>
-                </select>
-              </div>
+            <div
+              className={`settings-nav-item ${activePanel === 'collaboration' ? 'active' : ''}`}
+              onClick={() => switchPanel('collaboration')}
+            >
+              <span className="settings-nav-icon"><FaHandshake /></span>
+              <span>Collaboration</span>
             </div>
-            
-            <div className="settings-row">
-              <div className="settings-label-group">
-                <label className="settings-label">Language</label>
-                <p className="settings-description">Select your preferred language</p>
-              </div>
-              <div className="settings-control">
-                <select className="settings-select">
-                  <option>Auto-detect</option>
-                  <option>English</option>
-                  <option>Spanish</option>
-                  <option>French</option>
-                  <option>German</option>
-                  <option>Chinese</option>
-                </select>
-              </div>
+
+            <div
+              className={`settings-nav-item ${activePanel === 'notifications' ? 'active' : ''}`}
+              onClick={() => switchPanel('notifications')}
+            >
+              <span className="settings-nav-icon"><FaBell /></span>
+              <span>Notifications</span>
             </div>
-            
-            <div className="settings-row">
-              <div className="settings-label-group">
-                <label className="settings-label">Time Zone</label>
-                <p className="settings-description">Set your local time zone for scheduling</p>
-              </div>
-              <div className="settings-control">
-                <select className="settings-select">
-                  <option>Auto-detect</option>
-                  <option>UTC-08:00 Pacific</option>
-                  <option>UTC-05:00 Eastern</option>
-                  <option>UTC+00:00 GMT</option>
-                  <option>UTC+01:00 CET</option>
-                </select>
-              </div>
+
+            <div
+              className={`settings-nav-item ${activePanel === 'privacy' ? 'active' : ''}`}
+              onClick={() => switchPanel('privacy')}
+            >
+              <span className="settings-nav-icon"><FaLock /></span>
+              <span>Privacy & Security</span>
+            </div>
+
+            <div
+              className={`settings-nav-item ${activePanel === 'connected' ? 'active' : ''}`}
+              onClick={() => switchPanel('connected')}
+            >
+              <span className="settings-nav-icon"><FaLink /></span>
+              <span>Connected Apps</span>
+            </div>
+
+            <div
+              className={`settings-nav-item ${activePanel === 'account' ? 'active' : ''}`}
+              onClick={() => switchPanel('account')}
+            >
+              <span className="settings-nav-icon"><FaUserCircle /></span>
+              <span>Account</span>
             </div>
           </div>
 
-          {/* Profile & Interests Panel */}
-          <div className={`settings-panel ${activePanel === 'profile' ? 'active' : ''}`}>
-            <h2 className="settings-title">Profile & Interests</h2>
-            
-            <div className="settings-row">
-              <div className="settings-label-group">
-                <label className="settings-label">Display Name</label>
-                <p className="settings-description">This is how you'll appear to other collaborators</p>
-              </div>
-              <div className="settings-control">
-                <input 
-                  type="text" 
-                  className="settings-input" 
-                  placeholder="Enter your name"
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
-                />
-              </div>
-            </div>
-            
-            <div className="settings-row">
-              <div className="settings-label-group">
-                <label className="settings-label">Bio</label>
-                <p className="settings-description">Tell others about yourself and your expertise</p>
-              </div>
-              <div className="settings-control">
-                <textarea 
-                  className="settings-input" 
-                  placeholder="Tell us about yourself, your skills, and what you're passionate about..." 
-                  rows={4} 
-                  style={{height: 'auto', resize: 'vertical'}}
-                  value={bio}
-                  onChange={(e) => setBio(e.target.value)}
-                />
-              </div>
-            </div>
-            
-            <div className="settings-group">
-              <label className="settings-label">Areas of Interest</label>
-              <p className="settings-description">Select all that apply to get better project matches</p>
-              <div className="settings-checkbox-group">
-                {['Tech', 'Computer Science', 'AI/ML', 'Web Dev', 'Mobile Dev', 'Data Science', 'Design', 'Business'].map((interest) => (
-                  <div 
-                    key={interest}
-                    className={`settings-checkbox-item ${selectedInterests.includes(interest) ? 'selected' : ''}`}
-                    onClick={() => toggleInterest(interest)}
-                  >
-                    <input 
-                      type="checkbox" 
-                      className="settings-checkbox" 
-                      checked={selectedInterests.includes(interest)}
-                      onChange={() => toggleInterest(interest)}
-                    />
-                    <label>{interest}</label>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+          {/* Content Area */}
+          <div className="settings-content">
+            {/* General Panel */}
+            <div className={`settings-panel ${activePanel === 'general' ? 'active' : ''}`}>
+              <h2 className="settings-title">General</h2>
 
-{/* Project Preferences Panel */}
-          {/* <div className={`settings-panel ${activePanel === 'projects' ? 'active' : ''}`}>
+              <div className="settings-row">
+                <div className="settings-label-group">
+                  <label className="settings-label">Theme</label>
+                  <p className="settings-description">Choose your preferred color theme</p>
+                </div>
+                <div className="settings-control">
+                  <select className="settings-select">
+                    <option>System</option>
+                    <option>Dark</option>
+                    <option>Light</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="settings-row">
+                <div className="settings-label-group">
+                  <label className="settings-label">Language</label>
+                  <p className="settings-description">Select your preferred language</p>
+                </div>
+                <div className="settings-control">
+                  <select className="settings-select">
+                    <option>Auto-detect</option>
+                    <option>English</option>
+                    <option>Spanish</option>
+                    <option>French</option>
+                    <option>German</option>
+                    <option>Chinese</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="settings-row">
+                <div className="settings-label-group">
+                  <label className="settings-label">Time Zone</label>
+                  <p className="settings-description">Set your local time zone for scheduling</p>
+                </div>
+                <div className="settings-control">
+                  <select className="settings-select">
+                    <option>Auto-detect</option>
+                    <option>UTC-08:00 Pacific</option>
+                    <option>UTC-05:00 Eastern</option>
+                    <option>UTC+00:00 GMT</option>
+                    <option>UTC+01:00 CET</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Profile & Interests Panel */}
+            <div className={`settings-panel ${activePanel === 'profile' ? 'active' : ''}`}>
+              <h2 className="settings-title">Profile & Interests</h2>
+
+              <div className="settings-row">
+                <div className="settings-label-group">
+                  <label className="settings-label">Display Name</label>
+                  <p className="settings-description">This is how you`&apos;`ll appear to other collaborators</p>
+                </div>
+                <div className="settings-control">
+                  <input
+                    type="text"
+                    className="settings-input"
+                    placeholder="Enter your name"
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="settings-row">
+                <div className="settings-label-group">
+                  <label className="settings-label">Bio</label>
+                  <p className="settings-description">Tell others about yourself and your expertise</p>
+                </div>
+                <div className="settings-control">
+                  <textarea
+                    className="settings-input"
+                    placeholder="Tell us about yourself, your skills, and what you're passionate about..."
+                    rows={4}
+                    style={{ height: 'auto', resize: 'vertical' }}
+                    value={bio}
+                    onChange={(e) => setBio(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="settings-group">
+                <label className="settings-label">Areas of Interest</label>
+                <p className="settings-description">Select all that apply to get better project matches</p>
+                <div className="settings-checkbox-group">
+                  {['Tech', 'Computer Science', 'AI/ML', 'Web Dev', 'Mobile Dev', 'Data Science', 'Design', 'Business'].map((interest) => (
+                    <div
+                      key={interest}
+                      className={`settings-checkbox-item ${selectedInterests.includes(interest) ? 'selected' : ''}`}
+                      onClick={() => toggleInterest(interest)}
+                    >
+                      <input
+                        type="checkbox"
+                        className="settings-checkbox"
+                        checked={selectedInterests.includes(interest)}
+                        onChange={() => toggleInterest(interest)}
+                      />
+                      <label>{interest}</label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Project Preferences Panel */}
+            {/* <div className={`settings-panel ${activePanel === 'projects' ? 'active' : ''}`}>
             <h2 className="settings-title">Project Preferences</h2>
             
             <div className="settings-row">
@@ -385,306 +382,306 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
             </div>
           </div> */}
 
-          {/* Collaboration Panel */}
-          <div className={`settings-panel ${activePanel === 'collaboration' ? 'active' : ''}`}>
-            <h2 className="settings-title">Collaboration Settings</h2>
-            
-            <div className="settings-row">
-              <div className="settings-label-group">
-                <label className="settings-label">Profile Visibility</label>
-                <p className="settings-description">Who can see your profile and projects?</p>
+            {/* Collaboration Panel */}
+            <div className={`settings-panel ${activePanel === 'collaboration' ? 'active' : ''}`}>
+              <h2 className="settings-title">Collaboration Settings</h2>
+
+              <div className="settings-row">
+                <div className="settings-label-group">
+                  <label className="settings-label">Profile Visibility</label>
+                  <p className="settings-description">Who can see your profile and projects?</p>
+                </div>
+                <div className="settings-control">
+                  <select
+                    className="settings-select"
+                    value={profileVisibility}
+                    onChange={(e) => setProfileVisibility(e.target.value as 'public' | 'private')}
+                  >
+                    <option value="public">Public</option>
+                    <option value="private">Private</option>
+                  </select>
+                </div>
               </div>
-              <div className="settings-control">
-                <select 
-                  className="settings-select"
-                  value={profileVisibility}
-                  onChange={(e) => setProfileVisibility(e.target.value as 'public' | 'private')}
-                >
-                  <option value="public">Public</option>
-                  <option value="private">Private</option>
-                </select>
+
+              <div className="settings-row">
+                <div className="settings-label-group">
+                  <label className="settings-label">Allow team invites</label>
+                  <p className="settings-description">Let others invite you to join their projects</p>
+                </div>
+                <div className="settings-control">
+                  <div className="settings-toggle active" onClick={(e) => toggleSwitch(e.currentTarget as HTMLElement)}>
+                    <div className="settings-toggle-slider"></div>
+                  </div>
+                </div>
               </div>
-            </div>
-            
-            <div className="settings-row">
-              <div className="settings-label-group">
-                <label className="settings-label">Allow team invites</label>
-                <p className="settings-description">Let others invite you to join their projects</p>
+
+              <div className="settings-row">
+                <div className="settings-label-group">
+                  <label className="settings-label">Show online status</label>
+                  <p className="settings-description">Let collaborators see when you`&apos;`re active</p>
+                </div>
+                <div className="settings-control">
+                  <div className="settings-toggle" onClick={(e) => toggleSwitch(e.currentTarget as HTMLElement)}>
+                    <div className="settings-toggle-slider"></div>
+                  </div>
+                </div>
               </div>
-              <div className="settings-control">
-                <div className="settings-toggle active" onClick={(e) => toggleSwitch(e.currentTarget as HTMLElement)}>
-                  <div className="settings-toggle-slider"></div>
+
+              <div className="settings-row">
+                <div className="settings-label-group">
+                  <label className="settings-label">Message requests</label>
+                  <p className="settings-description">Who can send you direct messages?</p>
+                </div>
+                <div className="settings-control">
+                  <select className="settings-select">
+                    <option>Anyone</option>
+                    <option>People I follow</option>
+                    <option>Team members only</option>
+                    <option>No one</option>
+                  </select>
                 </div>
               </div>
             </div>
-            
-            <div className="settings-row">
-              <div className="settings-label-group">
-                <label className="settings-label">Show online status</label>
-                <p className="settings-description">Let collaborators see when you're active</p>
+
+            {/* Notifications Panel */}
+            <div className={`settings-panel ${activePanel === 'notifications' ? 'active' : ''}`}>
+              <h2 className="settings-title">Notifications</h2>
+
+              <div className="settings-row">
+                <div className="settings-label-group">
+                  <label className="settings-label">Email notifications</label>
+                  <p className="settings-description">Receive updates via email</p>
+                </div>
+                <div className="settings-control">
+                  <div className="settings-toggle active" onClick={(e) => toggleSwitch(e.currentTarget as HTMLElement)}>
+                    <div className="settings-toggle-slider"></div>
+                  </div>
+                </div>
               </div>
-              <div className="settings-control">
-                <div className="settings-toggle" onClick={(e) => toggleSwitch(e.currentTarget as HTMLElement)}>
-                  <div className="settings-toggle-slider"></div>
+
+              <div className="settings-row">
+                <div className="settings-label-group">
+                  <label className="settings-label">Project invitations</label>
+                  <p className="settings-description">When someone invites you to a project</p>
+                </div>
+                <div className="settings-control">
+                  <div className="settings-toggle active" onClick={(e) => toggleSwitch(e.currentTarget as HTMLElement)}>
+                    <div className="settings-toggle-slider"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="settings-row">
+                <div className="settings-label-group">
+                  <label className="settings-label">New messages</label>
+                  <p className="settings-description">When you receive a new message</p>
+                </div>
+                <div className="settings-control">
+                  <div className="settings-toggle active" onClick={(e) => toggleSwitch(e.currentTarget as HTMLElement)}>
+                    <div className="settings-toggle-slider"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="settings-row">
+                <div className="settings-label-group">
+                  <label className="settings-label">Project updates</label>
+                  <p className="settings-description">Updates from projects you`&apos;`re following</p>
+                </div>
+                <div className="settings-control">
+                  <div className="settings-toggle" onClick={(e) => toggleSwitch(e.currentTarget as HTMLElement)}>
+                    <div className="settings-toggle-slider"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="settings-row">
+                <div className="settings-label-group">
+                  <label className="settings-label">Weekly digest</label>
+                  <p className="settings-description">Summary of new projects matching your interests</p>
+                </div>
+                <div className="settings-control">
+                  <div className="settings-toggle active" onClick={(e) => toggleSwitch(e.currentTarget as HTMLElement)}>
+                    <div className="settings-toggle-slider"></div>
+                  </div>
                 </div>
               </div>
             </div>
-            
-            <div className="settings-row">
-              <div className="settings-label-group">
-                <label className="settings-label">Message requests</label>
-                <p className="settings-description">Who can send you direct messages?</p>
+
+            {/* Privacy & Security Panel */}
+            <div className={`settings-panel ${activePanel === 'privacy' ? 'active' : ''}`}>
+              <h2 className="settings-title">Privacy & Security</h2>
+
+              <div className="settings-row">
+                <div className="settings-label-group">
+                  <label className="settings-label">Two-factor authentication</label>
+                  <p className="settings-description">Add an extra layer of security to your account</p>
+                </div>
+                <div className="settings-control">
+                  <button className="settings-button">Enable 2FA</button>
+                </div>
               </div>
-              <div className="settings-control">
-                <select className="settings-select">
-                  <option>Anyone</option>
-                  <option>People I follow</option>
-                  <option>Team members only</option>
-                  <option>No one</option>
-                </select>
+
+              <div className="settings-row">
+                <div className="settings-label-group">
+                  <label className="settings-label">Session timeout</label>
+                  <p className="settings-description">Automatically log out after inactivity</p>
+                </div>
+                <div className="settings-control">
+                  <select className="settings-select">
+                    <option>Never</option>
+                    <option>30 minutes</option>
+                    <option>1 hour</option>
+                    <option>2 hours</option>
+                    <option>8 hours</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="settings-row">
+                <div className="settings-label-group">
+                  <label className="settings-label">Show email publicly</label>
+                  <p className="settings-description">Display your email on your profile</p>
+                </div>
+                <div className="settings-control">
+                  <div
+                    className={`settings-toggle ${showEmailPublicly ? 'active' : ''}`}
+                    onClick={() => setShowEmailPublicly(!showEmailPublicly)}
+                  >
+                    <div className="settings-toggle-slider"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="settings-row">
+                <div className="settings-label-group">
+                  <label className="settings-label">Data sharing</label>
+                  <p className="settings-description">Share anonymous usage data to improve the platform</p>
+                </div>
+                <div className="settings-control">
+                  <div className="settings-toggle active" onClick={(e) => toggleSwitch(e.currentTarget as HTMLElement)}>
+                    <div className="settings-toggle-slider"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Connected Apps Panel */}
+            <div className={`settings-panel ${activePanel === 'connected' ? 'active' : ''}`}>
+              <h2 className="settings-title">Connected Apps</h2>
+
+              <div className="settings-row">
+                <div className="settings-label-group">
+                  <label className="settings-label">GitHub</label>
+                  <p className="settings-description">Sync your repositories and contributions</p>
+                </div>
+                <div className="settings-control">
+                  <button className="settings-button">Connect</button>
+                </div>
+              </div>
+
+              <div className="settings-row">
+                <div className="settings-label-group">
+                  <label className="settings-label">LinkedIn</label>
+                  <p className="settings-description">Import your professional profile</p>
+                </div>
+                <div className="settings-control">
+                  <button className="settings-button">Connect</button>
+                </div>
+              </div>
+
+              <div className="settings-row">
+                <div className="settings-label-group">
+                  <label className="settings-label">Slack</label>
+                  <p className="settings-description">Get notifications in your Slack workspace</p>
+                </div>
+                <div className="settings-control">
+                  <button className="settings-button">Connect</button>
+                </div>
+              </div>
+
+              <div className="settings-row">
+                <div className="settings-label-group">
+                  <label className="settings-label">Discord</label>
+                  <p className="settings-description">Join project discussions on Discord</p>
+                </div>
+                <div className="settings-control">
+                  <button className="settings-button">Connect</button>
+                </div>
+              </div>
+            </div>
+
+            {/* Account Panel */}
+            <div className={`settings-panel ${activePanel === 'account' ? 'active' : ''}`}>
+              <h2 className="settings-title">Account</h2>
+
+              <div className="settings-row">
+                <div className="settings-label-group">
+                  <label className="settings-label">Email</label>
+                  <p className="settings-description">Your primary email address</p>
+                </div>
+                <div className="settings-control">
+                  <input
+                    type="email"
+                    className="settings-input"
+                    value={settings?.email || ''}
+                    placeholder="user@example.com"
+                    disabled
+                    style={{ backgroundColor: '#1a1a1a', color: '#888' }}
+                  />
+                </div>
+              </div>
+
+              <div className="settings-row">
+                <div className="settings-label-group">
+                  <label className="settings-label">Change Password</label>
+                  <p className="settings-description">Update your account password</p>
+                </div>
+                <div className="settings-control">
+                  <button
+                    className="settings-button"
+                    onClick={() => setIsPasswordModalOpen(true)}
+                  >
+                    Change Password
+                  </button>
+                </div>
+              </div>
+
+              <div className="settings-row">
+                <div className="settings-label-group">
+                  <label className="settings-label">Export Data</label>
+                  <p className="settings-description">Download all your data and projects</p>
+                </div>
+                <div className="settings-control">
+                  <button className="settings-button">Export</button>
+                </div>
+              </div>
+
+              <div className="settings-row">
+                <div className="settings-label-group">
+                  <label className="settings-label">Delete Account</label>
+                  <p className="settings-description">Permanently delete your account and all data</p>
+                </div>
+                <div className="settings-control">
+                  <button className="settings-button danger">Delete Account</button>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Notifications Panel */}
-          <div className={`settings-panel ${activePanel === 'notifications' ? 'active' : ''}`}>
-            <h2 className="settings-title">Notifications</h2>
-            
-            <div className="settings-row">
-              <div className="settings-label-group">
-                <label className="settings-label">Email notifications</label>
-                <p className="settings-description">Receive updates via email</p>
-              </div>
-              <div className="settings-control">
-                <div className="settings-toggle active" onClick={(e) => toggleSwitch(e.currentTarget as HTMLElement)}>
-                  <div className="settings-toggle-slider"></div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="settings-row">
-              <div className="settings-label-group">
-                <label className="settings-label">Project invitations</label>
-                <p className="settings-description">When someone invites you to a project</p>
-              </div>
-              <div className="settings-control">
-                <div className="settings-toggle active" onClick={(e) => toggleSwitch(e.currentTarget as HTMLElement)}>
-                  <div className="settings-toggle-slider"></div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="settings-row">
-              <div className="settings-label-group">
-                <label className="settings-label">New messages</label>
-                <p className="settings-description">When you receive a new message</p>
-              </div>
-              <div className="settings-control">
-                <div className="settings-toggle active" onClick={(e) => toggleSwitch(e.currentTarget as HTMLElement)}>
-                  <div className="settings-toggle-slider"></div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="settings-row">
-              <div className="settings-label-group">
-                <label className="settings-label">Project updates</label>
-                <p className="settings-description">Updates from projects you're following</p>
-              </div>
-              <div className="settings-control">
-                <div className="settings-toggle" onClick={(e) => toggleSwitch(e.currentTarget as HTMLElement)}>
-                  <div className="settings-toggle-slider"></div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="settings-row">
-              <div className="settings-label-group">
-                <label className="settings-label">Weekly digest</label>
-                <p className="settings-description">Summary of new projects matching your interests</p>
-              </div>
-              <div className="settings-control">
-                <div className="settings-toggle active" onClick={(e) => toggleSwitch(e.currentTarget as HTMLElement)}>
-                  <div className="settings-toggle-slider"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Privacy & Security Panel */}
-          <div className={`settings-panel ${activePanel === 'privacy' ? 'active' : ''}`}>
-            <h2 className="settings-title">Privacy & Security</h2>
-            
-            <div className="settings-row">
-              <div className="settings-label-group">
-                <label className="settings-label">Two-factor authentication</label>
-                <p className="settings-description">Add an extra layer of security to your account</p>
-              </div>
-              <div className="settings-control">
-                <button className="settings-button">Enable 2FA</button>
-              </div>
-            </div>
-            
-            <div className="settings-row">
-              <div className="settings-label-group">
-                <label className="settings-label">Session timeout</label>
-                <p className="settings-description">Automatically log out after inactivity</p>
-              </div>
-              <div className="settings-control">
-                <select className="settings-select">
-                  <option>Never</option>
-                  <option>30 minutes</option>
-                  <option>1 hour</option>
-                  <option>2 hours</option>
-                  <option>8 hours</option>
-                </select>
-              </div>
-            </div>
-            
-            <div className="settings-row">
-              <div className="settings-label-group">
-                <label className="settings-label">Show email publicly</label>
-                <p className="settings-description">Display your email on your profile</p>
-              </div>
-              <div className="settings-control">
-                <div 
-                  className={`settings-toggle ${showEmailPublicly ? 'active' : ''}`} 
-                  onClick={() => setShowEmailPublicly(!showEmailPublicly)}
-                >
-                  <div className="settings-toggle-slider"></div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="settings-row">
-              <div className="settings-label-group">
-                <label className="settings-label">Data sharing</label>
-                <p className="settings-description">Share anonymous usage data to improve the platform</p>
-              </div>
-              <div className="settings-control">
-                <div className="settings-toggle active" onClick={(e) => toggleSwitch(e.currentTarget as HTMLElement)}>
-                  <div className="settings-toggle-slider"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Connected Apps Panel */}
-          <div className={`settings-panel ${activePanel === 'connected' ? 'active' : ''}`}>
-            <h2 className="settings-title">Connected Apps</h2>
-            
-            <div className="settings-row">
-              <div className="settings-label-group">
-                <label className="settings-label">GitHub</label>
-                <p className="settings-description">Sync your repositories and contributions</p>
-              </div>
-              <div className="settings-control">
-                <button className="settings-button">Connect</button>
-              </div>
-            </div>
-            
-            <div className="settings-row">
-              <div className="settings-label-group">
-                <label className="settings-label">LinkedIn</label>
-                <p className="settings-description">Import your professional profile</p>
-              </div>
-              <div className="settings-control">
-                <button className="settings-button">Connect</button>
-              </div>
-            </div>
-            
-            <div className="settings-row">
-              <div className="settings-label-group">
-                <label className="settings-label">Slack</label>
-                <p className="settings-description">Get notifications in your Slack workspace</p>
-              </div>
-              <div className="settings-control">
-                <button className="settings-button">Connect</button>
-              </div>
-            </div>
-            
-            <div className="settings-row">
-              <div className="settings-label-group">
-                <label className="settings-label">Discord</label>
-                <p className="settings-description">Join project discussions on Discord</p>
-              </div>
-              <div className="settings-control">
-                <button className="settings-button">Connect</button>
-              </div>
-            </div>
-          </div>
-
-          {/* Account Panel */}
-          <div className={`settings-panel ${activePanel === 'account' ? 'active' : ''}`}>
-            <h2 className="settings-title">Account</h2>
-            
-            <div className="settings-row">
-              <div className="settings-label-group">
-                <label className="settings-label">Email</label>
-                <p className="settings-description">Your primary email address</p>
-              </div>
-              <div className="settings-control">
-                <input 
-                  type="email" 
-                  className="settings-input" 
-                  value={settings?.email || ''} 
-                  placeholder="user@example.com"
-                  disabled
-                  style={{ backgroundColor: '#1a1a1a', color: '#888' }}
-                />
-              </div>
-            </div>
-            
-            <div className="settings-row">
-              <div className="settings-label-group">
-                <label className="settings-label">Change Password</label>
-                <p className="settings-description">Update your account password</p>
-              </div>
-              <div className="settings-control">
-                <button 
-                  className="settings-button"
-                  onClick={() => setIsPasswordModalOpen(true)}
-                >
-                  Change Password
-                </button>
-              </div>
-            </div>
-            
-            <div className="settings-row">
-              <div className="settings-label-group">
-                <label className="settings-label">Export Data</label>
-                <p className="settings-description">Download all your data and projects</p>
-              </div>
-              <div className="settings-control">
-                <button className="settings-button">Export</button>
-              </div>
-            </div>
-            
-            <div className="settings-row">
-              <div className="settings-label-group">
-                <label className="settings-label">Delete Account</label>
-                <p className="settings-description">Permanently delete your account and all data</p>
-              </div>
-              <div className="settings-control">
-                <button className="settings-button danger">Delete Account</button>
-              </div>
-            </div>
-          </div>
+          {/* Close main content wrapper */}
         </div>
-        
-        {/* Close main content wrapper */}
-        </div>
-        
+
         {/* Bottom action buttons - outside of scrollable content */}
         <div className="settings-footer">
-          <button 
+          <button
             className="settings-cancel-button"
             onClick={onClose}
             disabled={isSaving}
           >
             Cancel
           </button>
-          <button 
+          <button
             className={`settings-save-button ${isSaving ? 'saving' : ''}`}
             onClick={saveSettings}
             disabled={isSaving}

@@ -1,7 +1,7 @@
 // flesh out all the api calls (write all calls here)
 // can do multiple files 
 
-import { Project, SearchFilter, SignUpValues2 } from '@/app/types/projectTypes';
+import { Project, SearchFilter, SignUpValues2, PostValues } from '@/app/types/projectTypes';
 /*export function signup(email: string, first_name: string, last_name: string, password: string, code: string) {
     return fetch('http://localhost:8080/signup', {
         method: 'POST',
@@ -111,7 +111,7 @@ export function search(query: string, searchFilter: SearchFilter, interests: str
 }
 
 
-export async function createPostWithImage(postData: any, filename?: string, filetype?: string) {
+export async function createPostWithImage(postData: PostValues, filename?: string, filetype?: string) {
     const requestData = {
         ...postData,
         hasImage: filename && filetype ? true : false,
@@ -149,7 +149,7 @@ export async function cleanupFailedPost(postId: string) {
 }
 
 
-// Message API Functions
+
 export async function sendMessage(receiverId: string, content: string) {
     const res = await fetch('http://localhost:8080/messages', {
         method: 'POST',
@@ -333,8 +333,7 @@ export async function updatePassword(passwordData: {
             let errorData;
             try {
                 errorData = await res.json();
-            } catch (parseError) {
-                // If JSON parsing fails, handle specific status codes
+            } catch {
                 if (res.status === 401) {
                     throw new Error('You must be logged in to change your password. Please log in and try again.');
                 }
@@ -563,3 +562,122 @@ export async function skillDirectory(query: string) {
         return [];
     }
 }
+
+export async function getIndividualViews(postId: string) {
+    try {
+        const response = await fetch(`http://localhost:8080/getIndividualPostViews?postId=${postId}`, {
+            method: 'GET',
+            credentials: 'include',
+        });
+
+        if (!response.ok) {
+            console.error('Failed to fetch views:', response.statusText);
+            return [];
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching views:', error);
+        return [];
+    }
+}
+
+
+export async function getIndividualClicks(postId: string) {
+    try {
+        const response = await fetch(`http://localhost:8080/getIndividualPostClicks?postId=${postId}`, {
+            method: 'GET',
+            credentials: 'include',
+        });
+
+        if (!response.ok) {
+            console.error('Failed to fetch views:', response.statusText);
+            return [];
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching views:', error);
+        return [];
+    }
+}
+
+
+export async function getIndividualBookmarks(postId: string) {
+    try {
+        const response = await fetch(`http://localhost:8080/getIndividualPostBookmarks?postId=${postId}`, {
+            method: 'GET',
+            credentials: 'include',
+        });
+
+        if (!response.ok) {
+            console.error('Failed to fetch views:', response.statusText);
+            return [];
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching views:', error);
+        return [];
+    }
+}
+
+export async function getTotalPostBookmarks(postId: string) {
+    try {
+        const response = await fetch(`http://localhost:8080/getTotalPostBookmarks?postId=${postId}`, {
+            method: 'GET',
+            credentials: 'include',
+        });
+
+        if (!response.ok) {
+            console.error('Failed to fetch views:', response.statusText);
+            return [];
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching views:', error);
+        return [];
+    }
+}
+
+export async function getTotalPostViews(postId: string) {
+    try {
+        const response = await fetch(`http://localhost:8080/getTotalPostViews?postId=${postId}`, {
+            method: 'GET',
+            credentials: 'include',
+        });
+
+        if (!response.ok) {
+            console.error('Failed to fetch views:', response.statusText);
+            return [];
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching views:', error);
+        return [];
+    }
+}
+
+export async function getTotalPostClicks(postId: string) {
+    try {
+        const response = await fetch(`http://localhost:8080/getTotalPostClicks?postId=${postId}`, {
+            method: 'GET',
+            credentials: 'include',
+        });
+
+        if (!response.ok) {
+            console.error('Failed to fetch views:', response.statusText);
+            return [];
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching views:', error);
+        return [];
+    }
+}
+
+
+

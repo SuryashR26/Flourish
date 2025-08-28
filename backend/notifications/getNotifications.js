@@ -342,4 +342,287 @@ const markAsReadNotifications = async (req, res) => {
     }
 }
 
-module.exports = { getClicks, getBookmarks, getViews, getNotifications, markAsReadNotifications };
+const getIndividualPostViews = async (req, res) => {
+    if (!req.session.userId) {
+        return res.status(401).json({ error: 'Not Authenticated' });
+    }
+
+
+    try {
+        const userId = req.session.userId;
+        const postID = req.query.postId;
+
+        const viewsResult = await pool.query(
+            `
+            SELECT
+                g.day::date AS day,
+                COALESCE(n.total_views, 0) AS total_views
+            FROM generate_series(
+                    CURRENT_DATE - INTERVAL '5 days',
+                    CURRENT_DATE,
+                    INTERVAL '1 day'
+                ) AS g(day)
+            LEFT JOIN (
+                SELECT DATE(created_at) AS day, COUNT(*) AS total_views
+                FROM notifications
+                WHERE recipient_id = $1 AND event_type = 'view' AND target_id = $2
+                GROUP BY DATE(created_at)
+            ) n ON n.day = g.day
+            ORDER BY g.day;
+            `,
+            [userId, postID]
+        );
+
+        const viewsData = viewsResult.rows.map(row => ({
+            day: row.day.toISOString().slice(0, 10),
+            total: parseInt(row.total_views, 10),
+        }));
+
+        const totalResult = await pool.query(
+            `
+            SELECT
+                COALESCE(this_week.total, 0) AS this_week_total,
+                COALESCE(last_week.total, 0) AS last_week_total,
+                CASE 
+                    WHEN COALESCE(last_week.total, 0) = 0 THEN NULL
+                    ELSE ROUND(((COALESCE(this_week.total, 0) - COALESCE(last_week.total, 0))::decimal / last_week.total) * 100, 2)
+                END AS percent_change
+            FROM
+                (SELECT COUNT(*) AS total 
+                 FROM notifications 
+                 WHERE recipient_id = $1 AND event_type = 'view' AND target_id = $2 
+                   AND created_at >= CURRENT_DATE - INTERVAL '5 days') AS this_week
+            CROSS JOIN
+                (SELECT COUNT(*) AS total 
+                 FROM notifications 
+                 WHERE recipient_id = $1 AND event_type = 'view' AND target_id = $2 
+                   AND created_at BETWEEN CURRENT_DATE - INTERVAL '11 days' AND CURRENT_DATE - INTERVAL '6 days') AS last_week;
+            `,
+            [userId, postID]
+        );
+
+        const { this_week_total, last_week_total, percent_change } = totalResult.rows[0];
+
+        res.json({
+            dailyViews: viewsData,
+            summary: {
+                thisWeek: parseInt(this_week_total, 10),
+                lastWeek: parseInt(last_week_total, 10),
+                percentChange: percent_change !== null ? parseFloat(percent_change) : null,
+            },
+        });
+
+    } catch (error) {
+        console.error('Error fetching views:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
+
+const getIndiviudalPostClicks = async (req, res) => {
+    if (!req.session.userId) return res.status(401).json({ error: 'Not Authenticated' });
+
+
+
+    try {
+        const userId = req.session.userId;
+        const postID = req.query.postId;
+
+        // Day-by-day clicks
+        const clickResult = await pool.query(
+            `
+        SELECT
+            g.day::date AS day,
+            COALESCE(n.total_clicks, 0) AS total_clicks
+        FROM generate_series(
+            CURRENT_DATE - INTERVAL '5 days',
+            CURRENT_DATE,
+            INTERVAL '1 day'
+        ) AS g(day)
+        LEFT JOIN (
+            SELECT DATE(created_at) AS day, COUNT(*) AS total_clicks
+            FROM notifications
+            WHERE recipient_id = $1 AND event_type = 'click' AND target_id = $2
+            GROUP BY DATE(created_at)
+        ) n ON n.day = g.day
+        ORDER BY g.day;
+        `,
+            [userId, postID]
+        );
+
+        // Previous week clicks for comparison
+        const prevWeekResult = await pool.query(
+            `
+        SELECT COALESCE(SUM(total_clicks),0) AS prev_total
+        FROM (
+            SELECT DATE(created_at) AS day, COUNT(*) AS total_clicks
+            FROM notifications
+            WHERE recipient_id = $1 AND event_type = 'click' AND target_id = $2
+              AND created_at >= CURRENT_DATE - INTERVAL '12 days'
+              AND created_at < CURRENT_DATE - INTERVAL '6 days'
+            GROUP BY DATE(created_at)
+        ) t;
+        `,
+            [userId, postID]
+        );
+
+        const clickData = clickResult.rows.map(row => ({
+            day: row.day.toISOString().slice(0, 10),
+            total: parseInt(row.total_clicks, 10),
+        }));
+
+        const totalThisWeek = clickData.reduce((sum, row) => sum + row.total, 0);
+        const totalLastWeek = parseInt(prevWeekResult.rows[0].prev_total, 10);
+        const trend = totalThisWeek >= totalLastWeek ? 'up' : 'down';
+        const difference = totalThisWeek - totalLastWeek;
+
+        res.json({ data: clickData, weekComparison: { trend, difference } });
+
+    } catch (error) {
+        console.error('Error fetching clicks:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+const getIndividualPostBookmarks = async (req, res) => {
+    if (!req.session.userId) return res.status(401).json({ error: 'Not Authenticated' });
+
+
+    try {
+        const userId = req.session.userId;
+        const postID = req.query.postId;
+        const bookmarkResult = await pool.query(
+            `
+        SELECT
+            g.day::date AS day,
+            COALESCE(n.total_bookmarks, 0) AS total_bookmarks
+        FROM generate_series(
+            CURRENT_DATE - INTERVAL '5 days',
+            CURRENT_DATE,
+            INTERVAL '1 day'
+        ) AS g(day)
+        LEFT JOIN (
+            SELECT DATE(created_at) AS day, COUNT(*) AS total_bookmarks
+            FROM notifications
+            WHERE recipient_id = $1 AND event_type = 'bookmark' AND target_id = $2
+            GROUP BY DATE(created_at)
+        ) n ON n.day = g.day
+        ORDER BY g.day;
+        `,
+            [userId, postID]
+        );
+
+        const prevWeekResult = await pool.query(
+            `
+        SELECT COALESCE(SUM(total_bookmarks),0) AS prev_total
+        FROM (
+            SELECT DATE(created_at) AS day, COUNT(*) AS total_bookmarks
+            FROM notifications
+            WHERE recipient_id = $1 AND event_type = 'bookmark' AND target_id = $2
+              AND created_at >= CURRENT_DATE - INTERVAL '12 days'
+              AND created_at < CURRENT_DATE - INTERVAL '6 days'
+            GROUP BY DATE(created_at)
+        ) t;
+        `,
+            [userId, postID]
+        );
+
+        const bookmarkData = bookmarkResult.rows.map(row => ({
+            day: row.day.toISOString().slice(0, 10),
+            total: parseInt(row.total_bookmarks, 10),
+        }));
+
+        const totalThisWeek = bookmarkData.reduce((sum, row) => sum + row.total, 0);
+        const totalLastWeek = parseInt(prevWeekResult.rows[0].prev_total, 10);
+        const trend = totalThisWeek >= totalLastWeek ? 'up' : 'down';
+        const difference = totalThisWeek - totalLastWeek;
+
+        res.json({ data: bookmarkData, weekComparison: { trend, difference } });
+
+    } catch (error) {
+        console.error('Error fetching bookmarks:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+const getTotalPostBookmarks = async (req, res) => {
+    if (!req.session.userId) return res.status(401).json({ error: 'Not Authenticated' });
+
+    try {
+        const userId = req.session.userId;
+        const postID = req.query.postId;
+
+        const result = await pool.query(
+            `
+            SELECT COUNT(*) AS total_bookmarks
+            FROM notifications
+            WHERE recipient_id = $1
+              AND event_type = 'bookmark'
+              AND target_id = $2
+            `,
+            [userId, postID]
+        );
+
+        const total = parseInt(result.rows[0].total_bookmarks, 10);
+
+        res.json({ total });
+    } catch (error) {
+        console.error('Error fetching total bookmarks:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+const getTotalPostViews = async (req, res) => {
+    if (!req.session.userId) return res.status(401).json({ error: 'Not Authenticated' });
+
+    try {
+        const userId = req.session.userId;
+        const postID = req.query.postId;
+
+        const result = await pool.query(
+            `
+            SELECT COUNT(*) AS total_views
+            FROM notifications
+            WHERE recipient_id = $1
+              AND event_type = 'view'
+              AND target_id = $2
+            `,
+            [userId, postID]
+        );
+
+        const total = parseInt(result.rows[0].total_views, 10);
+
+        res.json({ total });
+    } catch (error) {
+        console.error('Error fetching total views:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+const getTotalPostClicks = async (req, res) => {
+    if (!req.session.userId) return res.status(401).json({ error: 'Not Authenticated' });
+
+    try {
+        const userId = req.session.userId;
+        const postID = req.query.postId;
+
+        const result = await pool.query(
+            `
+            SELECT COUNT(*) AS total_clicks
+            FROM notifications
+            WHERE recipient_id = $1
+              AND event_type = 'click'
+              AND target_id = $2
+            `,
+            [userId, postID]
+        );
+
+        const total = parseInt(result.rows[0].total_clicks, 10);
+
+        res.json({ total });
+    } catch (error) {
+        console.error('Error fetching total clicks:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+
+module.exports = { getClicks, getBookmarks, getViews, getTotalPostBookmarks, getTotalPostViews, getTotalPostClicks, getNotifications, markAsReadNotifications, getIndividualPostBookmarks, getIndividualPostViews, getIndiviudalPostClicks };

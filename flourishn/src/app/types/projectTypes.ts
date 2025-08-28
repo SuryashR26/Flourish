@@ -7,7 +7,7 @@ export interface Project {
     title: string;
     content: string;
     role_count: number;
-    role_description?: any;
+    role_description?: string[];
     project_tags?: string[];
     skill_tags?: string[];
     status: string;
@@ -20,6 +20,7 @@ export interface Project {
     photourl?: string | null;
     time_commitment: string;
     project_category: string
+    is_draft: boolean
 }
 
 export interface SearchFilter {
@@ -55,3 +56,23 @@ export interface Notification {
     user_image: string
     post_title: string
 };
+
+
+export interface PostValues {
+    title: string
+    content: string
+    project_tags: string[]
+    location_preference: string
+    location: string
+    locked: boolean
+    role_count: number
+    role_description: string[]
+    skill_tags: string[]
+    authorImage: string
+    authorID: string
+    status: string
+    difficulty: string
+    is_draft: boolean
+    time_commitment: string
+    project_category: string
+}

@@ -176,7 +176,7 @@ export default function ContactUsPage() {
                         response.message || "There was an error submitting your contact form. Please try again."
                     );
                 })
-                .catch(error => {
+                .catch(() => {
                     showErrorNotification(
                         "Error",
                         "Failed to submit your contact form. Please check your connection and try again."

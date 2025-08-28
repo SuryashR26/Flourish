@@ -11,7 +11,7 @@ const { skillsDirectory } = require('./directories/skillsDirectories')
 
 const { logout } = require('./auth/logout');
 const { search } = require('./post/search');
-const { getNotifications, getViews, getBookmarks, getClicks, markAsReadNotifications } = require('./notifications/getNotifications')
+const { getNotifications, getViews, getBookmarks, getClicks, getTotalPostBookmarks, getTotalPostClicks, getTotalPostViews, markAsReadNotifications, getIndividualPostBookmarks, getIndiviudalPostClicks, getIndividualPostViews } = require('./notifications/getNotifications')
 const { getBookmarkedPosts, getUserPosts, getRecommendedProjects } = require('./profileView/getUserPosts')
 const { weeklyDigest } = require('./notifications/weeklyDigest')
 const incompleteRegistration = require('./notifications/incompleteRegistration');
@@ -132,6 +132,18 @@ app.get('/bookmarkedPosts', getBookmarkedPosts)
 app.get('/getUserPosts', getUserPosts)
 
 app.get('/getRecommendedProjects', getRecommendedProjects)
+
+app.get('/getIndividualPostClicks', getIndiviudalPostClicks)
+
+app.get('/getIndividualPostBookmarks', getIndividualPostBookmarks)
+
+app.get('/getIndividualPostViews', getIndividualPostViews)
+
+app.get('/getTotalPostBookmarks', getTotalPostBookmarks)
+
+app.get('/getTotalPostClicks', getTotalPostClicks)
+
+app.get('/getTotalPostViews', getTotalPostViews)
 
 app.get('/getOverallViews', getViews)
 

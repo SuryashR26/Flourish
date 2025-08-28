@@ -2,10 +2,8 @@
 
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
-import { useRouter } from "next/navigation"
 import Navbar from "@/components/layout/navbar"
 import ConversationLoadingScreen from "@/components/ui/ConversationLoadingScreen"
-import LoadingScreen from "@/components/ui/LoadingScreen"
 import { sendMessage, getConversations, getMessages, markMessagesAsRead, getCurrentUser, searchUsers } from "@/api/apiClient"
 
 interface Message {
@@ -40,7 +38,6 @@ interface User {
 }
 
 export default function MessagesPage() {
-    const router = useRouter()
     const [currentConversationId, setCurrentConversationId] = useState<string>("")
     const [messageInput, setMessageInput] = useState("")
     const [conversationSearchQuery, setConversationSearchQuery] = useState("")
@@ -57,7 +54,7 @@ export default function MessagesPage() {
     const [userSearchQuery, setUserSearchQuery] = useState("")
     const [searchResults, setSearchResults] = useState<User[]>([])
     const [startingConversation, setStartingConversation] = useState(false)
-    
+
     // Auto-refresh for real-time messages
     const [lastMessageCount, setLastMessageCount] = useState(0)
 
@@ -74,19 +71,19 @@ export default function MessagesPage() {
         const date = new Date(timestamp)
         const now = new Date()
         const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60)
-        
+
         if (diffInHours < 24) {
-            return date.toLocaleTimeString('en-US', { 
-                hour: 'numeric', 
+            return date.toLocaleTimeString('en-US', {
+                hour: 'numeric',
                 minute: '2-digit',
-                hour12: true 
+                hour12: true
             })
         } else if (diffInHours < 48) {
             return 'Yesterday'
         } else {
-            return date.toLocaleDateString('en-US', { 
-                month: 'short', 
-                day: 'numeric' 
+            return date.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric'
             })
         }
     }
@@ -94,20 +91,20 @@ export default function MessagesPage() {
     // Group messages by sender and time proximity
     const groupMessages = (messages: Message[]) => {
         // Filter out system messages
-        const userMessages = messages.filter(message => 
+        const userMessages = messages.filter(message =>
             message.content !== "SYSTEM_CONVERSATION_CREATED"
         )
-        
+
         const groups = []
         let currentGroup = null
 
         for (const message of userMessages) {
             const messageTime = new Date(message.created_at).getTime()
-            
-            if (!currentGroup || 
+
+            if (!currentGroup ||
                 currentGroup.senderId !== message.sender_id ||
                 (messageTime - currentGroup.lastMessageTime) > 60000) { // 60 seconds
-                
+
                 // Start new group
                 currentGroup = {
                     senderId: message.sender_id,
@@ -137,7 +134,7 @@ export default function MessagesPage() {
                 if (userResponse.success) {
                     setCurrentUserId(userResponse.user.id)
                 }
-                
+
                 // Then get conversations
                 const response = await getConversations()
                 if (response.success) {
@@ -146,7 +143,7 @@ export default function MessagesPage() {
                         isActive: index === 0 // Make first conversation active
                     }))
                     setConversations(conversationsWithActive)
-                    
+
                     // Set first conversation as current if exists
                     if (conversationsWithActive.length > 0) {
                         setCurrentConversationId(conversationsWithActive[0].id)
@@ -180,23 +177,23 @@ export default function MessagesPage() {
                 const response = await getMessages(currentConversationId)
                 if (response.success) {
                     const newMessages = response.messages
-                    
+
                     // Only update if we have new messages
                     if (newMessages.length !== lastMessageCount) {
                         setMessages(newMessages)
                         setLastMessageCount(newMessages.length)
-                        
+
                         // Auto-scroll to bottom if new messages
                         setTimeout(() => {
                             if (chatMessagesRef.current) {
                                 chatMessagesRef.current.scrollTop = chatMessagesRef.current.scrollHeight
                             }
                         }, 100)
-                        
+
                         // Mark new messages as read
                         try {
                             await markMessagesAsRead(currentConversationId)
-                            
+
                             // Update conversations list to clear unread count
                             const conversationsResponse = await getConversations()
                             if (conversationsResponse.success) {
@@ -259,14 +256,14 @@ export default function MessagesPage() {
     const startConversationWithUser = async (user: User) => {
         try {
             setStartingConversation(true)
-            
+
             // Check if conversation already exists, if so just open it
             if (user.has_conversation) {
                 // Find existing conversation
-                const existingConv = conversations.find(conv => 
+                const existingConv = conversations.find(conv =>
                     conv.participant_name === user.name
                 )
-                
+
                 if (existingConv) {
                     // Close modal and open existing conversation
                     setShowNewConversationModal(false)
@@ -276,16 +273,16 @@ export default function MessagesPage() {
                     return
                 }
             }
-            
+
             // For new conversations, create it with a system message that we'll filter out
             const response = await sendMessage(user.id, "SYSTEM_CONVERSATION_CREATED")
-            
+
             if (response.success) {
                 // Close modal
                 setShowNewConversationModal(false)
                 setUserSearchQuery("")
                 setSearchResults([])
-                
+
                 // Refresh conversations to get the new one
                 const conversationsResponse = await getConversations()
                 if (conversationsResponse.success) {
@@ -313,11 +310,11 @@ export default function MessagesPage() {
             if (response.success) {
                 setMessages(response.messages)
                 setLastMessageCount(response.messages.length) // Update message count for polling
-                
+
                 // Mark messages as read
                 try {
                     await markMessagesAsRead(conversationId)
-                    
+
                     // Update conversations list to clear unread count immediately
                     const conversationsResponse = await getConversations()
                     if (conversationsResponse.success) {
@@ -330,7 +327,7 @@ export default function MessagesPage() {
                 } catch (error) {
                     console.error('Failed to mark messages as read:', error)
                 }
-                
+
                 // Auto-scroll to bottom after messages load
                 setTimeout(() => {
                     if (chatMessagesRef.current) {
@@ -345,21 +342,21 @@ export default function MessagesPage() {
 
     const handleSendMessage = async () => {
         if (!messageInput.trim() || !currentConversationId || sendingMessage) return
-        
+
         const activeConversation = conversations.find(conv => conv.isActive)
         if (!activeConversation) return
 
         try {
             setSendingMessage(true)
             const response = await sendMessage(activeConversation.participant_id, messageInput)
-            
+
             if (response.success) {
                 console.log('Message sent successfully:', response)
                 setMessageInput("")
-                
+
                 // Reload messages to get the latest
                 await loadMessages(currentConversationId)
-                
+
                 // Reload conversations to update last message
                 const conversationsResponse = await getConversations()
                 if (conversationsResponse.success) {
@@ -369,7 +366,7 @@ export default function MessagesPage() {
                     }))
                     setConversations(updatedConversations)
                 }
-                
+
                 // Scroll to bottom
                 setTimeout(() => {
                     if (chatMessagesRef.current) {
@@ -395,21 +392,21 @@ export default function MessagesPage() {
     const selectConversation = async (conversationId: string) => {
         // Don't switch if already loading or same conversation
         if (loadingConversation || conversationId === currentConversationId) return
-        
+
         // Set loading state and show loading screen
         setLoadingConversation(true)
-        
-        setConversations(prev => 
+
+        setConversations(prev =>
             prev.map(conv => ({
                 ...conv,
                 isActive: conv.id === conversationId
             }))
         )
         setCurrentConversationId(conversationId)
-        
+
         // Add a minimum delay to show the loading screen
         const minDelay = new Promise(resolve => setTimeout(resolve, 800))
-        
+
         try {
             // Load messages for the selected conversation
             await Promise.all([loadMessages(conversationId), minDelay])
@@ -431,11 +428,11 @@ export default function MessagesPage() {
         if (!conversationSearchQuery.trim()) {
             return true // Show all if no search query
         }
-        
+
         const searchTerm = conversationSearchQuery.toLowerCase().trim()
         const participantName = conversation.participant_name?.toLowerCase() || ''
         const lastMessage = conversation.last_message_content?.toLowerCase() || ''
-        
+
         return participantName.includes(searchTerm) || lastMessage.includes(searchTerm)
     })
 
@@ -450,15 +447,15 @@ export default function MessagesPage() {
                     <div className="conversations-header">
                         <h2>Messages</h2>
                         <div className="search-input-wrapper">
-                            <input 
-                                type="text" 
-                                className="search-conversations" 
+                            <input
+                                type="text"
+                                className="search-conversations"
                                 placeholder="Search conversations..."
                                 value={conversationSearchQuery}
                                 onChange={(e) => setConversationSearchQuery(e.target.value)}
                             />
                             {conversationSearchQuery && (
-                                <button 
+                                <button
                                     className="clear-search-btn"
                                     onClick={() => setConversationSearchQuery("")}
                                     title="Clear search"
@@ -471,17 +468,17 @@ export default function MessagesPage() {
                             )}
                         </div>
                     </div>
-                    
-                    <button 
+
+                    <button
                         className="new-conversation-btn"
                         onClick={() => setShowNewConversationModal(true)}
                     >
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"/>
+                            <path d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" />
                         </svg>
                         New Conversation
                     </button>
-                    
+
                     <div className="conversations-container">
                         {filteredConversations.length === 0 ? (
                             <div className="p-4 text-center text-gray-400">
@@ -489,7 +486,7 @@ export default function MessagesPage() {
                             </div>
                         ) : (
                             filteredConversations.map(conversation => (
-                                <div 
+                                <div
                                     key={conversation.id}
                                     className={`conversation-item ${conversation.isActive ? 'active' : ''}`}
                                     onClick={() => selectConversation(conversation.id)}
@@ -523,7 +520,7 @@ export default function MessagesPage() {
                 {/* Chat Area */}
                 <main className="chat-area">
                     {loadingConversation ? (
-                        <ConversationLoadingScreen 
+                        <ConversationLoadingScreen
                             participantName={activeConversation?.participant_name}
                         />
                     ) : activeConversation ? (
@@ -543,7 +540,7 @@ export default function MessagesPage() {
                                     <div></div>
                                 ) : (
                                     groupMessages(messages).map((group, groupIndex) => (
-                                        <div 
+                                        <div
                                             key={`group-${groupIndex}`}
                                             className={`message-group ${group.senderId === currentUserId ? 'sent' : ''}`}
                                         >
@@ -551,7 +548,7 @@ export default function MessagesPage() {
                                                 {getInitials(group.senderName)}
                                             </div>
                                             <div className="message-content">
-                                                {group.messages.map((message, messageIndex) => (
+                                                {group.messages.map((message) => (
                                                     <div key={message.id} className="message-bubble">
                                                         {message.content}
                                                     </div>
@@ -568,9 +565,9 @@ export default function MessagesPage() {
                             <div className="message-input-container">
                                 <div className="message-input-wrapper">
                                     <div className="input-field-wrapper">
-                                        <textarea 
-                                            className="message-input" 
-                                            placeholder="Type a message..." 
+                                        <textarea
+                                            className="message-input"
+                                            placeholder="Type a message..."
                                             rows={1}
                                             value={messageInput}
                                             onChange={(e) => setMessageInput(e.target.value)}
@@ -580,7 +577,7 @@ export default function MessagesPage() {
                                             <i className="fa-solid fa-paperclip"></i>
                                         </button>
                                     </div>
-                                    <button 
+                                    <button
                                         className="send-btn"
                                         onClick={handleSendMessage}
                                         disabled={!messageInput.trim() || sendingMessage}
@@ -594,8 +591,8 @@ export default function MessagesPage() {
                         <div className="empty-state">
                             <div className="empty-state-icon">
                                 <svg width="40" height="40" viewBox="0 0 20 20" fill="currentColor">
-                                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
-                                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
                                 </svg>
                             </div>
                             <h3>No conversation selected</h3>
@@ -611,7 +608,7 @@ export default function MessagesPage() {
                     <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                         <div className="modal-header">
                             <h3>Start New Conversation</h3>
-                            <button 
+                            <button
                                 className="close-btn"
                                 onClick={() => setShowNewConversationModal(false)}
                             >
@@ -621,7 +618,7 @@ export default function MessagesPage() {
                                 </svg>
                             </button>
                         </div>
-                        
+
                         <div className="modal-body">
                             <input
                                 type="text"
@@ -630,7 +627,7 @@ export default function MessagesPage() {
                                 value={userSearchQuery}
                                 onChange={(e) => setUserSearchQuery(e.target.value)}
                             />
-                            
+
                             <div className="users-list">
                                 {searchResults.length === 0 ? (
                                     <div className="empty-state">
@@ -638,7 +635,7 @@ export default function MessagesPage() {
                                     </div>
                                 ) : (
                                     searchResults.map(user => (
-                                        <div 
+                                        <div
                                             key={user.id}
                                             className="user-item"
                                             onClick={() => startConversationWithUser(user)}
@@ -654,7 +651,7 @@ export default function MessagesPage() {
                                     ))
                                 )}
                             </div>
-                            
+
                             {startingConversation && (
                                 <div className="starting-conversation">
                                     Starting conversation...
