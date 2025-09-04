@@ -70,12 +70,22 @@ app.get('/test-db', async (req, res) => {
     }
 });
 
+// 2 pm every Sunday
+cron.schedule('0 14 * * 0', async () => {
+    console.log('Running Inactive Users Job...');
+    await inactiveUsers();
+});
+
+// 6 pm every Sunday
+cron.schedule('0 18 * * 0', async () => {
+    console.log('Running Weekly Digest Job...');
+    await weeklyDigest();
+});
+
 // runs it at 9 am every day at the server time zone
 cron.schedule('0 9 * * *', async () => {
-    console.log('Running daily incomplete registration and inactive user email task...');
+    console.log('Running daily incomplete registration k...');
     await incompleteRegistration();
-    await inactiveUsers();
-    await weeklyDigest();
 });
 
 app.post('/signup', signup);
