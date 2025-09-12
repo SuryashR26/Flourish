@@ -1,9 +1,21 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { FaCog, FaUser, /*FaFolder*/ FaHandshake, FaBell, FaLock, FaLink, FaUserCircle, FaTimes } from 'react-icons/fa';
-import { getSettings, updateSettings } from '@/api/apiClient';
-import PasswordChangeModal from './PasswordChangeModal';
+import React, { useState, useEffect, useRef } from "react";
+import {
+  FaUser,
+ FaHandshake,
+  FaTimes,
+  FaPlus,
+  FaSearch,
+} from "react-icons/fa";
+import { getSettings, updateSettings } from "@/api/apiClient";
+import PasswordChangeModal from "./PasswordChangeModal";
+import { advancedSkills } from "../../app/types/projectCategory";
+import { FaX } from "react-icons/fa6";
+import {
+  showSuccessNotification,
+  showErrorNotification,
+} from "@/components/ui/NotificationContainer";
 
 interface SettingsPopupProps {
   isOpen: boolean;
@@ -15,20 +27,78 @@ interface UserSettings {
   display_name: string;
   bio: string;
   areas_of_interest: string[];
-  profile_visibility: 'public' | 'private';
+  profile_visibility: "public" | "private";
   show_email_publicly: boolean;
 }
 
 const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
-  const [activePanel, setActivePanel] = useState('general');
+  const [activePanel, setActivePanel] = useState("profile");
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
+  const [editedInterests, setEditedInterests] = useState<string[]>([]);
   const [settings, setSettings] = useState<UserSettings | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [displayName, setDisplayName] = useState('');
-  const [bio, setBio] = useState('');
-  const [profileVisibility, setProfileVisibility] = useState<'public' | 'private'>('public');
+  const [displayName, setDisplayName] = useState("");
+  const [bio, setBio] = useState("");
+  const [profileVisibility, setProfileVisibility] = useState<
+    "public" | "private"
+  >("public");
   const [showEmailPublicly, setShowEmailPublicly] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  // Filter available interests based on search and exclude already selected
+  const filteredInterests = advancedSkills
+    .map((skill) => skill.label)
+    .filter(
+      (interest) =>
+        interest.toLowerCase().includes(searchQuery.toLowerCase()) &&
+        !selectedInterests.includes(interest)
+    );
+
+  const addInterest = (interest: string) => {
+    if (!selectedInterests.includes(interest)) {
+      setSelectedInterests((prev) => [...prev, interest]);
+      setEditedInterests((prev) => [...prev, interest]);
+    }
+    setShowSearch(false);
+    setSearchQuery("");
+  };
+
+  const handleSearchToggle = () => {
+    setShowSearch(!showSearch);
+    setSearchQuery("");
+  };
+
+  // Focus search input when it becomes visible
+  useEffect(() => {
+    if (showSearch && searchRef.current) {
+      searchRef.current.focus();
+    }
+  }, [showSearch]);
+
+  // Close search when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        searchRef.current &&
+        !searchRef.current
+          .closest(".search-container")
+          ?.contains(event.target as Node)
+      ) {
+        setShowSearch(false);
+        setSearchQuery("");
+      }
+    };
+
+    if (showSearch) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () =>
+        document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [showSearch]);
 
   // Fetch settings data when component opens
   useEffect(() => {
@@ -40,14 +110,15 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
         if (response.success) {
           const userSettings = response.settings;
           setSettings(userSettings);
-          setDisplayName(userSettings.display_name || '');
-          setBio(userSettings.bio || '');
+          setDisplayName(userSettings.display_name || "");
+          setBio(userSettings.bio || "");
           setSelectedInterests(userSettings.areas_of_interest || []);
-          setProfileVisibility(userSettings.profile_visibility || 'public');
+          setEditedInterests(userSettings.areas_of_interest || []);
+          setProfileVisibility(userSettings.profile_visibility || "public");
           setShowEmailPublicly(userSettings.show_email_publicly || false);
         }
       } catch (error) {
-        console.error('Failed to fetch settings:', error);
+        console.error("Failed to fetch settings:", error);
       } finally {
       }
     };
@@ -58,19 +129,19 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
   // Close on Escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         onClose();
       }
     };
 
     if (isOpen) {
-      document.addEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'hidden';
+      document.addEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "hidden";
     }
 
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'auto';
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "auto";
     };
   }, [isOpen, onClose]);
 
@@ -79,13 +150,13 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
   };
 
   const toggleSwitch = (element: HTMLElement) => {
-    element.classList.toggle('active');
+    element.classList.toggle("active");
   };
 
   const toggleInterest = (interest: string) => {
-    setSelectedInterests(prev =>
+    setEditedInterests((prev) =>
       prev.includes(interest)
-        ? prev.filter(item => item !== interest)
+        ? prev.filter((item) => item !== interest)
         : [...prev, interest]
     );
   };
@@ -96,18 +167,23 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
       const settingsData = {
         display_name: displayName,
         bio: bio,
-        areas_of_interest: selectedInterests,
+        areas_of_interest: editedInterests,
         profile_visibility: profileVisibility,
-        show_email_publicly: showEmailPublicly
+        show_email_publicly: showEmailPublicly,
       };
 
       const response = await updateSettings(settingsData);
       if (response.success) {
-        console.log('Settings saved successfully');
+        console.log("Settings saved successfully");
+        showSuccessNotification("Success", "Settings saved successfully!");
         // You could add a toast notification here
       }
     } catch (error) {
-      console.error('Failed to save settings:', error);
+      console.error("Failed to save settings:", error);
+      showErrorNotification(
+        "Error",
+        "Failed to save settings"
+      );
       // You could add error handling/notification here
     } finally {
       setIsSaving(false);
@@ -117,7 +193,10 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="settings-overlay active" onClick={(e) => e.target === e.currentTarget && onClose()}>
+    <div
+      className="settings-overlay active"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
       <div className="settings-popup">
         {/* Main content wrapper */}
         <div className="settings-main-content">
@@ -127,19 +206,23 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
               <FaTimes />
             </div>
 
-            <div
+            {/* <div
               className={`settings-nav-item ${activePanel === 'general' ? 'active' : ''}`}
               onClick={() => switchPanel('general')}
             >
               <span className="settings-nav-icon"><FaCog /></span>
               <span>General</span>
-            </div>
+            </div> */}
 
             <div
-              className={`settings-nav-item ${activePanel === 'profile' ? 'active' : ''}`}
-              onClick={() => switchPanel('profile')}
+              className={`settings-nav-item ${
+                activePanel === "profile" ? "active" : ""
+              }`}
+              onClick={() => switchPanel("profile")}
             >
-              <span className="settings-nav-icon"><FaUser /></span>
+              <span className="settings-nav-icon">
+                <FaUser />
+              </span>
               <span>Profile & Interests</span>
             </div>
 
@@ -152,56 +235,66 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
           </div> */}
 
             <div
-              className={`settings-nav-item ${activePanel === 'collaboration' ? 'active' : ''}`}
-              onClick={() => switchPanel('collaboration')}
+              className={`settings-nav-item ${
+                activePanel === "collaboration" ? "active" : ""
+              }`}
+              onClick={() => switchPanel("collaboration")}
             >
-              <span className="settings-nav-icon"><FaHandshake /></span>
+              <span className="settings-nav-icon">
+                <FaHandshake />
+              </span>
               <span>Collaboration</span>
             </div>
 
-            <div
+            {/* <div
               className={`settings-nav-item ${activePanel === 'notifications' ? 'active' : ''}`}
               onClick={() => switchPanel('notifications')}
             >
               <span className="settings-nav-icon"><FaBell /></span>
               <span>Notifications</span>
-            </div>
+            </div> */}
 
-            <div
+            {/* <div
               className={`settings-nav-item ${activePanel === 'privacy' ? 'active' : ''}`}
               onClick={() => switchPanel('privacy')}
             >
               <span className="settings-nav-icon"><FaLock /></span>
               <span>Privacy & Security</span>
-            </div>
+            </div> */}
 
-            <div
+            {/* <div
               className={`settings-nav-item ${activePanel === 'connected' ? 'active' : ''}`}
               onClick={() => switchPanel('connected')}
             >
               <span className="settings-nav-icon"><FaLink /></span>
               <span>Connected Apps</span>
-            </div>
+            </div> */}
 
-            <div
+            {/* <div
               className={`settings-nav-item ${activePanel === 'account' ? 'active' : ''}`}
               onClick={() => switchPanel('account')}
             >
               <span className="settings-nav-icon"><FaUserCircle /></span>
               <span>Account</span>
-            </div>
+            </div> */}
           </div>
 
           {/* Content Area */}
           <div className="settings-content">
             {/* General Panel */}
-            <div className={`settings-panel ${activePanel === 'general' ? 'active' : ''}`}>
+            <div
+              className={`settings-panel ${
+                activePanel === "general" ? "active" : ""
+              }`}
+            >
               <h2 className="settings-title">General</h2>
 
               <div className="settings-row">
                 <div className="settings-label-group">
                   <label className="settings-label">Theme</label>
-                  <p className="settings-description">Choose your preferred color theme</p>
+                  <p className="settings-description">
+                    Choose your preferred color theme
+                  </p>
                 </div>
                 <div className="settings-control">
                   <select className="settings-select">
@@ -215,7 +308,9 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
               <div className="settings-row">
                 <div className="settings-label-group">
                   <label className="settings-label">Language</label>
-                  <p className="settings-description">Select your preferred language</p>
+                  <p className="settings-description">
+                    Select your preferred language
+                  </p>
                 </div>
                 <div className="settings-control">
                   <select className="settings-select">
@@ -232,7 +327,9 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
               <div className="settings-row">
                 <div className="settings-label-group">
                   <label className="settings-label">Time Zone</label>
-                  <p className="settings-description">Set your local time zone for scheduling</p>
+                  <p className="settings-description">
+                    Set your local time zone for scheduling
+                  </p>
                 </div>
                 <div className="settings-control">
                   <select className="settings-select">
@@ -247,13 +344,19 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
             </div>
 
             {/* Profile & Interests Panel */}
-            <div className={`settings-panel ${activePanel === 'profile' ? 'active' : ''}`}>
+            <div
+              className={`settings-panel ${
+                activePanel === "profile" ? "active" : ""
+              }`}
+            >
               <h2 className="settings-title">Profile & Interests</h2>
 
               <div className="settings-row">
                 <div className="settings-label-group">
                   <label className="settings-label">Display Name</label>
-                  <p className="settings-description">This is how you`&apos;`ll appear to other collaborators</p>
+                  <p className="settings-description">
+                    This is how you`&apos;`ll appear to other collaborators
+                  </p>
                 </div>
                 <div className="settings-control">
                   <input
@@ -269,14 +372,16 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
               <div className="settings-row">
                 <div className="settings-label-group">
                   <label className="settings-label">Bio</label>
-                  <p className="settings-description">Tell others about yourself and your expertise</p>
+                  <p className="settings-description">
+                    Tell others about yourself and your expertise
+                  </p>
                 </div>
                 <div className="settings-control">
                   <textarea
                     className="settings-input"
                     placeholder="Tell us about yourself, your skills, and what you're passionate about..."
                     rows={4}
-                    style={{ height: 'auto', resize: 'vertical' }}
+                    style={{ height: "auto", resize: "vertical" }}
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
                   />
@@ -284,20 +389,90 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
               </div>
 
               <div className="settings-group">
-                <label className="settings-label">Areas of Interest</label>
-                <p className="settings-description">Select all that apply to get better project matches</p>
+                <div className="settings-header-row">
+                  <div className="settings-header-content">
+                    <label className="settings-label">Areas of Interest</label>
+                    <p className="settings-description">
+                      Select all that apply to get better project matches
+                    </p>
+                  </div>
+
+                  <div className="search-container">
+                    {!showSearch ? (
+                      <button
+                        className="settings-button add-button"
+                        onClick={handleSearchToggle}
+                        aria-label="Add interest"
+                      >
+                        <FaPlus size={16} />
+                      </button>
+                    ) : (
+                      <div className="search-dropdown">
+                        <div className="search-input-container">
+                          <FaSearch size={16} className="search-icon" />
+                          <input
+                            ref={searchRef}
+                            type="text"
+                            className="search-input"
+                            placeholder="Search interests..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                          />
+                          <button
+                            className="close-search-button"
+                            onClick={handleSearchToggle}
+                            aria-label="Close search"
+                          >
+                            <FaX size={16} />
+                          </button>
+                        </div>
+
+                        {filteredInterests.length > 0 && (
+                          <div className="search-results">
+                            {filteredInterests
+                              .slice(0, 8)
+                              .map((interest: string) => (
+                                <button
+                                  key={interest}
+                                  className="search-result-item"
+                                  onClick={() => addInterest(interest)}
+                                >
+                                  {interest}
+                                </button>
+                              ))}
+                            {filteredInterests.length > 8 && (
+                              <div className="search-more-indicator">
+                                +{filteredInterests.length - 8} more...
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {searchQuery && filteredInterests.length === 0 && (
+                          <div className="search-no-results">
+                            No matching interests found
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
                 <div className="settings-checkbox-group">
-                  {['Tech', 'Computer Science', 'AI/ML', 'Web Dev', 'Mobile Dev', 'Data Science', 'Design', 'Business'].map((interest) => (
+                  {selectedInterests.map((interest) => (
                     <div
                       key={interest}
-                      className={`settings-checkbox-item ${selectedInterests.includes(interest) ? 'selected' : ''}`}
+                      className={`settings-checkbox-item ${
+                        editedInterests.includes(interest) ? "selected" : ""
+                      }`}
                       onClick={() => toggleInterest(interest)}
                     >
                       <input
                         type="checkbox"
                         className="settings-checkbox"
-                        checked={selectedInterests.includes(interest)}
-                        onChange={() => toggleInterest(interest)}
+                        checked={editedInterests.includes(interest)}
+                        onChange={() => console.log()}
+                        readOnly
                       />
                       <label>{interest}</label>
                     </div>
@@ -383,19 +558,29 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
           </div> */}
 
             {/* Collaboration Panel */}
-            <div className={`settings-panel ${activePanel === 'collaboration' ? 'active' : ''}`}>
+            <div
+              className={`settings-panel ${
+                activePanel === "collaboration" ? "active" : ""
+              }`}
+            >
               <h2 className="settings-title">Collaboration Settings</h2>
 
               <div className="settings-row">
                 <div className="settings-label-group">
                   <label className="settings-label">Profile Visibility</label>
-                  <p className="settings-description">Who can see your profile and projects?</p>
+                  <p className="settings-description">
+                    Who can see your profile and projects?
+                  </p>
                 </div>
                 <div className="settings-control">
                   <select
                     className="settings-select"
                     value={profileVisibility}
-                    onChange={(e) => setProfileVisibility(e.target.value as 'public' | 'private')}
+                    onChange={(e) =>
+                      setProfileVisibility(
+                        e.target.value as "public" | "private"
+                      )
+                    }
                   >
                     <option value="public">Public</option>
                     <option value="private">Private</option>
@@ -403,7 +588,7 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
                 </div>
               </div>
 
-              <div className="settings-row">
+              {/* <div className="settings-row">
                 <div className="settings-label-group">
                   <label className="settings-label">Allow team invites</label>
                   <p className="settings-description">Let others invite you to join their projects</p>
@@ -413,9 +598,9 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
                     <div className="settings-toggle-slider"></div>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
-              <div className="settings-row">
+              {/* <div className="settings-row">
                 <div className="settings-label-group">
                   <label className="settings-label">Show online status</label>
                   <p className="settings-description">Let collaborators see when you`&apos;`re active</p>
@@ -425,9 +610,9 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
                     <div className="settings-toggle-slider"></div>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
-              <div className="settings-row">
+              {/* <div className="settings-row">
                 <div className="settings-label-group">
                   <label className="settings-label">Message requests</label>
                   <p className="settings-description">Who can send you direct messages?</p>
@@ -440,20 +625,31 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
                     <option>No one</option>
                   </select>
                 </div>
-              </div>
+              </div> */}
             </div>
 
             {/* Notifications Panel */}
-            <div className={`settings-panel ${activePanel === 'notifications' ? 'active' : ''}`}>
+            <div
+              className={`settings-panel ${
+                activePanel === "notifications" ? "active" : ""
+              }`}
+            >
               <h2 className="settings-title">Notifications</h2>
 
               <div className="settings-row">
                 <div className="settings-label-group">
                   <label className="settings-label">Email notifications</label>
-                  <p className="settings-description">Receive updates via email</p>
+                  <p className="settings-description">
+                    Receive updates via email
+                  </p>
                 </div>
                 <div className="settings-control">
-                  <div className="settings-toggle active" onClick={(e) => toggleSwitch(e.currentTarget as HTMLElement)}>
+                  <div
+                    className="settings-toggle active"
+                    onClick={(e) =>
+                      toggleSwitch(e.currentTarget as HTMLElement)
+                    }
+                  >
                     <div className="settings-toggle-slider"></div>
                   </div>
                 </div>
@@ -462,10 +658,17 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
               <div className="settings-row">
                 <div className="settings-label-group">
                   <label className="settings-label">Project invitations</label>
-                  <p className="settings-description">When someone invites you to a project</p>
+                  <p className="settings-description">
+                    When someone invites you to a project
+                  </p>
                 </div>
                 <div className="settings-control">
-                  <div className="settings-toggle active" onClick={(e) => toggleSwitch(e.currentTarget as HTMLElement)}>
+                  <div
+                    className="settings-toggle active"
+                    onClick={(e) =>
+                      toggleSwitch(e.currentTarget as HTMLElement)
+                    }
+                  >
                     <div className="settings-toggle-slider"></div>
                   </div>
                 </div>
@@ -474,10 +677,17 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
               <div className="settings-row">
                 <div className="settings-label-group">
                   <label className="settings-label">New messages</label>
-                  <p className="settings-description">When you receive a new message</p>
+                  <p className="settings-description">
+                    When you receive a new message
+                  </p>
                 </div>
                 <div className="settings-control">
-                  <div className="settings-toggle active" onClick={(e) => toggleSwitch(e.currentTarget as HTMLElement)}>
+                  <div
+                    className="settings-toggle active"
+                    onClick={(e) =>
+                      toggleSwitch(e.currentTarget as HTMLElement)
+                    }
+                  >
                     <div className="settings-toggle-slider"></div>
                   </div>
                 </div>
@@ -486,10 +696,17 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
               <div className="settings-row">
                 <div className="settings-label-group">
                   <label className="settings-label">Project updates</label>
-                  <p className="settings-description">Updates from projects you`&apos;`re following</p>
+                  <p className="settings-description">
+                    Updates from projects you`&apos;`re following
+                  </p>
                 </div>
                 <div className="settings-control">
-                  <div className="settings-toggle" onClick={(e) => toggleSwitch(e.currentTarget as HTMLElement)}>
+                  <div
+                    className="settings-toggle"
+                    onClick={(e) =>
+                      toggleSwitch(e.currentTarget as HTMLElement)
+                    }
+                  >
                     <div className="settings-toggle-slider"></div>
                   </div>
                 </div>
@@ -498,10 +715,17 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
               <div className="settings-row">
                 <div className="settings-label-group">
                   <label className="settings-label">Weekly digest</label>
-                  <p className="settings-description">Summary of new projects matching your interests</p>
+                  <p className="settings-description">
+                    Summary of new projects matching your interests
+                  </p>
                 </div>
                 <div className="settings-control">
-                  <div className="settings-toggle active" onClick={(e) => toggleSwitch(e.currentTarget as HTMLElement)}>
+                  <div
+                    className="settings-toggle active"
+                    onClick={(e) =>
+                      toggleSwitch(e.currentTarget as HTMLElement)
+                    }
+                  >
                     <div className="settings-toggle-slider"></div>
                   </div>
                 </div>
@@ -509,13 +733,21 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
             </div>
 
             {/* Privacy & Security Panel */}
-            <div className={`settings-panel ${activePanel === 'privacy' ? 'active' : ''}`}>
+            <div
+              className={`settings-panel ${
+                activePanel === "privacy" ? "active" : ""
+              }`}
+            >
               <h2 className="settings-title">Privacy & Security</h2>
 
               <div className="settings-row">
                 <div className="settings-label-group">
-                  <label className="settings-label">Two-factor authentication</label>
-                  <p className="settings-description">Add an extra layer of security to your account</p>
+                  <label className="settings-label">
+                    Two-factor authentication
+                  </label>
+                  <p className="settings-description">
+                    Add an extra layer of security to your account
+                  </p>
                 </div>
                 <div className="settings-control">
                   <button className="settings-button">Enable 2FA</button>
@@ -525,7 +757,9 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
               <div className="settings-row">
                 <div className="settings-label-group">
                   <label className="settings-label">Session timeout</label>
-                  <p className="settings-description">Automatically log out after inactivity</p>
+                  <p className="settings-description">
+                    Automatically log out after inactivity
+                  </p>
                 </div>
                 <div className="settings-control">
                   <select className="settings-select">
@@ -541,11 +775,15 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
               <div className="settings-row">
                 <div className="settings-label-group">
                   <label className="settings-label">Show email publicly</label>
-                  <p className="settings-description">Display your email on your profile</p>
+                  <p className="settings-description">
+                    Display your email on your profile
+                  </p>
                 </div>
                 <div className="settings-control">
                   <div
-                    className={`settings-toggle ${showEmailPublicly ? 'active' : ''}`}
+                    className={`settings-toggle ${
+                      showEmailPublicly ? "active" : ""
+                    }`}
                     onClick={() => setShowEmailPublicly(!showEmailPublicly)}
                   >
                     <div className="settings-toggle-slider"></div>
@@ -556,10 +794,17 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
               <div className="settings-row">
                 <div className="settings-label-group">
                   <label className="settings-label">Data sharing</label>
-                  <p className="settings-description">Share anonymous usage data to improve the platform</p>
+                  <p className="settings-description">
+                    Share anonymous usage data to improve the platform
+                  </p>
                 </div>
                 <div className="settings-control">
-                  <div className="settings-toggle active" onClick={(e) => toggleSwitch(e.currentTarget as HTMLElement)}>
+                  <div
+                    className="settings-toggle active"
+                    onClick={(e) =>
+                      toggleSwitch(e.currentTarget as HTMLElement)
+                    }
+                  >
                     <div className="settings-toggle-slider"></div>
                   </div>
                 </div>
@@ -567,13 +812,19 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
             </div>
 
             {/* Connected Apps Panel */}
-            <div className={`settings-panel ${activePanel === 'connected' ? 'active' : ''}`}>
+            <div
+              className={`settings-panel ${
+                activePanel === "connected" ? "active" : ""
+              }`}
+            >
               <h2 className="settings-title">Connected Apps</h2>
 
               <div className="settings-row">
                 <div className="settings-label-group">
                   <label className="settings-label">GitHub</label>
-                  <p className="settings-description">Sync your repositories and contributions</p>
+                  <p className="settings-description">
+                    Sync your repositories and contributions
+                  </p>
                 </div>
                 <div className="settings-control">
                   <button className="settings-button">Connect</button>
@@ -583,7 +834,9 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
               <div className="settings-row">
                 <div className="settings-label-group">
                   <label className="settings-label">LinkedIn</label>
-                  <p className="settings-description">Import your professional profile</p>
+                  <p className="settings-description">
+                    Import your professional profile
+                  </p>
                 </div>
                 <div className="settings-control">
                   <button className="settings-button">Connect</button>
@@ -593,7 +846,9 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
               <div className="settings-row">
                 <div className="settings-label-group">
                   <label className="settings-label">Slack</label>
-                  <p className="settings-description">Get notifications in your Slack workspace</p>
+                  <p className="settings-description">
+                    Get notifications in your Slack workspace
+                  </p>
                 </div>
                 <div className="settings-control">
                   <button className="settings-button">Connect</button>
@@ -603,7 +858,9 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
               <div className="settings-row">
                 <div className="settings-label-group">
                   <label className="settings-label">Discord</label>
-                  <p className="settings-description">Join project discussions on Discord</p>
+                  <p className="settings-description">
+                    Join project discussions on Discord
+                  </p>
                 </div>
                 <div className="settings-control">
                   <button className="settings-button">Connect</button>
@@ -612,22 +869,28 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
             </div>
 
             {/* Account Panel */}
-            <div className={`settings-panel ${activePanel === 'account' ? 'active' : ''}`}>
+            <div
+              className={`settings-panel ${
+                activePanel === "account" ? "active" : ""
+              }`}
+            >
               <h2 className="settings-title">Account</h2>
 
               <div className="settings-row">
                 <div className="settings-label-group">
                   <label className="settings-label">Email</label>
-                  <p className="settings-description">Your primary email address</p>
+                  <p className="settings-description">
+                    Your primary email address
+                  </p>
                 </div>
                 <div className="settings-control">
                   <input
                     type="email"
                     className="settings-input"
-                    value={settings?.email || ''}
+                    value={settings?.email || ""}
                     placeholder="user@example.com"
                     disabled
-                    style={{ backgroundColor: '#1a1a1a', color: '#888' }}
+                    style={{ backgroundColor: "#1a1a1a", color: "#888" }}
                   />
                 </div>
               </div>
@@ -635,7 +898,9 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
               <div className="settings-row">
                 <div className="settings-label-group">
                   <label className="settings-label">Change Password</label>
-                  <p className="settings-description">Update your account password</p>
+                  <p className="settings-description">
+                    Update your account password
+                  </p>
                 </div>
                 <div className="settings-control">
                   <button
@@ -650,7 +915,9 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
               <div className="settings-row">
                 <div className="settings-label-group">
                   <label className="settings-label">Export Data</label>
-                  <p className="settings-description">Download all your data and projects</p>
+                  <p className="settings-description">
+                    Download all your data and projects
+                  </p>
                 </div>
                 <div className="settings-control">
                   <button className="settings-button">Export</button>
@@ -660,10 +927,14 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
               <div className="settings-row">
                 <div className="settings-label-group">
                   <label className="settings-label">Delete Account</label>
-                  <p className="settings-description">Permanently delete your account and all data</p>
+                  <p className="settings-description">
+                    Permanently delete your account and all data
+                  </p>
                 </div>
                 <div className="settings-control">
-                  <button className="settings-button danger">Delete Account</button>
+                  <button className="settings-button danger">
+                    Delete Account
+                  </button>
                 </div>
               </div>
             </div>
@@ -682,11 +953,11 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
             Cancel
           </button>
           <button
-            className={`settings-save-button ${isSaving ? 'saving' : ''}`}
+            className={`settings-save-button ${isSaving ? "saving" : ""}`}
             onClick={saveSettings}
             disabled={isSaving}
           >
-            {isSaving ? 'Saving...' : 'Save Changes'}
+            {isSaving ? "Saving..." : "Save Changes"}
           </button>
         </div>
       </div>
