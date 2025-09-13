@@ -2,8 +2,10 @@
 // can do multiple files 
 
 import { Project, SearchFilter, SignUpValues2, PostValues } from '@/app/types/projectTypes';
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 /*export function signup(email: string, first_name: string, last_name: string, password: string, code: string) {
-    return fetch('http://localhost:8080/signup', {
+    return fetch(`${API_BASE_URL}/signup', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -18,7 +20,7 @@ import { Project, SearchFilter, SignUpValues2, PostValues } from '@/app/types/pr
 
 
 /*export function login(email: string, password: string) {
-    return fetch('http://localhost:8080/login', {
+    return fetch(`${API_BASE_URL}/login', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -33,7 +35,7 @@ import { Project, SearchFilter, SignUpValues2, PostValues } from '@/app/types/pr
 }*/
 
 export function contactUs(first_name: string, last_name: string, email: string, message: string) {
-    return fetch('http://localhost:8080/contactUs', {
+    return fetch(`${API_BASE_URL}/contactUs`, {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -47,7 +49,7 @@ export function contactUs(first_name: string, last_name: string, email: string, 
 }
 
 export function resetPass(email: string) {
-    return fetch('http://localhost:8080/forgotPassword', {
+    return fetch(`${API_BASE_URL}/forgotPassword`, {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -61,7 +63,7 @@ export function resetPass(email: string) {
 }
 
 export async function getPresignedUrl(filename: string, filetype: string) {
-    const res = await fetch('http://localhost:8080/updateProfile', {
+    const res = await fetch(`${API_BASE_URL}/updateProfile`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -96,7 +98,7 @@ export function search(query: string, searchFilter: SearchFilter, interests: str
     searchFilter.time.forEach((t) => params.append('time', t));
     interests.forEach((interest) => params.append('interests', interest));
 
-    return fetch(`http://localhost:8080/search?${params.toString()}`, {
+    return fetch(`${API_BASE_URL}/search?${params.toString()}`, {
         method: 'GET',
         credentials: 'include',
         headers: {
@@ -119,7 +121,7 @@ export async function createPostWithImage(postData: PostValues, filename?: strin
         filetype,
     };
 
-    const res = await fetch('http://localhost:8080/posts', {
+    const res = await fetch(`${API_BASE_URL}/posts`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -134,7 +136,7 @@ export async function createPostWithImage(postData: PostValues, filename?: strin
 }
 
 export async function cleanupFailedPost(postId: string) {
-    const res = await fetch('http://localhost:8080/posts/cleanup', {
+    const res = await fetch(`${API_BASE_URL}/posts/cleanup`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -151,7 +153,7 @@ export async function cleanupFailedPost(postId: string) {
 
 
 export async function sendMessage(receiverId: string, content: string) {
-    const res = await fetch('http://localhost:8080/messages', {
+    const res = await fetch(`${API_BASE_URL}/messages`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -166,7 +168,7 @@ export async function sendMessage(receiverId: string, content: string) {
 }
 
 export async function getConversations() {
-    const res = await fetch('http://localhost:8080/conversations', {
+    const res = await fetch(`${API_BASE_URL}/conversations`, {
         method: 'GET',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -185,7 +187,7 @@ export async function getConversations() {
 }
 
 export async function getMessages(conversationId: string, limit = 50, offset = 0) {
-    const res = await fetch(`http://localhost:8080/messages/${conversationId}?limit=${limit}&offset=${offset}`, {
+    const res = await fetch(`${API_BASE_URL}/messages/${conversationId}?limit=${limit}&offset=${offset}`, {
         method: 'GET',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -199,7 +201,7 @@ export async function getMessages(conversationId: string, limit = 50, offset = 0
 }
 
 export async function markMessagesAsRead(conversationId: string) {
-    const res = await fetch('http://localhost:8080/messages/read', {
+    const res = await fetch(`${API_BASE_URL}/messages/read`, {
         method: 'PUT',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -214,7 +216,7 @@ export async function markMessagesAsRead(conversationId: string) {
 }
 
 export async function getCurrentUser() {
-    const res = await fetch('http://localhost:8080/user/current', {
+    const res = await fetch(`${API_BASE_URL}/user/current`, {
         method: 'GET',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -233,7 +235,7 @@ export async function getCurrentUser() {
 }
 
 export async function searchUsers(query?: string) {
-    const url = new URL('http://localhost:8080/users/search');
+    const url = new URL(`${API_BASE_URL}/users/search`);
     if (query) {
         url.searchParams.append('query', query);
     }
@@ -257,7 +259,7 @@ export async function searchUsers(query?: string) {
 }
 
 export async function bookmarkProject(projectId: string, post_title: string, user_image: string) {
-    const res = await fetch(`http://localhost:8080/bookmark/`, {
+    const res = await fetch(`${API_BASE_URL}/bookmark/`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -270,7 +272,7 @@ export async function bookmarkProject(projectId: string, post_title: string, use
 
 // Settings API functions
 export async function getSettings() {
-    const res = await fetch('http://localhost:8080/settings', {
+    const res = await fetch(`${API_BASE_URL}/settings`, {
         method: 'GET',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -295,7 +297,7 @@ export async function updateSettings(settingsData: {
     profile_visibility?: 'public' | 'private';
     show_email_publicly?: boolean;
 }) {
-    const res = await fetch('http://localhost:8080/settings', {
+    const res = await fetch(`${API_BASE_URL}/settings`, {
         method: 'PUT',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -321,7 +323,7 @@ export async function updatePassword(passwordData: {
     confirmPassword: string;
 }) {
     try {
-        const res = await fetch('http://localhost:8080/update-password', {
+        const res = await fetch(`${API_BASE_URL}/update-password`, {
             method: 'PUT',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
@@ -354,7 +356,7 @@ export async function updatePassword(passwordData: {
 }
 
 export async function storeViewProject(projectId: string, post_title: string, user_image: string) {
-    const res = await fetch('http://localhost:8080/storeView', {
+    const res = await fetch(`${API_BASE_URL}/storeView`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -373,7 +375,7 @@ export async function additionalInfo(signUpValues2: SignUpValues2) {
         ...signUpValues2
     };
 
-    const res = await fetch('http://localhost:8080/additionalInfo', {
+    const res = await fetch(`${API_BASE_URL}/additionalInfo`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -388,7 +390,7 @@ export async function additionalInfo(signUpValues2: SignUpValues2) {
 }
 
 export function getBookmarkedPosts(): Promise<Project[]> {
-    return fetch(`http://localhost:8080/bookmarkedPosts`, {
+    return fetch(`${API_BASE_URL}/bookmarkedPosts`, {
         method: 'GET',
         credentials: 'include',
         headers: {
@@ -403,7 +405,7 @@ export function getBookmarkedPosts(): Promise<Project[]> {
 }
 
 export function getUserPosts(): Promise<Project[]> {
-    return fetch(`http://localhost:8080/getUserPosts`, {
+    return fetch(`${API_BASE_URL}/getUserPosts`, {
         method: 'GET',
         credentials: 'include',
         headers: {
@@ -418,7 +420,7 @@ export function getUserPosts(): Promise<Project[]> {
 }
 
 export function getRecommendedProjects(): Promise<Project[]> {
-    return fetch(`http://localhost:8080/getRecommendedProjects`, {
+    return fetch(`${API_BASE_URL}/getRecommendedProjects`, {
         method: 'GET',
         credentials: 'include',
         headers: {
@@ -438,7 +440,7 @@ export function getRecommendedProjects(): Promise<Project[]> {
 
 export async function getNotifications() {
     try {
-        const response = await fetch(`http://localhost:8080/getNotifications`, {
+        const response = await fetch(`${API_BASE_URL}/getNotifications`, {
             method: 'GET',
             credentials: 'include',
             headers: {
@@ -461,7 +463,7 @@ export async function getNotifications() {
 
 export async function getOverallViews() {
     try {
-        const response = await fetch(`http://localhost:8080/getOverallViews`, {
+        const response = await fetch(`${API_BASE_URL}/getOverallViews`, {
             method: 'GET',
             credentials: 'include',
             headers: {
@@ -484,7 +486,7 @@ export async function getOverallViews() {
 
 export async function getOverallClicks() {
     try {
-        const response = await fetch(`http://localhost:8080/getOverallClicks`, {
+        const response = await fetch(`${API_BASE_URL}/getOverallClicks`, {
             method: 'GET',
             credentials: 'include',
             headers: {
@@ -506,7 +508,7 @@ export async function getOverallClicks() {
 }
 export async function getOverallBookmarks() {
     try {
-        const response = await fetch(`http://localhost:8080/getOverallBookmarks`, {
+        const response = await fetch(`${API_BASE_URL}/getOverallBookmarks`, {
             method: 'GET',
             credentials: 'include',
             headers: {
@@ -528,7 +530,7 @@ export async function getOverallBookmarks() {
 }
 
 export async function markNotificationsRead() {
-    const res = await fetch('http://localhost:8080/markNotifications', {
+    const res = await fetch(`${API_BASE_URL}/markNotifications`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -543,7 +545,7 @@ export async function markNotificationsRead() {
 
 export async function skillDirectory(query: string) {
     try {
-        const response = await fetch(`http://localhost:8080/skillDirectory?q=${encodeURIComponent(query)}`, {
+        const response = await fetch(`${API_BASE_URL}/skillDirectory?q=${encodeURIComponent(query)}`, {
             method: 'GET',
             credentials: 'include',
             headers: {
@@ -565,7 +567,7 @@ export async function skillDirectory(query: string) {
 
 export async function getIndividualViews(postId: string) {
     try {
-        const response = await fetch(`http://localhost:8080/getIndividualPostViews?postId=${postId}`, {
+        const response = await fetch(`${API_BASE_URL}/getIndividualPostViews?postId=${postId}`, {
             method: 'GET',
             credentials: 'include',
         });
@@ -585,7 +587,7 @@ export async function getIndividualViews(postId: string) {
 
 export async function getIndividualClicks(postId: string) {
     try {
-        const response = await fetch(`http://localhost:8080/getIndividualPostClicks?postId=${postId}`, {
+        const response = await fetch(`${API_BASE_URL}/getIndividualPostClicks?postId=${postId}`, {
             method: 'GET',
             credentials: 'include',
         });
@@ -605,7 +607,7 @@ export async function getIndividualClicks(postId: string) {
 
 export async function getIndividualBookmarks(postId: string) {
     try {
-        const response = await fetch(`http://localhost:8080/getIndividualPostBookmarks?postId=${postId}`, {
+        const response = await fetch(`${API_BASE_URL}/getIndividualPostBookmarks?postId=${postId}`, {
             method: 'GET',
             credentials: 'include',
         });
@@ -624,7 +626,7 @@ export async function getIndividualBookmarks(postId: string) {
 
 export async function getTotalPostBookmarks(postId: string) {
     try {
-        const response = await fetch(`http://localhost:8080/getTotalPostBookmarks?postId=${postId}`, {
+        const response = await fetch(`${API_BASE_URL}/getTotalPostBookmarks?postId=${postId}`, {
             method: 'GET',
             credentials: 'include',
         });
@@ -643,7 +645,7 @@ export async function getTotalPostBookmarks(postId: string) {
 
 export async function getTotalPostViews(postId: string) {
     try {
-        const response = await fetch(`http://localhost:8080/getTotalPostViews?postId=${postId}`, {
+        const response = await fetch(`${API_BASE_URL}/getTotalPostViews?postId=${postId}`, {
             method: 'GET',
             credentials: 'include',
         });
@@ -662,7 +664,7 @@ export async function getTotalPostViews(postId: string) {
 
 export async function getTotalPostClicks(postId: string) {
     try {
-        const response = await fetch(`http://localhost:8080/getTotalPostClicks?postId=${postId}`, {
+        const response = await fetch(`${API_BASE_URL}/getTotalPostClicks?postId=${postId}`, {
             method: 'GET',
             credentials: 'include',
         });
@@ -678,6 +680,3 @@ export async function getTotalPostClicks(postId: string) {
         return [];
     }
 }
-
-
-

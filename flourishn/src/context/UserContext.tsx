@@ -6,6 +6,8 @@ import { getCookie, setCookie } from '@/utils/cookies';
 import { usePathname } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+
 type User = {
     id: string;
     email: string;
@@ -37,7 +39,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     const [isInitialized, setIsInitialized] = useState<boolean>(false);
     const pathname = usePathname();
     const login = async (email: string, password: string) => {
-        const result = await fetch('http://localhost:8080/login', {
+        const result = await fetch(`${API_BASE_URL}/login`, {
             method: 'POST',
             credentials: 'include',
             headers: {
@@ -59,7 +61,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     };
 
     const signUp = async (email: string, first_name: string, last_name: string, password: string, code: string) => {
-        const result = await fetch('http://localhost:8080/signup', {
+        const result = await fetch(`${API_BASE_URL}/signup`, {
             method: 'POST',
             credentials: 'include',
             headers: {
@@ -93,7 +95,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     };
 
     const logout = async () => {
-        const result = await fetch('http://localhost:8080/logout', {
+        const result = await fetch(`${API_BASE_URL}/logout`, {
             method: 'POST',
             credentials: 'include',
         });

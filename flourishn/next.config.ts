@@ -3,6 +3,9 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   swcMinify: true,
+  images: {
+    domains: [], // Add external domains if needed
+  },
   // Improved hot reloading configuration
   webpack: (config, { dev, isServer }) => {
     if (dev && !isServer) {
