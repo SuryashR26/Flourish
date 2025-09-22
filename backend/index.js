@@ -50,7 +50,6 @@ app.use(session({
         httpOnly: false, // Allow frontend to access cookies
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         sameSite: 'lax', // Allow cross-origin requests
-        domain: 'localhost', // Ensure cookie works on localhost,
     },
     name: 'sessionId', // Custom session name
 }));
