@@ -247,9 +247,9 @@ const Navbar: React.FC<NavbarProps> = ({ showSearchBar = false, showSeparator = 
       </nav>
 
       {/* Settings Popup */}
-      <SettingsPopup 
-        isOpen={settingsOpen} 
-        onClose={() => setSettingsOpen(false)} 
+      <SettingsPopup
+        isOpen={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
       />
     </>
   );
