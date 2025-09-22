@@ -304,19 +304,35 @@ export default function DashboardPage() {
     }, [notifications]);
 
 
+
+
     useEffect(() => {
         const firstTime = localStorage.getItem("firstTimeSignUp");
         console.log("first-time state is" + firstTime)
 
-        if (firstTime === "true") {
+        if (user?.personal_preferences === null) {
             setShowProfileUploader(true);
-            localStorage.removeItem("firstTimeSignUp");
+
         }
 
         if (isInitialized && !isLoggedIn) {
             router.push("/login");
         }
     }, [isInitialized, isLoggedIn, router]);
+
+    useEffect(() => {
+        if (showProfileUploader) {
+            document.body.style.overflow = 'hidden';
+            document.documentElement.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+            document.documentElement.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+            document.documentElement.style.overflow = '';
+        };
+    }, [showProfileUploader]);
 
     // Don't render content if user is not logged in (will redirect)
     if (!isLoggedIn) {

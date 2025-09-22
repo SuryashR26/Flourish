@@ -29,6 +29,7 @@ interface FormErrors {
     message?: string
     birthday?: string
     phoneNumber?: string
+    interest?: string
 }
 
 type SkillOption = {
@@ -95,19 +96,6 @@ export default function ProfileUploader() {
     const [isOpen, setIsOpen] = useState(true);
 
 
-    // Disable scroll when modal is open
-    useEffect(() => {
-        if (isOpen) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = 'auto';
-        }
-
-        // Cleanup on unmount
-        return () => {
-            document.body.style.overflow = 'auto';
-        };
-    }, [isOpen]);
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const selected = event.target.files?.[0];
@@ -228,6 +216,13 @@ export default function ProfileUploader() {
             }));
             return false;
         }
+        if (signUpValues.interest.length === 0) {
+            setErrors(prev => ({
+                ...prev,
+                interest: 'Please add at least one interest or skill',
+            }));
+            return false;
+        }
         if (signUpValues.phoneNumber?.length > 0 && signUpValues.phoneNumber.length < 10) {
             setErrors(prev => ({
                 ...prev,
@@ -235,7 +230,7 @@ export default function ProfileUploader() {
             }));
             return false;
         }
-        if (errors.birthday || errors.phoneNumber) {
+        if (errors.birthday || errors.phoneNumber || errors.interest) {
             return false;
         }
         setCurrentStep(2);
@@ -338,14 +333,13 @@ export default function ProfileUploader() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 ">
             <div
                 className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-                onClick={handleClose}
             />
 
 
             <div className="relative w-full max-w-2xl bg-black rounded-2xl shadow-2xl overflow-hidden border border-gray-800">
                 {/* Header */}
                 <div className="relative px-8 pt-8 pb-6 bg-black">
-                    <button
+                    {/*<button
                         onClick={handleClose}
                         className="absolute top-6 right-6 w-8 h-8 rounded-full bg-gray-800/50 hover:bg-gray-700 flex items-center justify-center text-gray-400 hover:text-white transition-all duration-200"
                         aria-label="Close modal"
