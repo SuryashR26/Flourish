@@ -172,7 +172,7 @@ export default function ProfileUploader() {
 
 
     const handleSubmit = async (): Promise<boolean> => {
-        if (errors.birthday || errors.phoneNumber) {
+        if (errors.birthday || errors.phoneNumber || errors.interest) {
             return false;
         }
 
@@ -180,6 +180,15 @@ export default function ProfileUploader() {
             setErrors(prev => ({
                 ...prev,
                 birthday: 'Please set a birthday',
+            }));
+            return false;
+        }
+
+
+        if (signUpValues.interest.length === 0) {
+            setErrors(prev => ({
+                ...prev,
+                interest: 'Please add at least one interest or skill',
             }));
             return false;
         }
@@ -216,13 +225,7 @@ export default function ProfileUploader() {
             }));
             return false;
         }
-        if (signUpValues.interest.length === 0) {
-            setErrors(prev => ({
-                ...prev,
-                interest: 'Please add at least one interest or skill',
-            }));
-            return false;
-        }
+       
         if (signUpValues.phoneNumber?.length > 0 && signUpValues.phoneNumber.length < 10) {
             setErrors(prev => ({
                 ...prev,
@@ -230,7 +233,7 @@ export default function ProfileUploader() {
             }));
             return false;
         }
-        if (errors.birthday || errors.phoneNumber || errors.interest) {
+        if (errors.birthday || errors.phoneNumber ) {
             return false;
         }
         setCurrentStep(2);
@@ -495,10 +498,14 @@ export default function ProfileUploader() {
                                     placeholder="Search and add your interests & skills"
                                     closeMenuOnSelect={false}
                                     isClearable
+                                    className={`rounded-md border ${errors.interest ? 'border-red-500' : 'border-gray-700'}`}
                                     styles={customSelectStyles}
                                     components={{ MultiValueRemove: CustomMultiValueRemove }}
                                     noOptionsMessage={() => "No matches found - try different keywords"}
                                 />
+                                 {errors.interest && (
+                                    <p className="text-red-400 text-sm mt-2">{errors.interest}</p>
+                                )}
                                 <p className="text-gray-500 text-xs mt-2">
                                     {signUpValues.interest.length}/5 selected
                                 </p>
