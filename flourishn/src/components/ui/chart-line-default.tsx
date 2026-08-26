@@ -93,7 +93,7 @@ export function ChartLineDefault() {
   const metrics: MetricType[] = ["Views", "Clicks", "Bookmarks"]
 
   return (
-    <Card className="bg-black border-none text-white">
+    <Card className="bg-white border border-gray-200 text-gray-900">
       {/* Metric selectors */}
       <div className="flex justify-center gap-12 mb-4">
         {metrics.map((metric) => (
@@ -102,7 +102,7 @@ export function ChartLineDefault() {
             onClick={() => setSelectedMetric(metric)}
             className={`text-xl font-bold cursor-pointer transition-colors ${selectedMetric === metric
               ? "text-[#1f98f4]"
-              : "text-white hover:text-[#1f98f4]"
+              : "text-gray-900 hover:text-[#1f98f4]"
               }`}
           >
             {metric}
@@ -110,7 +110,7 @@ export function ChartLineDefault() {
         ))}
       </div>
 
-      <CardContent className="bg-black flex justify-center">
+      <CardContent className="bg-white flex justify-center">
         <div className="w-[300px] sm:w-[400px] lg:w-[700px] h-[200px] sm:h-[250px] lg:h-[400px]">
           <ChartContainer
             config={chartConfig}
@@ -155,7 +155,7 @@ export function ChartLineDefault() {
         </div>
       </CardContent>
 
-      <CardFooter className="flex-col items-start gap-2 text-sm text-white">
+      <CardFooter className="flex-col items-start gap-2 text-sm text-gray-900">
         <div className="flex gap-2 leading-none font-medium items-center">
           {trending === "up" ? (
             <>
@@ -170,7 +170,7 @@ export function ChartLineDefault() {
           )}
         </div>
 
-        <div className="text-gray-400 leading-none">
+        <div className="text-gray-500 leading-none">
           Showing {selectedMetric.toLowerCase()} for the last 6 days
         </div>
       </CardFooter>

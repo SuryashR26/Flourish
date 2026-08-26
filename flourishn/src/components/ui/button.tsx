@@ -51,7 +51,7 @@ const Button = ({
         .btn {
             outline: none;
             background: transparent;
-            color: #fff;
+            color: #14171c;
             display: inline-block;
             text-decoration: none;
             border-radius: 12px;
@@ -61,7 +61,7 @@ const Button = ({
             overflow: hidden;
         }
         .btn:focus-visible {
-            outline: 2px solid #fff;
+            outline: 2px solid #1f98f4;
             outline-offset: 2px;
         }
         /* Left-to-right animated background */
@@ -72,13 +72,13 @@ const Button = ({
             left: 0;
             width: 0%;
             height: 100%;
-            background: #fff;
+            background: #1f98f4;
             border-radius: inherit;
             z-index: -1;
             transition: width 0.35s cubic-bezier(0.4,0,0.2,1);
         }
         .btn span {
-            color: #fff;
+            color: #14171c;
             transition: color 0.25s;
         }
         .btn:hover::after,
@@ -87,12 +87,12 @@ const Button = ({
         }
         .btn:hover span,
         .btn:hover span * {
-            color: #000 !important;
+            color: #fff !important;
             transition: color 0.25s;
         }
         .btn--outline {
             background: transparent;
-            color: #fff;
+            color: #14171c;
         }
         .btn--medium {
             font-size: 1.25rem;
@@ -107,11 +107,11 @@ const Button = ({
         }
         ${isSignup ? `
         .signup-button {
-            border: 2px solid #fff !important;
+            border: 2px solid #14171c !important;
             border-radius: 12px !important;
             padding: 6px 15px !important;
             background: transparent !important;
-            color: #fff !important;
+            color: #14171c !important;
             font-size: 1.25rem !important;
             font-weight: 600 !important;
             transition: none !important;
@@ -120,13 +120,13 @@ const Button = ({
             display: none !important;
         }
         .signup-button:hover, .signup-button:focus {
-            background: #fff !important;
-            color: #000 !important;
-            border: 2px solid #fff !important;
+            background: #1f98f4 !important;
+            color: #fff !important;
+            border: 2px solid #1f98f4 !important;
             transition: none !important;
         }
         .signup-button:hover span, .signup-button:focus span {
-            color: #000 !important;
+            color: #fff !important;
             transition: none !important;
         }
         ` : ''}
@@ -172,7 +172,7 @@ const Button = ({
                         width={BUTTON_WIDTH - 3}
                         height={BUTTON_HEIGHT - 3}
                         rx={BORDER_RADIUS}
-                        stroke="#fff"
+                        stroke="#1f98f4"
                         strokeWidth="3"
                         fill="none"
                         style={{

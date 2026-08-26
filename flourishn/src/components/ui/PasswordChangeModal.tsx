@@ -274,8 +274,8 @@ const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({ isOpen, onClo
             className="password-update-button"
             style={{
               background: "#fff",
-              color: "#0B0809",
-              border: "1px solid #2f3542",
+              color: "#f4f5f7",
+              border: "1px solid #e2e5ea",
               borderRadius: "8px",
               fontWeight: 500,
               transition: "none",

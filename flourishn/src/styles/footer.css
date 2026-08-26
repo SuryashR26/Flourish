@@ -1,7 +1,8 @@
 .footer {
-  background-color: #000000;
+  background-color: #ffffff;
+  border-top: 1px solid #e2e5ea;
   padding: 2rem 1rem;
-  color: white;
+  color: #14171c;
   font-family: 'Figtree', sans-serif;
   margin-top: 4rem;
   /* Add space above footer */
@@ -38,13 +39,13 @@
 
 .footer-logo i {
   margin-left: 0.5rem;
-  color: white;
+  color: #14171c;
 }
 
 .footer-logo p {
   margin-top: 2rem !important;
   font-size: 0.9rem !important;
-  color: #d1d5db !important;
+  color: #5b6472 !important;
   text-align: left !important;
   line-height: 1.5 !important;
 }
@@ -68,7 +69,7 @@
   font-size: 1.125rem !important;
   font-weight: bold !important;
   margin-bottom: 0.75rem !important;
-  color: white !important;
+  color: #14171c !important;
   text-align: left !important;
 }
 
@@ -102,18 +103,19 @@
 }
 
 .footer a {
-  color: #d1d5db;
+  color: #5b6472;
   text-decoration: none;
 }
 
 .footer a:hover {
+  color: #1f98f4;
   text-decoration: underline;
 }
 
 /* Horizontal line */
 .footer-line {
   border: none;
-  border-top: 1px solid #d1d5db;
+  border-top: 1px solid #e2e5ea;
   width: 100%;
   margin: 2rem 0;
 }

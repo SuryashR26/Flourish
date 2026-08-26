@@ -180,7 +180,7 @@ function SkillsRow({ skills = [] }: { skills: string[] }) {
                     key={i}
                     className={`skill-tag !py-1 !px-2 !rounded !text-[13px] !font-medium ${i < 2
                         ? 'bg-[#1d4ed8] text-[#dbeafe]'
-                        : 'bg-[#2a2a2a] text-[#e5e5e5]'
+                        : 'bg-[#eef0f3] text-[#e5e5e5]'
                         }`}
                 >
                     {skill}
@@ -308,7 +308,7 @@ export default function StatisticsPage() {
                 {/* Sidebar */}
                 <div
                     className="fixed left-0 top-[80px] z-40 h-[calc(100vh-80px)] 
-                             bg-black border-r border-[#2f3542] 
+                             bg-white border-r border-[#e2e5ea] 
                              overflow-y-auto flex flex-col items-center 
                              w-[72px] p-3 lg:w-[320px] lg:p-6"
                 >
@@ -316,8 +316,8 @@ export default function StatisticsPage() {
                         <div
                             className="
                         w-20 h-20 sm:w-24 sm:h-24 md:w-24 md:h-24 lg:w-32 lg:h-32 
-                        rounded-full bg-indigo-900 !mt-8 flex items-center justify-center
-                        text-indigo-200 text-xs font-semibold flex-shrink-0"
+                        rounded-full bg-indigo-100 !mt-8 flex items-center justify-center
+                        text-indigo-700 text-xs font-semibold flex-shrink-0"
                         >
                             <img
                                 src={user?.profileurl || "/images/defaultProfile.jpg"}
@@ -331,7 +331,7 @@ export default function StatisticsPage() {
                         </div>
 
                         <div className="hidden lg:block mt-3 text-center">
-                            <p className="text-white font-semibold">Your Account</p>
+                            <p className="text-gray-900 font-semibold">Your Account</p>
                             <p className="text-gray-500 text-sm mt-1">
                                 {user?.first_name} {user?.last_name}
                             </p>
@@ -341,7 +341,7 @@ export default function StatisticsPage() {
                     <nav className="!mt-4 lg:!ml-6 !gap-y-2 lg:mt-8 w-full">
                         <button
                             className={`
-                                    group w-full h-12 flex items-center justify-center lg:justify-start gap-3 px-0 lg:px-5 rounded-lg text-white font-medium transition-colors mb-2
+                                    group w-full h-12 flex items-center justify-center lg:justify-start gap-3 px-0 lg:px-5 rounded-lg text-gray-900 font-medium transition-colors mb-2
                                     hover:bg-[#1f98f4] ${page === 1 ? "bg-[#1f98f4]" : ""}
                                 `}
                             onClick={() => {
@@ -357,7 +357,7 @@ export default function StatisticsPage() {
 
                         <button
                             className={`
-                                    group w-full h-12 flex items-center justify-center lg:justify-start gap-3 px-0 lg:px-5 rounded-lg text-white font-medium transition-colors mb-2
+                                    group w-full h-12 flex items-center justify-center lg:justify-start gap-3 px-0 lg:px-5 rounded-lg text-gray-900 font-medium transition-colors mb-2
                                      hover:bg-[#1f98f4] ${page === 2 ? "bg-[#1f98f4]" : ""}
                                 `}
                             onClick={() => {
@@ -374,7 +374,7 @@ export default function StatisticsPage() {
 
                         <button
                             className={`
-                                    group w-full h-12 flex items-center justify-center lg:justify-start gap-3 px-0 lg:px-5 rounded-lg text-white font-medium transition-colors
+                                    group w-full h-12 flex items-center justify-center lg:justify-start gap-3 px-0 lg:px-5 rounded-lg text-gray-900 font-medium transition-colors
                                     hover:bg-[#1f98f4] ${page === 3 ? "bg-[#1f98f4]" : ""}
                                 `}
                             onClick={() => {
@@ -393,7 +393,7 @@ export default function StatisticsPage() {
                 </div>
 
                 {/* Main content */}
-                <div className="ml-[72px] lg:ml-[320px] flex-1 p-6 min-h-[calc(100vh-80px)] bg-black">
+                <div className="ml-[72px] lg:ml-[320px] flex-1 p-6 min-h-[calc(100vh-80px)] bg-white">
                     {page === 1 && (
                         <div className="p-4 flex flex-col justify-center items-center h-full">
                             <div className="w-[300px] h-[150px] sm:w-[400px] sm:h-[200px] lg:w-[700px] lg:h-[400px]">
@@ -406,16 +406,16 @@ export default function StatisticsPage() {
                         <div className="!w-full !max-w-4xl !mt-30 !ml-100 !px-4 !py-6">
                             {/* Header Section */}
                             <div className="!mb-8">
-                                <h1 className="text-white text-3xl font-bold mb-2">Notifications</h1>
+                                <h1 className="text-gray-900 text-3xl font-bold mb-2">Notifications</h1>
                                 <p className="text-gray-400 text-base">Stay updated with your latest activity and engagement</p>
                             </div>
 
                             {/* Filter Tabs */}
-                            <div className="!flex !gap-10 !mb-8  rounded-2xl p-2 w-fit border border-gray-700/30">
+                            <div className="!flex !gap-10 !mb-8  rounded-2xl p-2 w-fit border border-gray-200">
                                 <button
                                     className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 text-lg ${notificationSelection === 1
                                         ? "bg-[#1f98f4] text-white shadow-lg !px-6 !py-2"
-                                        : "text-gray-400 hover:text-white hover:bg-gray-700/50"
+                                        : "text-gray-400 hover:text-gray-900 hover:bg-gray-100"
                                         }`}
                                     onClick={() => setNotificationSelection(1)}
                                 >
@@ -424,7 +424,7 @@ export default function StatisticsPage() {
                                 <button
                                     className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 text-lg ${notificationSelection === 2
                                         ? "bg-[#1f98f4] text-white shadow-lg !px-6 !py-2"
-                                        : "text-gray-400 hover:text-white hover:bg-gray-700/50"
+                                        : "text-gray-400 hover:text-gray-900 hover:bg-gray-100"
                                         }`}
                                     onClick={() => setNotificationSelection(2)}
                                 >
@@ -433,7 +433,7 @@ export default function StatisticsPage() {
                                 <button
                                     className={`px-6 py-3 rounded-xl  font-medium transition-all duration-300 text-lg ${notificationSelection === 3
                                         ? "bg-[#1f98f4] text-white shadow-lg !px-6 !py-2"
-                                        : "text-gray-400 hover:text-white hover:bg-gray-700/50"
+                                        : "text-gray-400 hover:text-gray-900 hover:bg-gray-100"
                                         }`}
                                     onClick={() => setNotificationSelection(3)}
                                 >
@@ -442,7 +442,7 @@ export default function StatisticsPage() {
                                 <button
                                     className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 text-lg ${notificationSelection === 4
                                         ? "bg-[#1f98f4] text-white shadow-lg !px-6 !py-2"
-                                        : "text-gray-400 hover:text-white hover:bg-gray-700/50"
+                                        : "text-gray-400 hover:text-gray-900 hover:bg-gray-100"
                                         }`}
                                     onClick={() => setNotificationSelection(4)}
                                 >
@@ -460,7 +460,7 @@ export default function StatisticsPage() {
                                                 return (
                                                     <div
                                                         key={index}
-                                                        className="bg-gray-800/60 border border-gray-700/40 rounded-2xl !p-6 !mb-5 hover:bg-gray-800/80 hover:border-gray-600/50 transition-all duration-300 cursor-pointer group"
+                                                        className="bg-gray-50 border border-gray-200 rounded-2xl !p-6 !mb-5 hover:bg-gray-100 hover:border-gray-300 transition-all duration-300 cursor-pointer group"
                                                     >
                                                         <div className="flex items-start gap-4">
                                                             <div
@@ -491,7 +491,7 @@ export default function StatisticsPage() {
                                                                                 minute: "2-digit",
                                                                             })}
                                                                         </span>
-                                                                        <span className="bg-gray-700/60 text-gray-300 px-3 py-1 rounded-lg text-xs font-medium">
+                                                                        <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-lg text-xs font-medium">
                                                                             Activity
                                                                         </span>
                                                                     </div>
@@ -506,7 +506,7 @@ export default function StatisticsPage() {
                                             <div className="w-16 h-16 mx-auto mb-6 rounded-2xl flex items-center justify-center">
                                                 <Bell className="w-8 h-8 !mt-23 !-mr-140  text-gray-500" />
                                             </div>
-                                            <div className="text-xl font-semibold mb-2 text-gray-300">No notifications yet</div>
+                                            <div className="text-xl font-semibold mb-2 text-gray-600">No notifications yet</div>
                                             <div className="text-gray-500 max-w-md mx-auto !ml-50">
                                                 When you start getting activity on your posts, you`&apos;`ll see all the updates here
                                             </div>
@@ -525,7 +525,7 @@ export default function StatisticsPage() {
                                                 return (
                                                     <div
                                                         key={index}
-                                                        className="bg-gray-800/60 border border-gray-700/40 rounded-2xl !p-6 !mb-5 hover:bg-gray-800/80 hover:border-gray-600/50 transition-all duration-300 cursor-pointer group"
+                                                        className="bg-gray-50 border border-gray-200 rounded-2xl !p-6 !mb-5 hover:bg-gray-100 hover:border-gray-300 transition-all duration-300 cursor-pointer group"
                                                     >
                                                         <div className="flex items-start gap-4">
                                                             <div
@@ -556,7 +556,7 @@ export default function StatisticsPage() {
                                                                                 minute: "2-digit",
                                                                             })}
                                                                         </span>
-                                                                        <span className="bg-gray-700/60 text-gray-300 px-3 py-1 rounded-lg text-xs font-medium">
+                                                                        <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-lg text-xs font-medium">
                                                                             Activity
                                                                         </span>
                                                                     </div>
@@ -571,7 +571,7 @@ export default function StatisticsPage() {
                                             <div className="w-16 h-16 mx-auto mb-6 rounded-2xl flex items-center justify-center">
                                                 <BarChart3 className="w-8 h-8 !mt-23 !-mr-140 text-gray-500" />
                                             </div>
-                                            <div className="text-xl font-semibold mb-2 text-gray-300">No view notifications</div>
+                                            <div className="text-xl font-semibold mb-2 text-gray-600">No view notifications</div>
                                             <div className="text-gray-500">View notifications will appear here when available</div>
                                         </div>
                                     )}
@@ -588,7 +588,7 @@ export default function StatisticsPage() {
                                                 return (
                                                     <div
                                                         key={index}
-                                                        className="bg-gray-800/60 border border-gray-700/40 rounded-2xl !p-6 !mb-5 hover:bg-gray-800/80 hover:border-gray-600/50 transition-all duration-300 cursor-pointer group"
+                                                        className="bg-gray-50 border border-gray-200 rounded-2xl !p-6 !mb-5 hover:bg-gray-100 hover:border-gray-300 transition-all duration-300 cursor-pointer group"
                                                     >
                                                         <div className="flex items-start gap-4">
                                                             <div
@@ -615,7 +615,7 @@ export default function StatisticsPage() {
                                                                                 minute: "2-digit",
                                                                             })}
                                                                         </span>
-                                                                        <span className="bg-gray-700/60 text-gray-300 px-3 py-1 rounded-lg text-xs font-medium">
+                                                                        <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-lg text-xs font-medium">
                                                                             Activity
                                                                         </span>
                                                                     </div>
@@ -631,7 +631,7 @@ export default function StatisticsPage() {
                                             <div className="w-16 h-16 mx-auto mb-6 rounded-2xl flex items-center justify-center">
                                                 <FileText className="w-8 h-8 !mt-23 !-mr-140 text-gray-500" />
                                             </div>
-                                            <div className="text-xl font-semibold mb-2 text-gray-300">No click notifications</div>
+                                            <div className="text-xl font-semibold mb-2 text-gray-600">No click notifications</div>
                                             <div className="text-gray-500">Click notifications will appear here when available</div>
                                         </div>
                                     )}
@@ -648,7 +648,7 @@ export default function StatisticsPage() {
                                                 return (
                                                     <div
                                                         key={index}
-                                                        className="bg-gray-800/60 border border-gray-700/40 rounded-2xl !p-6 !mb-5 hover:bg-gray-800/80 hover:border-gray-600/50 transition-all duration-300 cursor-pointer group"
+                                                        className="bg-gray-50 border border-gray-200 rounded-2xl !p-6 !mb-5 hover:bg-gray-100 hover:border-gray-300 transition-all duration-300 cursor-pointer group"
                                                     >
                                                         <div className="flex items-start gap-4">
                                                             <div
@@ -675,7 +675,7 @@ export default function StatisticsPage() {
                                                                                 minute: "2-digit",
                                                                             })}
                                                                         </span>
-                                                                        <span className="bg-gray-700/60 text-gray-300 px-3 py-1 rounded-lg text-xs font-medium">
+                                                                        <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-lg text-xs font-medium">
                                                                             Activity
                                                                         </span>
                                                                     </div>
@@ -690,7 +690,7 @@ export default function StatisticsPage() {
                                             <div className="w-16 h-16 mx-auto mb-6 rounded-2xl flex items-center justify-center">
                                                 <Bell className="w-8 h-8 !mt-23 !-mr-130 text-gray-500" />
                                             </div>
-                                            <div className="text-xl font-semibold mb-2 text-gray-300">No bookmark notifications</div>
+                                            <div className="text-xl font-semibold mb-2 text-gray-600">No bookmark notifications</div>
                                             <div className="text-gray-500">Bookmark notifications will appear here when available</div>
                                         </div>
                                     )}
@@ -702,7 +702,7 @@ export default function StatisticsPage() {
                     {page === 3 && (
                         <div className="flex flex-col h-full">
                             <div className="!px-6 !py-4 !ml-100 !mt-30 ">
-                                <h1 className="text-white text-3xl font-bold whitespace-nowrap">Your Posts</h1>
+                                <h1 className="text-gray-900 text-3xl font-bold whitespace-nowrap">Your Posts</h1>
                             </div>
 
 
@@ -711,14 +711,14 @@ export default function StatisticsPage() {
                                     {paginatedProjects.map((project, idx) => {
                                         const category = project.project_category
                                         /*const categoryClass = category === 'Tech'
-                                            ? 'bg-blue-900/10 text-blue-400 border border-blue-400/20'
+                                            ? 'bg-blue-100/10 text-blue-400 border border-blue-400/20'
                                             : category === 'Creative'
                                                 ? 'bg-pink-600/10 text-pink-300 border border-pink-300/20'
-                                                : 'bg-green-900/10 text-green-400 border border-green-400/20';
+                                                : 'bg-green-100/10 text-green-400 border border-green-400/20';
                                             */
                                         const isRemote = project.location_preference;
 
-                                        // const locationBadgeClass = isRemote ? 'bg-indigo-900 text-indigo-200' : 'bg-green-900 text-green-300';
+                                        // const locationBadgeClass = isRemote ? 'bg-indigo-100 text-indigo-700' : 'bg-green-100 text-green-800';
                                         const locationBadgeText = isRemote === 'remote' ? 'Remote' : 'In Person';
                                         // const locationText = isRemote ? 'Open to remote collaboration' : project.location;
                                         const timePosted = project.created_at ? timeAgo(new Date(project.created_at)) : 'recently';
@@ -726,7 +726,7 @@ export default function StatisticsPage() {
                                         return (
                                             <div
                                                 key={project.id || idx}
-                                                className="bg-[#1a1a1a] border border-[#333] rounded-xl overflow-hidden cursor-pointer transition-all duration-300 relative flex flex-col hover:border-[#555] hover:-translate-y-0.5 hover:shadow-2xl min-h-[380px]"
+                                                className="bg-[#1a1a1a] border border-[#e2e5ea] rounded-xl overflow-hidden cursor-pointer transition-all duration-300 relative flex flex-col hover:border-[#d7dbe1] hover:-translate-y-0.5 hover:shadow-2xl min-h-[380px]"
                                                 onClick={() => setSelectedProject(project)}
                                             >
                                                 {/* Urgent indicator */}
@@ -770,7 +770,7 @@ export default function StatisticsPage() {
                                                 <div className="!p-5 flex flex-col flex-1">
                                                     {/* Card Header */}
                                                     <div className="flex justify-between items-start !gap-3 !mb-3 !mt-2">
-                                                        <h3 className="text-lg font-semibold text-white leading-tight flex-1">
+                                                        <h3 className="text-lg font-semibold text-gray-900 leading-tight flex-1">
                                                             {project.title}
                                                         </h3>
                                                         <span
@@ -787,7 +787,7 @@ export default function StatisticsPage() {
 
                                                     {/* In Person/Remote tag and location */}
                                                     <div className="flex items-center !gap-2 !mb-3">
-                                                        <span className={`!py-1 !px-2 !rounded !text-[13px] !font-medium ${isRemote === 'remote' ? 'bg-[#1d4ed8] text-[#dbeafe]' : 'bg-[#2a2a2a] text-[#e5e5e5]'}`}>
+                                                        <span className={`!py-1 !px-2 !rounded !text-[13px] !font-medium ${isRemote === 'remote' ? 'bg-[#1d4ed8] text-[#dbeafe]' : 'bg-[#eef0f3] text-[#e5e5e5]'}`}>
                                                             {locationBadgeText}
                                                         </span>
                                                         {!isRemote && (
@@ -799,7 +799,7 @@ export default function StatisticsPage() {
 
                                                     {/* Description - Remove flex-1 and reduce margin */}
                                                     <div className="!mb-3">
-                                                        <p className="!text-gray-300 !text-sm leading-snug line-clamp-3">
+                                                        <p className="!text-gray-600 !text-sm leading-snug line-clamp-3">
                                                             {project.content}
                                                         </p>
                                                     </div>
@@ -812,7 +812,7 @@ export default function StatisticsPage() {
                                                     {/* Footer - This will stick to bottom */}
                                                     <div className="flex justify-between items-center !gap-3 !mt-auto">
                                                         <div className="flex items-center !gap-2">
-                                                            <div className="w-7 h-7 rounded-full bg-indigo-900 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                                            <div className="w-7 h-7 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
                                                                 <img
                                                                     src={project.user_image || '/images/defaultProfile.jpg'}
                                                                     alt={project.user_name || 'User'}
@@ -823,7 +823,7 @@ export default function StatisticsPage() {
                                                                     }}
                                                                 />
                                                             </div>
-                                                            <span className="!text-[#888] !text-sm !font-medium">
+                                                            <span className="!text-[#6b7280] !text-sm !font-medium">
                                                                 {project.user_name || 'Unknown Author'}
                                                             </span>
                                                         </div>
@@ -845,22 +845,22 @@ export default function StatisticsPage() {
                                         onClick={e => { if (e.target === e.currentTarget) setSelectedProject(null); }}
                                     >
                                         <div className="flex flex-row gap-6 max-w-[90vw]">
-                                            <div className="!bg-[#181c23] !border !border-[#333] !rounded-2xl !w-[1200px] !max-h-[90vh] !overflow-y-auto !relative !shadow-2xl">
-                                                <div className="!p-8 !pb-6 !border-b !border-[#2f3542] !relative">
+                                            <div className="!bg-[#eef0f3] !border !border-[#e2e5ea] !rounded-2xl !w-[1200px] !max-h-[90vh] !overflow-y-auto !relative !shadow-2xl">
+                                                <div className="!p-8 !pb-6 !border-b !border-[#e2e5ea] !relative">
                                                     <button
                                                         onClick={() => setSelectedProject(null)}
-                                                        className="!absolute !top-5 !right-5 !text-[#888] hover:!text-white !text-2xl !p-2 !rounded-lg hover:!bg-[#2f3542] !transition-colors"
+                                                        className="!absolute !top-5 !right-5 !text-[#6b7280] hover:!text-gray-900 !text-2xl !p-2 !rounded-lg hover:!bg-[#e2e5ea] !transition-colors"
                                                         aria-label="Close"
                                                     >
                                                         <X size={24} />
                                                     </button>
 
-                                                    <h1 className="!text-3xl !font-bold !text-white !mb-4 !pr-12 !leading-tight">
+                                                    <h1 className="!text-3xl !font-bold !text-gray-900 !mb-4 !pr-12 !leading-tight">
                                                         {selectedProject.title || 'Untitled Project'}
                                                     </h1>
 
                                                     <div className="flex items-center !gap-3 !mb-4">
-                                                        <div className="w-7 h-7 rounded-full bg-indigo-900 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                                        <div className="w-7 h-7 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
                                                             <img
                                                                 src={selectedProject.user_image || '/images/defaultProfile.jpg'}
                                                                 alt={selectedProject.user_name || 'User'}
@@ -873,10 +873,10 @@ export default function StatisticsPage() {
 
                                                         </div>
                                                         <div className="flex flex-col">
-                                                            <div className="!text-white !font-medium">
+                                                            <div className="!text-gray-900 !font-medium">
                                                                 {selectedProject.user_name || 'Unknown Author'}
                                                             </div>
-                                                            { /* <div className="!text-[#888] !text-sm">
+                                                            { /* <div className="!text-[#6b7280] !text-sm">
                                                                                 {selectedProject.author?.title || 'Student'}
                                                                             </div> */}
                                                         </div>
@@ -884,14 +884,14 @@ export default function StatisticsPage() {
 
                                                     <div className="flex !gap-2 flex-wrap">
                                                         {selectedProject.status && (
-                                                            <span className={`!px-3 !py-1 !text-sm !font-medium !rounded-full ${selectedProject.status === 'active' ? '!bg-green-900 !text-green-300' :
-                                                                selectedProject.status === 'completed' ? '!bg-blue-900 !text-blue-300' :
-                                                                    '!bg-yellow-900 !text-yellow-300'
+                                                            <span className={`!px-3 !py-1 !text-sm !font-medium !rounded-full ${selectedProject.status === 'active' ? '!bg-green-100 !text-green-800' :
+                                                                selectedProject.status === 'completed' ? '!bg-blue-100 !text-blue-800' :
+                                                                    '!bg-yellow-100 !text-yellow-800'
                                                                 }`}>
                                                                 {selectedProject.status}
                                                             </span>
                                                         )}
-                                                        <span className={`!px-3 !py-1 !text-sm !font-medium !rounded-full ${selectedProject.location_preference === 'remote' ? '!bg-indigo-900 !text-indigo-200' : '!bg-green-900 !text-green-300'
+                                                        <span className={`!px-3 !py-1 !text-sm !font-medium !rounded-full ${selectedProject.location_preference === 'remote' ? '!bg-indigo-100 !text-indigo-700' : '!bg-green-100 !text-green-800'
                                                             }`}>
                                                             {selectedProject.location_preference === 'remote' ? 'Remote' : 'In Person'}
                                                         </span>
@@ -905,7 +905,7 @@ export default function StatisticsPage() {
 
                                                 <div className="!p-8">
                                                     {/* Project Details Grid */}
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 !gap-6 !mb-8 !p-5 !bg-white/[0.02] !border !border-[#2f3542] !rounded-xl">
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 !gap-6 !mb-8 !p-5 !bg-white/[0.02] !border !border-[#e2e5ea] !rounded-xl">
                                                         <div className="flex items-center !gap-3">
                                                             <svg className="!w-5 !h-5 !text-[#1f98f4] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                                                 <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -949,7 +949,7 @@ export default function StatisticsPage() {
 
                                                     {/* Project Description */}
                                                     <div className="!mb-8">
-                                                        <h3 className="!text-lg !font-semibold !text-white !mb-3 flex items-center !gap-2">
+                                                        <h3 className="!text-lg !font-semibold !text-gray-900 !mb-3 flex items-center !gap-2">
                                                             <div className="!w-1 !h-5 !bg-[#1f98f4] !rounded"></div>
                                                             Project Description
                                                         </h3>
@@ -961,7 +961,7 @@ export default function StatisticsPage() {
                                                     {/* Required Skills */}
                                                     {selectedProject.skill_tags && selectedProject.skill_tags.length > 0 && (
                                                         <div className="!mb-8">
-                                                            <h3 className="!text-lg !font-semibold !text-white !mb-3 flex items-center !gap-2">
+                                                            <h3 className="!text-lg !font-semibold !text-gray-900 !mb-3 flex items-center !gap-2">
                                                                 <div className="!w-1 !h-5 !bg-[#1f98f4] !rounded"></div>
                                                                 Required Skills
                                                             </h3>
@@ -969,7 +969,7 @@ export default function StatisticsPage() {
                                                                 {selectedProject.skill_tags.map((skill, i) => (
                                                                     <span
                                                                         key={i}
-                                                                        className="!bg-[#1f2937] !text-[#1f98f4] !px-3 !py-2 !rounded-lg !text-sm !font-medium !border !border-[#1f98f4]/20"
+                                                                        className="!bg-[#eef0f3] !text-[#1f98f4] !px-3 !py-2 !rounded-lg !text-sm !font-medium !border !border-[#1f98f4]/20"
                                                                     >
                                                                         {skill}
                                                                     </span>
@@ -981,7 +981,7 @@ export default function StatisticsPage() {
                                                     {/* Project Tags */}
                                                     {selectedProject.project_tags && selectedProject.project_tags.length > 0 && (
                                                         <div className="!mb-8">
-                                                            <h3 className="!text-lg !font-semibold !text-white !mb-3 flex items-center !gap-2">
+                                                            <h3 className="!text-lg !font-semibold !text-gray-900 !mb-3 flex items-center !gap-2">
                                                                 <div className="!w-1 !h-5 !bg-[#1f98f4] !rounded"></div>
                                                                 Project Tags
                                                             </h3>
@@ -989,7 +989,7 @@ export default function StatisticsPage() {
                                                                 {selectedProject.project_tags.map((tag, i) => (
                                                                     <span
                                                                         key={i}
-                                                                        className="!bg-[#0B0809] !text-gray-300 !px-3 !py-2 !rounded-lg !text-sm !border !border-[#2f3542]"
+                                                                        className="!bg-[#f4f5f7] !text-gray-600 !px-3 !py-2 !rounded-lg !text-sm !border !border-[#e2e5ea]"
                                                                     >
                                                                         {tag}
                                                                     </span>
@@ -999,7 +999,7 @@ export default function StatisticsPage() {
                                                     )}
 
                                                     {/* Action Buttons */}
-                                                    <div className="flex flex-col sm:flex-row !gap-3 !pt-6 !border-t !border-[#2f3542]">
+                                                    <div className="flex flex-col sm:flex-row !gap-3 !pt-6 !border-t !border-[#e2e5ea]">
                                                         <button
                                                             className="flex-1 !bg-[#1f98f4] !text-white !px-6 !py-3 !rounded-xl !font-medium hover:!bg-[#1a7bc8] !transition-all !duration-200 hover:!-translate-y-0.5"
                                                             onClick={async () => {
@@ -1020,17 +1020,17 @@ export default function StatisticsPage() {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="!bg-[#181c23] border border-[#444] rounded-2xl !w-[1200px] max-h-[90vh] overflow-y-auto shadow-xl">
+                                            <div className="!bg-[#eef0f3] border border-[#444] rounded-2xl !w-[1200px] max-h-[90vh] overflow-y-auto shadow-xl">
                                                 {/* Header */}
-                                                <div className="!p-8 !pb-6 !border-b !border-[#2f3542] !relative">
+                                                <div className="!p-8 !pb-6 !border-b !border-[#e2e5ea] !relative">
                                                     <button
                                                         onClick={() => setSelectedProject(null)}
-                                                        className="!absolute !top-5 !right-5 !text-[#888] hover:!text-white !text-2xl !p-2 !rounded-lg hover:!bg-[#2f3542] !transition-colors"
+                                                        className="!absolute !top-5 !right-5 !text-[#6b7280] hover:!text-gray-900 !text-2xl !p-2 !rounded-lg hover:!bg-[#e2e5ea] !transition-colors"
                                                         aria-label="Close"
                                                     >
                                                         <X size={24} />
                                                     </button>
-                                                    <h1 className="!text-3xl !font-bold !text-white !mb-4 !pr-12 !leading-tight">
+                                                    <h1 className="!text-3xl !font-bold !text-gray-900 !mb-4 !pr-12 !leading-tight">
                                                         {'Project Stats'}
                                                     </h1>
                                                 </div>
@@ -1042,24 +1042,24 @@ export default function StatisticsPage() {
                                                     </div>
 
                                                     {/* Stats Card */}
-                                                    <div className="!bg-[#1a1a1a] !border !border-[#333] !rounded-xl !mt-35 !p-6 !flex !flex-col !gap-4">
-                                                        <h3 className="!text-lg !font-semibold !text-white">Your Stats</h3>
+                                                    <div className="!bg-[#1a1a1a] !border !border-[#e2e5ea] !rounded-xl !mt-35 !p-6 !flex !flex-col !gap-4">
+                                                        <h3 className="!text-lg !font-semibold !text-gray-900">Your Stats</h3>
                                                         <div className="!grid !grid-cols-2 !gap-4">
-                                                            <div className="!bg-[#0f0f0f] !border !border-[#2f3542] !rounded-lg !p-4 !text-center">
+                                                            <div className="!bg-[#f4f5f7] !border !border-[#e2e5ea] !rounded-lg !p-4 !text-center">
                                                                 <div className="!text-2xl !font-bold !text-[#1f98f4] !mb-1">{totalInteractions}</div>
-                                                                <div className="!text-xs !text-[#888]">Total Interactions</div>
+                                                                <div className="!text-xs !text-[#6b7280]">Total Interactions</div>
                                                             </div>
-                                                            <div className="!bg-[#0f0f0f] !border !border-[#2f3542] !rounded-lg !p-4 !text-center">
+                                                            <div className="!bg-[#f4f5f7] !border !border-[#e2e5ea] !rounded-lg !p-4 !text-center">
                                                                 <div className="!text-2xl !font-bold !text-[#1f98f4] !mb-1">{postStats.views}</div>
-                                                                <div className="!text-xs !text-[#888]">Total Views</div>
+                                                                <div className="!text-xs !text-[#6b7280]">Total Views</div>
                                                             </div>
-                                                            <div className="!bg-[#0f0f0f] !border !border-[#2f3542] !rounded-lg !p-4 !text-center">
+                                                            <div className="!bg-[#f4f5f7] !border !border-[#e2e5ea] !rounded-lg !p-4 !text-center">
                                                                 <div className="!text-2xl !font-bold !text-[#1f98f4] !mb-1">{postStats.clicks}</div>
-                                                                <div className="!text-xs !text-[#888]">Clicks</div>
+                                                                <div className="!text-xs !text-[#6b7280]">Clicks</div>
                                                             </div>
-                                                            <div className="!bg-[#0f0f0f] !border !border-[#2f3542] !rounded-lg !p-4 !text-center">
+                                                            <div className="!bg-[#f4f5f7] !border !border-[#e2e5ea] !rounded-lg !p-4 !text-center">
                                                                 <div className="!text-2xl !font-bold !text-[#1f98f4] !mb-1">{postStats.bookmarks}</div>
-                                                                <div className="!text-xs !text-[#888]">Bookmarked</div>
+                                                                <div className="!text-xs !text-[#6b7280]">Bookmarked</div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1080,7 +1080,7 @@ export default function StatisticsPage() {
                                         setCurrentPage(page);
                                         window.scrollTo({ top: 0, behavior: 'smooth' });
                                     }}
-                                    className="bg-black-100 text-white"
+                                    className="bg-gray-100 text-gray-900"
                                 />
                             </div>
                         </div>

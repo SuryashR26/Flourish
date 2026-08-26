@@ -1,11 +1,14 @@
 "use client"
 
 import type React from "react"
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import FormCard from "@/components/cards/formCards"
 import Navbar from "@/components/layout/navbar"
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { createPostWithImage, cleanupFailedPost, skillDirectory } from "@/api/apiClient"
+import { submitIdea } from "@/api/apiClient"
 import AsyncSelect from "react-select/async";
 // import { on } from "events"
 import { components } from "react-select"
@@ -38,6 +41,8 @@ interface PostValues {
     is_draft: boolean
     time_commitment: string
     project_category: string
+    email: string
+    phone: string
 }
 
 interface PostValuesErrors {
@@ -57,16 +62,18 @@ interface PostValuesErrors {
     is_draft?: boolean
     time_commitment?: string
     project_category?: string
+    email?: string
+    phone?: string
 }
 
 
 const customSelectStyles: StylesConfig<SkillOption, true, GroupBase<SkillOption>> = {
     control: (provided) => ({
         ...provided,
-        backgroundColor: '#0B0809',
-        border: '1px solid #2f3542',
+        backgroundColor: '#f4f5f7',
+        border: '1px solid #e2e5ea',
         borderRadius: 8,
-        color: 'white',
+        color: '#14171c',
         fontWeight: 400,
         minHeight: 56,
         boxShadow: 'none',
@@ -77,24 +84,24 @@ const customSelectStyles: StylesConfig<SkillOption, true, GroupBase<SkillOption>
     }),
     menu: (provided) => ({
         ...provided,
-        backgroundColor: '#0B0809',
-        color: 'white',
-        border: '1px solid #2f3542',
+        backgroundColor: '#f4f5f7',
+        color: '#14171c',
+        border: '1px solid #e2e5ea',
         borderRadius: 8,
         zIndex: 20,
     }),
     option: (provided) => ({
         ...provided,
-        backgroundColor: '#0B0809',
-        color: 'white',
+        backgroundColor: '#f4f5f7',
+        color: '#14171c',
         fontWeight: 400,
         cursor: 'pointer',
     }),
-    input: (provided) => ({ ...provided, color: 'white', fontWeight: 400 }),
-    singleValue: (provided) => ({ ...provided, color: 'white', fontWeight: 400 }),
+    input: (provided) => ({ ...provided, color: '#14171c', fontWeight: 400 }),
+    singleValue: (provided) => ({ ...provided, color: '#14171c', fontWeight: 400 }),
     multiValue: (provided) => ({
         ...provided,
-        backgroundColor: '#181c23',
+        backgroundColor: '#eef0f3',
         borderRadius: 8,
         display: 'flex',
         alignItems: 'center',
@@ -107,7 +114,7 @@ const customSelectStyles: StylesConfig<SkillOption, true, GroupBase<SkillOption>
     }),
     multiValueLabel: (provided) => ({
         ...provided,
-        color: 'white',
+        color: '#14171c',
         fontWeight: 400,
         fontSize: 16,
         paddingRight: 5,
@@ -116,16 +123,16 @@ const customSelectStyles: StylesConfig<SkillOption, true, GroupBase<SkillOption>
     }),
     multiValueRemove: (provided) => ({
         ...provided,
-        color: 'white',
+        color: '#14171c',
         fontSize: 20,
         display: 'flex',
         alignItems: 'center',
         ':hover': {
-            backgroundColor: '#2f3542',
-            color: 'white',
+            backgroundColor: '#e2e5ea',
+            color: '#14171c',
         },
     }),
-    placeholder: (provided) => ({ ...provided, color: '#b0b8c1', fontWeight: 400 }),
+    placeholder: (provided) => ({ ...provided, color: '#9aa3af', fontWeight: 400 }),
 }
 
 const CustomMultiValueRemove = (props: MultiValueRemoveProps<SkillOption, true>) => (
@@ -154,7 +161,9 @@ export default function PostPage() {
         difficulty: "easy",
         is_draft: false,
         time_commitment: "1-2 weeks",
-        project_category: "tech"
+        project_category: "tech",
+        email: "",
+        phone: ""
     })
 
     const [errors, setErrors] = useState<PostValuesErrors>({})
@@ -163,17 +172,19 @@ export default function PostPage() {
     const [duplicateWarning, setDuplicateWarning] = useState<{ show: boolean, message: string }>({ show: false, message: "" })
 
     const [viewPost, setViewPost] = useState(false)
+    const [submitted, setSubmitted] = useState(false)
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { user, isLoggedIn } = useUser()
 
     // const [scrollProgress, setScrollProgress] = useState(0)
 
 
-    useEffect(() => {
-        if (!isLoggedIn) {
-            router.push('/login')
-        }
-    }, [isLoggedIn, router]);
+    // useEffect(() => {
+    //     if (!isLoggedIn) {
+    //         router.push('/login')
+    //     }
+    // }, [isLoggedIn, router]);
     const validateForm = (): boolean => {
         const tempErrors: PostValuesErrors = {}
         let isValid = true
@@ -204,6 +215,26 @@ export default function PostPage() {
             tempErrors.time_commitment = "Time Commitment is Required"
         }
 
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        if (!postValues.email.trim()) {
+            tempErrors.email = "Email is required"
+            isValid = false
+        } else if (!emailRegex.test(postValues.email.trim())) {
+            tempErrors.email = "Please enter a valid email address"
+            isValid = false
+        }
+
+        // Requires a full 10-digit US number (area code + exchange + line),
+        // optionally with a leading +1 and any mix of spaces/dashes/dots/parens.
+        const phoneRegex = /^(\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/
+        if (!postValues.phone.trim()) {
+            tempErrors.phone = "Phone number is required"
+            isValid = false
+        } else if (!phoneRegex.test(postValues.phone.trim())) {
+            tempErrors.phone = "Please enter a valid phone number, including area code"
+            isValid = false
+        }
+
         setErrors(tempErrors)
         return isValid
     }
@@ -213,6 +244,7 @@ export default function PostPage() {
 
 
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const validateForm2 = (): boolean => {
         const tempErrors: PostValuesErrors = {}
         let isValid = true
@@ -242,6 +274,7 @@ export default function PostPage() {
         }
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
         if (file) {
@@ -318,10 +351,120 @@ export default function PostPage() {
 
         setIsSubmitting(true);
 
+        // Previous flow created a post directly via createPostWithImage, which
+        // requires a logged-in session on the backend (createPost checks
+        // req.session.userId). Submissions now go to a Google Sheet instead, so
+        // anyone can submit an idea without logging in. Left here, commented out,
+        // in case the dashboard-post flow needs to come back later.
+        // try {
+        //     const postData = {
+        //         title: postValues.title,
+        //         content: postValues.content,
+        //         role_count: postValues.role_count,
+        //         role_description: postValues.role_description,
+        //         project_tags: postValues.project_tags,
+        //         skill_tags: postValues.skill_tags,
+        //         location_preference: postValues.location_preference,
+        //         location: postValues.location,
+        //         difficulty: postValues.difficulty,
+        //         confirmDuplicate: duplicateWarning.show,
+        //         status: postValues.status,
+        //         is_draft: false,
+        //         locked: false,
+        //         authorImage: '',
+        //         authorID: '',
+        //         time_commitment: postValues.time_commitment,
+        //         project_category: postValues.project_category
+        //     };
+        //
+        //
+        //     const response = await createPostWithImage(
+        //         postData,
+        //         selectedFile?.name,
+        //         selectedFile?.type
+        //     );
+        //
+        //     if (response.success) {
+        //
+        //         if (response.uploadUrl && selectedFile) {
+        //             try {
+        //                 console.log('Uploading to:', response.uploadUrl);
+        //                 console.log('Content-Type:', selectedFile.type);
+        //                 const uploadRes = await fetch(response.uploadUrl, {
+        //                     method: 'PUT',
+        //                     headers: { 'Content-Type': selectedFile.type },
+        //                     body: selectedFile,
+        //                 });
+        //
+        //                 if (!uploadRes.ok) {
+        //                     const errorText = await uploadRes.text();
+        //                     console.error('Upload failed:', errorText);
+        //                     throw new Error('Upload failed');
+        //                 }
+        //
+        //                 console.log("Post created and image uploaded successfully!");
+        //                 router.push('/dashboard');
+        //
+        //             } catch (uploadError) {
+        //                 console.error('Image upload failed:', uploadError);
+        //
+        //                 await cleanupFailedPost(response.postId);
+        //                 alert('Image upload failed. Post has been removed. Please try again.');
+        //                 setIsSubmitting(false);
+        //                 return;
+        //             }
+        //         } else {
+        //
+        //             console.log("Post created successfully!");
+        //             router.push('/dashboard');
+        //         }
+        //
+        //
+        //         setPostValues({
+        //             title: "",
+        //             content: "",
+        //             project_tags: [""],
+        //             location_preference: 'remote',
+        //             location: "",
+        //             locked: false,
+        //             role_count: 1,
+        //             role_description: [""],
+        //             skill_tags: [""],
+        //             authorImage: "",
+        //             authorID: "",
+        //             status: "active",
+        //             difficulty: "easy",
+        //             is_draft: false,
+        //             time_commitment: "1-2 weeks",
+        //             project_category: "",
+        //             email: "",
+        //             phone: ""
+        //         });
+        //         setSelectedFile(null);
+        //         setErrors({});
+        //         setDuplicateWarning({ show: false, message: "" });
+        //
+        //     } else if (response.isDuplicate) {
+        //         setDuplicateWarning({ show: true, message: response.message });
+        //         setIsSubmitting(false);
+        //     } else {
+        //         console.error("Post creation failed:", response.message);
+        //         alert('Failed to create post: ' + response.message);
+        //         setIsSubmitting(false);
+        //     }
+        //
+        // } catch (error) {
+        //     console.error("Error creating post:", error);
+        //     alert('An error occurred while creating the post');
+        //     setIsSubmitting(false);
+        // }
+
         try {
-            const postData = {
+            const response = await submitIdea({
                 title: postValues.title,
                 content: postValues.content,
+                email: postValues.email,
+                phone: postValues.phone,
                 role_count: postValues.role_count,
                 role_description: postValues.role_description,
                 project_tags: postValues.project_tags,
@@ -329,59 +472,13 @@ export default function PostPage() {
                 location_preference: postValues.location_preference,
                 location: postValues.location,
                 difficulty: postValues.difficulty,
-                confirmDuplicate: duplicateWarning.show,
                 status: postValues.status,
-                is_draft: false,
-                locked: false,
-                authorImage: '',
-                authorID: '',
                 time_commitment: postValues.time_commitment,
-                project_category: postValues.project_category
-            };
-
-
-            const response = await createPostWithImage(
-                postData,
-                selectedFile?.name,
-                selectedFile?.type
-            );
+                project_category: postValues.project_category,
+            });
 
             if (response.success) {
-
-                if (response.uploadUrl && selectedFile) {
-                    try {
-                        console.log('Uploading to:', response.uploadUrl);
-                        console.log('Content-Type:', selectedFile.type);
-                        const uploadRes = await fetch(response.uploadUrl, {
-                            method: 'PUT',
-                            headers: { 'Content-Type': selectedFile.type },
-                            body: selectedFile,
-                        });
-
-                        if (!uploadRes.ok) {
-                            const errorText = await uploadRes.text();
-                            console.error('Upload failed:', errorText);
-                            throw new Error('Upload failed');
-                        }
-
-                        console.log("Post created and image uploaded successfully!");
-                        router.push('/dashboard');
-
-                    } catch (uploadError) {
-                        console.error('Image upload failed:', uploadError);
-
-                        await cleanupFailedPost(response.postId);
-                        alert('Image upload failed. Post has been removed. Please try again.');
-                        setIsSubmitting(false);
-                        return;
-                    }
-                } else {
-
-                    console.log("Post created successfully!");
-                    router.push('/dashboard');
-                }
-
-
+                setSubmitted(true);
                 setPostValues({
                     title: "",
                     content: "",
@@ -398,28 +495,26 @@ export default function PostPage() {
                     difficulty: "easy",
                     is_draft: false,
                     time_commitment: "1-2 weeks",
-                    project_category: ""
+                    project_category: "",
+                    email: "",
+                    phone: ""
                 });
                 setSelectedFile(null);
                 setErrors({});
-                setDuplicateWarning({ show: false, message: "" });
-
-            } else if (response.isDuplicate) {
-                setDuplicateWarning({ show: true, message: response.message });
-                setIsSubmitting(false);
             } else {
-                console.error("Post creation failed:", response.message);
-                alert('Failed to create post: ' + response.message);
-                setIsSubmitting(false);
+                console.error("Idea submission failed:", response.message);
+                alert('Failed to submit idea: ' + (response.message || 'Please try again.'));
             }
+            setIsSubmitting(false);
 
         } catch (error) {
-            console.error("Error creating post:", error);
-            alert('An error occurred while creating the post');
+            console.error("Error submitting idea:", error);
+            alert('An error occurred while submitting your idea');
             setIsSubmitting(false);
         }
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const handleDraftSave = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault()
 
@@ -512,7 +607,9 @@ export default function PostPage() {
                     difficulty: "easy",
                     is_draft: false,
                     time_commitment: "1-2 weeks",
-                    project_category: ""
+                    project_category: "",
+                    email: "",
+                    phone: ""
                 });
                 setSelectedFile(null);
                 setErrors({});
@@ -566,6 +663,43 @@ export default function PostPage() {
                         </div>
 
                         <div className="flex gap-8">
+                            <div className="flex-1">
+                                <label>Email</label>
+                                <input
+                                    type="email"
+                                    id="email"
+                                    value={postValues.email}
+                                    onChange={handleChange}
+                                    className={errors.email ? '!border-red-500' : ''}
+                                    name="email"
+                                    placeholder="you@example.com"
+                                />
+                                {errors.email && (
+                                    <div className="text-red-500 text-sm mt-1">
+                                        {errors.email}
+                                    </div>
+                                )}
+                            </div>
+                            <div className="flex-1">
+                                <label>Phone Number</label>
+                                <input
+                                    type="tel"
+                                    id="phone"
+                                    value={postValues.phone}
+                                    onChange={handleChange}
+                                    className={errors.phone ? '!border-red-500' : ''}
+                                    name="phone"
+                                    placeholder="(555) 555-5555"
+                                />
+                                {errors.phone && (
+                                    <div className="text-red-500 text-sm mt-1">
+                                        {errors.phone}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="flex gap-8">
                             <div className="w-fit">
                                 <label>Location Preference</label>
                                 <button
@@ -578,7 +712,7 @@ export default function PostPage() {
                                             location: undefined
                                         });
                                     }}
-                                    className={`font-medium transition-all duration-150 !rounded-r !rounded-r-none !bg-[#0B0809] !border !border-[#2f3542] ${postValues.location_preference === 'remote' ? '!text-white' : '!text-[#9CA3AF]'} !text-base !font-normal`}
+                                    className={`font-medium transition-all duration-150 !rounded-r !rounded-r-none !bg-[#f4f5f7] !border !border-[#e2e5ea] ${postValues.location_preference === 'remote' ? '!text-gray-900' : '!text-[#9CA3AF]'} !text-base !font-normal`}
                                 >
                                     Remote
                                 </button>
@@ -594,7 +728,7 @@ export default function PostPage() {
                                             });
                                         }
                                     }}
-                                    className={`font-medium transition-all duration-150 !rounded-l !rounded-l-none !bg-[#0B0809] !border !border-[#2f3542] ${!postValues.location_preference ? '!text-white' : '!text-[#9CA3AF]'} !text-base !font-normal`}
+                                    className={`font-medium transition-all duration-150 !rounded-l !rounded-l-none !bg-[#f4f5f7] !border !border-[#e2e5ea] ${!postValues.location_preference ? '!text-gray-900' : '!text-[#9CA3AF]'} !text-base !font-normal`}
                                 >
                                     In Person
                                 </button>
@@ -648,7 +782,7 @@ export default function PostPage() {
                                     name="status"
                                     value={postValues.status}
                                     onChange={handleChange}
-                                    className="w-full p-2 border rounded bg-[#0B0809] text-white"
+                                    className="w-full p-2 border rounded bg-[#f4f5f7] text-gray-900"
                                 >
                                     <option value="active">Active</option>
                                     <option value="inactive">Completed</option>
@@ -660,7 +794,7 @@ export default function PostPage() {
                                     name="difficulty"
                                     value={postValues.difficulty}
                                     onChange={handleChange}
-                                    className="w-full p-2 border rounded bg-[#0B0809] text-white"
+                                    className="w-full p-2 border rounded bg-[#f4f5f7] text-gray-900"
                                 >
                                     <option value="Easy">Easy</option>
                                     <option value="Intermediate">Intermediate</option>
@@ -676,7 +810,7 @@ export default function PostPage() {
                                     name="project_category"
                                     value={postValues.project_category}
                                     onChange={handleChange}
-                                    className="w-full p-2 border rounded bg-[#0B0809] text-white"
+                                    className="w-full p-2 border rounded bg-[#f4f5f7] text-gray-900"
                                 >
                                     <option value="tech"> Tech </option>
                                     <option value="creative"> Creative</option>
@@ -691,7 +825,7 @@ export default function PostPage() {
                                     name="time_commitment"
                                     value={postValues.time_commitment}
                                     onChange={handleChange}
-                                    className="w-full p-2 border rounded bg-[#0B0809] text-white"
+                                    className="w-full p-2 border rounded bg-[#f4f5f7] text-gray-900"
                                 >
                                     <option value="1-2 weeks">1-2 weeks</option>
                                     <option value="1-3 months">1-3 months</option>
@@ -821,8 +955,9 @@ export default function PostPage() {
                             )}
                         </div>
 
-                        {/* Image Upload Section */}
-                        <div>
+                        {/* Image Upload Section — disabled, not deleted. AWS S3 (which backed
+                            this upload) is no longer used anywhere in the app. */}
+                        {/* <div>
                             <label>Project Image (Optional)</label>
                             <input
                                 type="file"
@@ -836,7 +971,14 @@ export default function PostPage() {
                                     Selected: {selectedFile.name}
                                 </div>
                             )}
-                        </div>
+                        </div> */}
+
+                        {/* Success message after submitting to the Google Sheet */}
+                        {submitted && (
+                            <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-green-800 text-sm">
+                                Thanks, your idea has been submitted! Our team will review it and reach out at the email or phone number you provided.
+                            </div>
+                        )}
 
                         {/* Duplicate Warning */}
                         {duplicateWarning.show && (
@@ -862,229 +1004,241 @@ export default function PostPage() {
                                 </div>
                             </div>
                         )}
-                        <div className="mt-4 !w-full flex">
-                            <button
-                                className="w-full flex-1"
-                                onClick={() => {
-                                    setViewPost(true);
-                                    setTimeout(() => {
-                                        cardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                                    }, 0);
-                                }}
-                            >
-                                View Post
-                            </button>
-                        </div>
-
-                        {viewPost && (
-                            <div
-                                ref={cardRef}
-                                className="fixed !left-0 !top-0 w-full h-full flex items-center justify-center z-[999] !p-4"
-                                style={{ background: "rgba(0,0,0,0.8)" }}
-                                onClick={e => { if (e.target === e.currentTarget) setViewPost(false); }}
-                            >
-                                <div className="!bg-[#181c23] !border !border-[#333] !rounded-2xl !w-full !max-w-2xl !max-h-[90vh] !overflow-y-auto !relative !shadow-2xl">
-                                    <div className="!p-8 !pb-6 !border-b !border-[#2f3542] !relative">
-                                        <button
-                                            onClick={() => setViewPost(false)}
-                                            className="!absolute !top-5 !right-5 !text-[#888] hover:!text-white !text-2xl !p-2 !rounded-lg hover:!bg-[#2f3542] !transition-colors"
-                                            aria-label="Close"
-                                        >
-                                            <X size={24} />
-                                        </button>
-
-                                        <h1 className="!text-3xl !font-bold !text-white !mb-4 !pr-12 !leading-tight">
-                                            {postValues.title || 'Untitled Project'}
-                                        </h1>
-
-                                        <div className="flex items-center !gap-3 !mb-4">
-                                            <div className="!w-10 !h-10 !rounded-full !bg-indigo-900 flex items-center justify-center !text-indigo-200 !text-sm !font-semibold">
-                                                <img
-                                                    src={user?.profileurl || '/images/defaultProfile.jpg'}
-                                                    alt={user?.first_name || 'User'}
-                                                    className="w-full h-full object-cover rounded-full"
-                                                    onError={(e) => {
-                                                        e.currentTarget.onerror = null; // prevents infinite loop if fallback fails
-                                                        e.currentTarget.src = '/images/defaultProfile.jpg';
-                                                    }}
-                                                />
-                                            </div>
-                                            <div className="flex flex-col">
-                                                <div className="!text-white !font-medium">
-                                                    {`${user?.first_name || ''} ${user?.last_name || ''}`}
-                                                </div>
-                                                <div className="!text-[#888] !text-sm">
-                                                    {/*'Student'*/}
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex !gap-2 flex-wrap">
-                                            {postValues.status && (
-                                                <span className={`!px-3 !py-1 !text-sm !font-medium !rounded-full ${postValues.status === 'active' ? '!bg-green-900 !text-green-300' :
-                                                    postValues.status === 'completed' ? '!bg-blue-900 !text-blue-300' :
-                                                        '!bg-yellow-900 !text-yellow-300'
-                                                    }`}>
-                                                    {postValues.status}
-                                                </span>
-                                            )}
-                                            <span className={`!px-3 !py-1 !text-sm !font-medium !rounded-full ${postValues.location ? '!bg-indigo-900 !text-indigo-200' : '!bg-green-900 !text-green-300'
-                                                }`}>
-                                                {postValues.location ? 'Remote' : 'In Person'}
-                                            </span>
-
-                                        </div>
-                                    </div>
-
-                                    <div className="!p-8">
-                                        {/* Project Details Grid */}
-                                        <div className="grid grid-cols-1 md:grid-cols-2 !gap-6 !mb-8 !p-5 !bg-white/[0.02] !border !border-[#2f3542] !rounded-xl">
-                                            <div className="flex items-center !gap-3">
-                                                <svg className="!w-5 !h-5 !text-[#1f98f4] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>
-                                                <span className="!text-[#ccc] !text-sm">
-                                                    {postValues.role_count || 0} collaborator{postValues.role_count !== 1 ? 's' : ''} needed
-                                                </span>
-                                            </div>
-
-                                            {postValues.difficulty && (
-                                                <div className="flex items-center !gap-3">
-                                                    <svg className="!w-5 !h-5 !text-[#1f98f4] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                                    </svg>
-                                                    <span className="!text-[#ccc] !text-sm !capitalize">
-                                                        {postValues.difficulty} level
-                                                    </span>
-                                                </div>
-                                            )}
-
-                                            <div className="flex items-center !gap-3">
-                                                <svg className="!w-5 !h-5 !text-[#1f98f4] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-                                                </svg>
-                                                <span className="!text-[#ccc] !text-sm">
-                                                    {postValues.location ? 'Remote collaboration' : postValues.location_preference}
-                                                </span>
-                                            </div>
-                                            {postValues.time_commitment && (
-                                                <div className="flex items-center !gap-3">
-                                                    <svg className="!w-5 !h-5 !text-[#1f98f4] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
-                                                    </svg>
-                                                    <span className="!text-[#ccc] !text-sm">
-                                                        {postValues.time_commitment}
-                                                    </span>
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        {/* Project Description */}
-                                        <div className="!mb-8">
-                                            <h3 className="!text-lg !font-semibold !text-white !mb-3 flex items-center !gap-2">
-                                                <div className="!w-1 !h-5 !bg-[#1f98f4] !rounded"></div>
-                                                Project Description
-                                            </h3>
-                                            <p className="!text-[#ccc] !leading-relaxed !text-[15px] !whitespace-pre-line">
-                                                {postValues.content || 'No description available'}
-                                            </p>
-                                        </div>
-                                        <div className="!mb-8">
-                                            <h3 className="!text-lg !font-semibold !text-white !mb-3 flex items-center !gap-2">
-                                                <div className="!w-1 !h-5 !bg-[#1f98f4] !rounded"></div>
-                                                Role Description
-                                            </h3>
-
-                                            {postValues.role_description?.length > 0 ? (
-                                                <div className="list-disc pl-5 space-y-2">
-                                                    {postValues.role_description.map((role, index) => (
-                                                        <p
-                                                            key={index}
-                                                            className="!text-[#ccc] !text-left !mt-3 !text-[15px]"
-                                                        >
-                                                            {role}
-                                                        </p>
-                                                    ))}
-                                                </div>
-                                            ) : (
-                                                <p className="!text-[#ccc] !leading-relaxed !text-[15px]">
-                                                    No description available
-                                                </p>
-                                            )}
-                                        </div>
-
-
-                                        {/* Required Skills */}
-                                        {postValues.skill_tags && postValues.skill_tags.length > 0 && (
-                                            <div className="!mb-8">
-                                                <h3 className="!text-lg !font-semibold !text-white !mb-3 flex items-center !gap-2">
-                                                    <div className="!w-1 !h-5 !bg-[#1f98f4] !rounded"></div>
-                                                    Required Skills
-                                                </h3>
-                                                <div className="flex flex-wrap !gap-2">
-                                                    {postValues.skill_tags
-                                                        .filter((s) => s.trim())
-                                                        .map((skill, i) => (
-                                                            <span
-                                                                key={i}
-                                                                className="!bg-[#1f2937] !text-[#1f98f4] !px-3 !py-2 !rounded-lg !text-sm !font-medium !border !border-[#1f98f4]/20"
-                                                            >
-                                                                {skill}
-                                                            </span>
-                                                        ))}
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {/* Project Tags */}
-                                        {postValues.project_tags && postValues.project_tags.length > 0 && (
-                                            <div className="!mb-8">
-                                                <h3 className="!text-lg !font-semibold !text-white !mb-3 flex items-center !gap-2">
-                                                    <div className="!w-1 !h-5 !bg-[#1f98f4] !rounded"></div>
-                                                    Project Tags
-                                                </h3>
-                                                <div className="flex flex-wrap !gap-2">
-                                                    {postValues.project_tags
-                                                        .filter((t) => t.trim())
-                                                        .map((tags, i) => (
-                                                            <span
-                                                                key={i}
-                                                                className="!bg-[#1f2937] !text-[#1f98f4] !px-3 !py-2 !rounded-lg !text-sm !font-medium !border !border-[#1f98f4]/20"
-                                                            >
-                                                                {tags}
-                                                            </span>
-                                                        ))}
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {/* Action Buttons */}
-                                        <div className="flex flex-col sm:flex-row !gap-3 !pt-6 !border-t !border-[#2f3542]">
-                                            <button
-                                                className="flex-1 !bg-[#1f98f4] !text-white !px-6 !py-3 !rounded-xl !font-medium hover:!bg-[#1a7bc8] !transition-all !duration-200 hover:!-translate-y-0.5"
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    return;
-                                                }}
-                                            >
-                                                Bookmark Project
-                                            </button>
-                                            <button
-                                                className="flex-1 !bg-transparent !text-[#1f98f4] !border !border-[#1f98f4] !px-6 !py-3 !rounded-xl !font-medium hover:!bg-[#1f98f4] hover:!text-white !transition-colors"
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    return;
-                                                }}
-                                            >
-                                                Contact {user?.first_name}
-                                            </button>
-                                        </div>
-                                    </div>
+                        {/* View Post preview button + modal — disabled per request (kept, not
+                            deleted, via the `false &&` guard below rather than a block comment,
+                            since the modal JSX contains its own {/* ... *\/} comments that would
+                            otherwise prematurely close a wrapping block comment).
+                            Note: this button had no type="button", so inside the <form> it
+                            defaulted to type="submit" and was silently submitting the whole
+                            form (as well as opening the preview) every time it was clicked.
+                            If this comes back, add type="button" to the button. */}
+                        {false && (
+                            <>
+                                <div className="mt-4 !w-full flex">
+                                    <button
+                                        className="w-full flex-1"
+                                        onClick={() => {
+                                            setViewPost(true);
+                                            setTimeout(() => {
+                                                cardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                            }, 0);
+                                        }}
+                                    >
+                                        View Post
+                                    </button>
                                 </div>
-                            </div>
+
+                                {viewPost && (
+                                    <div
+                                        ref={cardRef}
+                                        className="fixed !left-0 !top-0 w-full h-full flex items-center justify-center z-[999] !p-4"
+                                        style={{ background: "rgba(0,0,0,0.8)" }}
+                                        onClick={e => { if (e.target === e.currentTarget) setViewPost(false); }}
+                                    >
+                                        <div className="!bg-white !border !border-[#e2e5ea] !rounded-2xl !w-full !max-w-2xl !max-h-[90vh] !overflow-y-auto !relative !shadow-2xl">
+                                            <div className="!p-8 !pb-6 !border-b !border-[#e2e5ea] !relative">
+                                                <button
+                                                    onClick={() => setViewPost(false)}
+                                                    className="!absolute !top-5 !right-5 !text-[#6b7280] hover:!text-gray-900 !text-2xl !p-2 !rounded-lg hover:!bg-[#e2e5ea] !transition-colors"
+                                                    aria-label="Close"
+                                                >
+                                                    <X size={24} />
+                                                </button>
+
+                                                <h1 className="!text-3xl !font-bold !text-gray-900 !mb-4 !pr-12 !leading-tight">
+                                                    {postValues.title || 'Untitled Project'}
+                                                </h1>
+
+                                                <div className="flex items-center !gap-3 !mb-4">
+                                                    <div className="!w-10 !h-10 !rounded-full !bg-indigo-100 flex items-center justify-center !text-indigo-700 !text-sm !font-semibold">
+                                                        <img
+                                                            src={user?.profileurl || '/images/defaultProfile.jpg'}
+                                                            alt={user?.first_name || 'User'}
+                                                            className="w-full h-full object-cover rounded-full"
+                                                            onError={(e) => {
+                                                                e.currentTarget.onerror = null; // prevents infinite loop if fallback fails
+                                                                e.currentTarget.src = '/images/defaultProfile.jpg';
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <div className="flex flex-col">
+                                                        <div className="!text-gray-900 !font-medium">
+                                                            {`${user?.first_name || ''} ${user?.last_name || ''}`}
+                                                        </div>
+                                                        <div className="!text-[#6b7280] !text-sm">
+                                                            {/*'Student'*/}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex !gap-2 flex-wrap">
+                                                    {postValues.status && (
+                                                        <span className={`!px-3 !py-1 !text-sm !font-medium !rounded-full ${postValues.status === 'active' ? '!bg-green-100 !text-green-800' :
+                                                            postValues.status === 'completed' ? '!bg-blue-100 !text-blue-800' :
+                                                                '!bg-yellow-100 !text-yellow-800'
+                                                            }`}>
+                                                            {postValues.status}
+                                                        </span>
+                                                    )}
+                                                    <span className={`!px-3 !py-1 !text-sm !font-medium !rounded-full ${postValues.location ? '!bg-indigo-100 !text-indigo-700' : '!bg-green-100 !text-green-800'
+                                                        }`}>
+                                                        {postValues.location ? 'Remote' : 'In Person'}
+                                                    </span>
+
+                                                </div>
+                                            </div>
+
+                                            <div className="!p-8">
+                                                {/* Project Details Grid */}
+                                                <div className="grid grid-cols-1 md:grid-cols-2 !gap-6 !mb-8 !p-5 !bg-gray-50 !border !border-[#e2e5ea] !rounded-xl">
+                                                    <div className="flex items-center !gap-3">
+                                                        <svg className="!w-5 !h-5 !text-[#1f98f4] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        </svg>
+                                                        <span className="!text-gray-600 !text-sm">
+                                                            {postValues.role_count || 0} collaborator{postValues.role_count !== 1 ? 's' : ''} needed
+                                                        </span>
+                                                    </div>
+
+                                                    {postValues.difficulty && (
+                                                        <div className="flex items-center !gap-3">
+                                                            <svg className="!w-5 !h-5 !text-[#1f98f4] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                                            </svg>
+                                                            <span className="!text-gray-600 !text-sm !capitalize">
+                                                                {postValues.difficulty} level
+                                                            </span>
+                                                        </div>
+                                                    )}
+
+                                                    <div className="flex items-center !gap-3">
+                                                        <svg className="!w-5 !h-5 !text-[#1f98f4] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                                                        </svg>
+                                                        <span className="!text-gray-600 !text-sm">
+                                                            {postValues.location ? 'Remote collaboration' : postValues.location_preference}
+                                                        </span>
+                                                    </div>
+                                                    {postValues.time_commitment && (
+                                                        <div className="flex items-center !gap-3">
+                                                            <svg className="!w-5 !h-5 !text-[#1f98f4] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                                                            </svg>
+                                                            <span className="!text-gray-600 !text-sm">
+                                                                {postValues.time_commitment}
+                                                            </span>
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                {/* Project Description */}
+                                                <div className="!mb-8">
+                                                    <h3 className="!text-lg !font-semibold !text-gray-900 !mb-3 flex items-center !gap-2">
+                                                        <div className="!w-1 !h-5 !bg-[#1f98f4] !rounded"></div>
+                                                        Project Description
+                                                    </h3>
+                                                    <p className="!text-gray-600 !leading-relaxed !text-[15px] !whitespace-pre-line">
+                                                        {postValues.content || 'No description available'}
+                                                    </p>
+                                                </div>
+                                                <div className="!mb-8">
+                                                    <h3 className="!text-lg !font-semibold !text-gray-900 !mb-3 flex items-center !gap-2">
+                                                        <div className="!w-1 !h-5 !bg-[#1f98f4] !rounded"></div>
+                                                        Role Description
+                                                    </h3>
+
+                                                    {postValues.role_description?.length > 0 ? (
+                                                        <div className="list-disc pl-5 space-y-2">
+                                                            {postValues.role_description.map((role, index) => (
+                                                                <p
+                                                                    key={index}
+                                                                    className="!text-gray-600 !text-left !mt-3 !text-[15px]"
+                                                                >
+                                                                    {role}
+                                                                </p>
+                                                            ))}
+                                                        </div>
+                                                    ) : (
+                                                        <p className="!text-gray-600 !leading-relaxed !text-[15px]">
+                                                            No description available
+                                                        </p>
+                                                    )}
+                                                </div>
+
+
+                                                {/* Required Skills */}
+                                                {postValues.skill_tags && postValues.skill_tags.length > 0 && (
+                                                    <div className="!mb-8">
+                                                        <h3 className="!text-lg !font-semibold !text-gray-900 !mb-3 flex items-center !gap-2">
+                                                            <div className="!w-1 !h-5 !bg-[#1f98f4] !rounded"></div>
+                                                            Required Skills
+                                                        </h3>
+                                                        <div className="flex flex-wrap !gap-2">
+                                                            {postValues.skill_tags
+                                                                .filter((s) => s.trim())
+                                                                .map((skill, i) => (
+                                                                    <span
+                                                                        key={i}
+                                                                        className="!bg-[#eef0f3] !text-[#1f98f4] !px-3 !py-2 !rounded-lg !text-sm !font-medium !border !border-[#1f98f4]/20"
+                                                                    >
+                                                                        {skill}
+                                                                    </span>
+                                                                ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {/* Project Tags */}
+                                                {postValues.project_tags && postValues.project_tags.length > 0 && (
+                                                    <div className="!mb-8">
+                                                        <h3 className="!text-lg !font-semibold !text-gray-900 !mb-3 flex items-center !gap-2">
+                                                            <div className="!w-1 !h-5 !bg-[#1f98f4] !rounded"></div>
+                                                            Project Tags
+                                                        </h3>
+                                                        <div className="flex flex-wrap !gap-2">
+                                                            {postValues.project_tags
+                                                                .filter((t) => t.trim())
+                                                                .map((tags, i) => (
+                                                                    <span
+                                                                        key={i}
+                                                                        className="!bg-[#eef0f3] !text-[#1f98f4] !px-3 !py-2 !rounded-lg !text-sm !font-medium !border !border-[#1f98f4]/20"
+                                                                    >
+                                                                        {tags}
+                                                                    </span>
+                                                                ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {/* Action Buttons */}
+                                                <div className="flex flex-col sm:flex-row !gap-3 !pt-6 !border-t !border-[#e2e5ea]">
+                                                    <button
+                                                        className="flex-1 !bg-[#1f98f4] !text-white !px-6 !py-3 !rounded-xl !font-medium hover:!bg-[#1a7bc8] !transition-all !duration-200 hover:!-translate-y-0.5"
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            return;
+                                                        }}
+                                                    >
+                                                        Bookmark Project
+                                                    </button>
+                                                    <button
+                                                        className="flex-1 !bg-transparent !text-[#1f98f4] !border !border-[#1f98f4] !px-6 !py-3 !rounded-xl !font-medium hover:!bg-[#1f98f4] hover:!text-white !transition-colors"
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            return;
+                                                        }}
+                                                    >
+                                                        Contact {user?.first_name}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </>
                         )}
                         <div className="mt-4 flex gap-1">
-                            <button
+                            {/* <button
                                 type="button"
                                 className="flex-1 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
                                 onClick={(e) => {
@@ -1093,7 +1247,7 @@ export default function PostPage() {
                                 }}
                             >
                                 Save Draft
-                            </button>
+                            </button> */}
                             <button
                                 type="submit"
                                 className={`flex-1 py-2 text-white rounded-lg transition-colors ${isSubmitting

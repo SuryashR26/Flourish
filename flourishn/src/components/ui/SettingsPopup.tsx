@@ -890,7 +890,7 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose }) => {
                     value={settings?.email || ""}
                     placeholder="user@example.com"
                     disabled
-                    style={{ backgroundColor: "#1a1a1a", color: "#888" }}
+                    style={{ backgroundColor: "#1a1a1a", color: "#6b7280" }}
                   />
                 </div>
               </div>

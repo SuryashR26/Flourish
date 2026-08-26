@@ -118,7 +118,7 @@
 
   body {
     @apply bg-background text-foreground;
-    background: #000 !important;
+    background: #ffffff !important;
     color: var(--foreground);
     overflow-x: hidden;
   }
@@ -134,7 +134,7 @@
 
 ::placeholder {
   /* Chrome, Firefox, Opera, Safari 10.1+ */
-  color: #b0b8c1;
+  color: #9aa3af;
   font-weight: 400;
   opacity: 1;
   /* Firefox */
@@ -142,13 +142,13 @@
 
 :-ms-input-placeholder {
   /* Internet Explorer 10-11 */
-  color: #b0b8c1;
+  color: #9aa3af;
   font-weight: 400;
 }
 
 ::-ms-input-placeholder {
   /* Microsoft Edge */
-  color: #b0b8c1;
+  color: #9aa3af;
   font-weight: 400;
 }
 
@@ -179,7 +179,7 @@
   top: 0;
   left: 0;
   height: 3px;
-  background: #58a6ff;
+  background: #1f98f4;
   z-index: 10001;
   transition: width 0.1s ease-out;
 }
@@ -188,7 +188,7 @@
 .btns.flourish-title {
   outline: none;
   background: transparent;
-  color: #fff;
+  color: #14171c;
   display: inline-block;
   text-decoration: none;
   border-radius: 12px;
@@ -199,7 +199,7 @@
 }
 
 .btns.flourish-title:focus-visible {
-  outline: 2px solid #fff;
+  outline: 2px solid #1f98f4;
   outline-offset: 2px;
 }
 
@@ -211,14 +211,14 @@
   left: 0;
   width: 0%;
   height: 100%;
-  background: #fff;
+  background: #1f98f4;
   border-radius: inherit;
   z-index: -1;
   transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .btns.flourish-title span {
-  color: #fff;
+  color: #14171c;
   transition: color 0.25s;
 }
 
@@ -229,7 +229,7 @@
 
 .btns.flourish-title:hover span,
 .btns.flourish-title:hover span * {
-  color: #000 !important;
+  color: #fff !important;
   transition: color 0.25s;
 }
 
@@ -243,14 +243,14 @@
 }
 
 .btns.flourish-title .relative.inline-flex span {
-  color: #fff !important;
+  color: #14171c !important;
   font-weight: 600;
   position: relative;
   z-index: 10;
 }
 
 .btns.flourish-title:hover .relative.inline-flex span {
-  color: #000 !important;
+  color: #fff !important;
 }
 
 @layer components {
@@ -258,7 +258,7 @@
   .form-card input,
   .form-card textarea,
   .form-card select {
-    @apply w-full p-3 border-2 border-gray-700 rounded-lg bg-gray-800 text-white text-base transition-colors duration-300 focus:border-blue-500 focus:outline-none;
+    @apply w-full p-3 border-2 border-gray-300 rounded-lg bg-white text-gray-900 text-base transition-colors duration-300 focus:border-[#1f98f4] focus:outline-none;
   }
 
   .form-card textarea {
@@ -266,16 +266,16 @@
   }
 
   .form-card button {
-    @apply px-6 py-3 border-0 rounded-lg bg-blue-500 text-white text-xl cursor-pointer transition-colors duration-300 mb-4 hover:bg-blue-600;
+    @apply px-6 py-3 border-0 rounded-lg bg-[#1f98f4] text-white text-xl cursor-pointer transition-colors duration-300 mb-4 hover:bg-[#1a7bc7];
   }
 
   .form-card label {
-    @apply text-white text-base mb-2 block font-medium;
+    @apply text-gray-900 text-base mb-2 block font-medium;
   }
 }
 
 .search-page-wrapper {
-  background-color: #000;
+  background-color: #ffffff;
   min-height: 100vh;
 }
 
@@ -353,7 +353,7 @@ div.filter-sidebar-scrollable {
   background-color: transparent;
   width: 20px;
   height: 20px;
-  border: 1px solid white;
+  border: 1px solid #9aa3af;
   border-radius: 4px;
   display: inline-block;
   position: relative;
@@ -363,8 +363,8 @@ div.filter-sidebar-scrollable {
 }
 
 .custom-checkbox:checked {
-  background-color: transparent;
-  border-color: white;
+  background-color: #1f98f4;
+  border-color: #1f98f4;
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3e%3cpath fill='white' fill-rule='evenodd' clip-rule='evenodd' d='M13.637 1.198a1 1 0 0 1 .134 1.408l-8.04 9.73-.003.002a1.922 1.922 0 0 1-1.5.693A1.923 1.923 0 0 1 2.7 11.97l-.001-.002L.21 9.045a1 1 0 1 1 1.578-1.228l2.464 3.167 7.976-9.652a1 1 0 0 1 1.408-.134Z'/%3e%3c/svg%3e");
   background-position: center;
   background-repeat: no-repeat;

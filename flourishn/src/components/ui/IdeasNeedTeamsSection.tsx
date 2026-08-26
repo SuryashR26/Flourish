@@ -26,9 +26,9 @@ export default function IdeasNeedTeamsSection() {
                 wordsRef.current.forEach((word, index) => {
                     if (word) {
                         if (index < wordsToHighlight) {
-                            word.style.color = "white"
+                            word.style.color = "#14171c"
                         } else {
-                            word.style.color = "#374151"
+                            word.style.color = "#d7dbe1"
                         }
                     }
                 })
@@ -41,24 +41,24 @@ export default function IdeasNeedTeamsSection() {
     }, [])
 
     return (
-        <div className="ideas-animated-text-section w-full flex justify-center items-center bg-black relative z-20" style={{ minHeight: '0', paddingTop: '11rem', paddingBottom: '11rem' }}>
+        <div className="ideas-animated-text-section w-full flex justify-center items-center bg-white relative z-20" style={{ minHeight: '0', paddingTop: '11rem', paddingBottom: '11rem' }}>
             {/* To adjust line breaks, tweak the maxWidth value below (e.g., 700px for 2 lines) */}
             <div className="w-full mx-auto text-center flex flex-col justify-center" style={{ maxWidth: '900px' }}>
                 <div className="text-4xl md:text-5xl leading-snug font-semibold">
-                    <span className="ideas-word transition-colors duration-300 text-gray-700">Ideas</span>{" "}
-                    <span className="ideas-word transition-colors duration-300 text-gray-700">need</span>{" "}
-                    <span className="ideas-word transition-colors duration-300 text-gray-700">teams.</span>{" "}
-                    <span className="ideas-word transition-colors duration-300 text-gray-700">We</span>{" "}
-                    <span className="ideas-word transition-colors duration-300 text-gray-700">make</span>{" "}
-                    <span className="ideas-word transition-colors duration-300 text-gray-700">that</span>{" "}
-                    <span className="ideas-word transition-colors duration-300 text-gray-700">easy.</span>
+                    <span className="ideas-word transition-colors duration-300 text-[#d7dbe1]">Ideas</span>{" "}
+                    <span className="ideas-word transition-colors duration-300 text-[#d7dbe1]">need</span>{" "}
+                    <span className="ideas-word transition-colors duration-300 text-[#d7dbe1]">teams.</span>{" "}
+                    <span className="ideas-word transition-colors duration-300 text-[#d7dbe1]">We</span>{" "}
+                    <span className="ideas-word transition-colors duration-300 text-[#d7dbe1]">make</span>{" "}
+                    <span className="ideas-word transition-colors duration-300 text-[#d7dbe1]">that</span>{" "}
+                    <span className="ideas-word transition-colors duration-300 text-[#d7dbe1]">easy.</span>
                     <br />
-                    <span className="ideas-word transition-colors duration-300 text-gray-700">At</span>{" "}
-                    <span className="ideas-word transition-colors duration-300 text-gray-700">Flourish,</span>{" "}
-                    <span className="ideas-word transition-colors duration-300 text-gray-700">projects</span>{" "}
-                    <span className="ideas-word transition-colors duration-300 text-gray-700">find</span>{" "}
-                    <span className="ideas-word transition-colors duration-300 text-gray-700">their</span>{" "}
-                    <span className="ideas-word transition-colors duration-300 text-gray-700">people.</span>
+                    <span className="ideas-word transition-colors duration-300 text-[#d7dbe1]">At</span>{" "}
+                    <span className="ideas-word transition-colors duration-300 text-[#d7dbe1]">Flourish,</span>{" "}
+                    <span className="ideas-word transition-colors duration-300 text-[#d7dbe1]">projects</span>{" "}
+                    <span className="ideas-word transition-colors duration-300 text-[#d7dbe1]">find</span>{" "}
+                    <span className="ideas-word transition-colors duration-300 text-[#d7dbe1]">their</span>{" "}
+                    <span className="ideas-word transition-colors duration-300 text-[#d7dbe1]">people.</span>
                 </div>
             </div>
         </div>

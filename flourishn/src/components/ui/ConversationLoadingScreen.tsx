@@ -41,18 +41,18 @@ export default function ConversationLoadingScreen({ participantName }: Conversat
           flex: 1;
           display: flex;
           flex-direction: column;
-          background-color: #000000;
+          background-color: #14171c;
           position: relative;
           overflow: hidden;
         }
 
         .loading-content {
           padding: 20px 24px;
-          border-bottom: 1px solid rgba(255,255,255,0.1);
+          border-bottom: 1px solid rgba(0,0,0,0.1);
           display: flex;
           align-items: center;
           gap: 16px;
-          background-color: #000000;
+          background-color: #14171c;
         }
 
         .loading-avatar {
@@ -65,7 +65,7 @@ export default function ConversationLoadingScreen({ participantName }: Conversat
         .loading-avatar-skeleton {
           width: 100%;
           height: 100%;
-          background: linear-gradient(90deg, #0B0809 25%, #1a1a1a 50%, #0B0809 75%);
+          background: linear-gradient(90deg, #f4f5f7 25%, #e5e7eb 50%, #f4f5f7 75%);
           background-size: 200% 100%;
           animation: shimmer 1.5s infinite;
           border-radius: 50%;
@@ -78,7 +78,7 @@ export default function ConversationLoadingScreen({ participantName }: Conversat
         .loading-name {
           font-size: 1.3rem;
           font-weight: 500;
-          color: #ffffff;
+          color: #14171c;
           margin-bottom: 8px;
         }
 
@@ -103,7 +103,7 @@ export default function ConversationLoadingScreen({ participantName }: Conversat
           display: flex;
           flex-direction: column;
           gap: 20px;
-          background-color: #000000;
+          background-color: #14171c;
         }
 
         .loading-message-skeleton {
@@ -134,7 +134,7 @@ export default function ConversationLoadingScreen({ participantName }: Conversat
           width: 36px;
           height: 36px;
           border-radius: 50%;
-          background: linear-gradient(90deg, #0B0809 25%, #1a1a1a 50%, #0B0809 75%);
+          background: linear-gradient(90deg, #f4f5f7 25%, #e5e7eb 50%, #f4f5f7 75%);
           background-size: 200% 100%;
           animation: shimmer 1.5s infinite;
           flex-shrink: 0;
@@ -144,7 +144,7 @@ export default function ConversationLoadingScreen({ participantName }: Conversat
           max-width: 65%;
           height: 48px;
           border-radius: 8px;
-          background: linear-gradient(90deg, #0B0809 25%, #1a1a1a 50%, #0B0809 75%);
+          background: linear-gradient(90deg, #f4f5f7 25%, #e5e7eb 50%, #f4f5f7 75%);
           background-size: 200% 100%;
           animation: shimmer 1.5s infinite;
         }

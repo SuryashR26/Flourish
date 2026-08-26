@@ -103,10 +103,10 @@ export default function Home() {
         style={{ width: `${scrollProgress}%` }}
       />
 
-      {/* Hero Section with Video Background */}
-      <div className="h-screen relative bg-black overflow-x-hidden">
-        {/* Video Background */}
-        <video
+      {/* Hero Section with animated gradient background (was a starfield video, replaced for the light theme) */}
+      <div className="h-screen relative bg-white overflow-x-hidden">
+        {/* Commented out — old dark starfield video background */}
+        {/* <video
           autoPlay
           loop
           muted
@@ -114,41 +114,37 @@ export default function Home() {
           className="absolute inset-0 w-full h-full object-cover"
         >
           <source src="/videos/starsbackground_noaudio.mp4" type="video/mp4" />
-        </video>
+        </video> */}
 
         {/* Commented out stars for future use */}
         {/* <div className="absolute inset-0">
           <AnimatedStars starCount={800} />
         </div> */}
 
-        {/* Top Fade */}
-        <div
-          className="pointer-events-none absolute top-0 left-0 w-full h-[240px] z-10"
-          style={{
-            background: "rgba(0,0,0,0.5)",
-            WebkitMaskImage: "linear-gradient(to bottom, black 0%, transparent 100%)",
-            maskImage: "linear-gradient(to bottom, black 0%, transparent 100%)",
-            WebkitMaskSize: "100% 100%",
-            maskSize: "100% 100%",
-            backdropFilter: "blur(4px)",
-          }}
-        />
-        {/* Bottom Fade */}
+        {/* Soft blooming gradient background */}
+        <div className="hero-bloom absolute inset-0 overflow-hidden">
+          <div className="hero-bloom__base absolute inset-0" />
+          <div className="hero-bloom__blob hero-bloom__blob--blue absolute rounded-full" />
+          <div className="hero-bloom__blob hero-bloom__blob--teal absolute rounded-full" />
+          <div className="hero-bloom__blob hero-bloom__blob--rose absolute rounded-full" />
+        </div>
+
+        {/* Bottom Fade — blends the hero into the white cards section below */}
         <div
           className="pointer-events-none absolute bottom-0 left-0 w-full h-[200px] z-10"
           style={{
-            background: "linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.2) 40%, #000 100%)",
+            background: "linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 40%, #fff 100%)",
           }}
         />
         <div className="h-screen w-full flex flex-col justify-center items-center relative z-10 pt-10">
-          <h1 className="text-white text-6xl md:text-[90px] text-center z-20 flourish-title transform !translate-y-4 font-semibold">
+          <h1 className="text-gray-900 text-6xl md:text-[90px] text-center z-20 flourish-title transform !translate-y-4 font-semibold">
             LET YOUR IDEAS FLOURISH
           </h1>
-          <p className="text-white text-lg md:text-xl text-center max-w-2xl mx-auto !mt-7 !mb-7 px-6 description-text flourish-title opacity-0">
+          <p className="text-gray-600 text-lg md:text-xl text-center max-w-2xl mx-auto !mt-7 !mb-7 px-6 description-text flourish-title opacity-0">
             Flourish is the collaboration platform for creators. Find your team, build your project, and turn your ideas into reality.
           </p>
           <div className="z-20">
-            <Link href="/signup">
+            <Link href="/post">
               <Button
                 className="btns flourish-title rounded-3xl px-8 py-3 text-xl font-semibold"
                 buttonStyle="outline"
@@ -169,6 +165,70 @@ export default function Home() {
       <style jsx global>{`
         .description-text div {
           font-weight: 400 !important;
+        }
+
+        .hero-bloom__base {
+          background: linear-gradient(180deg, #ffffff 0%, #f3f8fe 55%, #eaf3fd 100%);
+        }
+
+        .hero-bloom__blob {
+          filter: blur(70px);
+          opacity: 0.55;
+          will-change: transform;
+        }
+
+        .hero-bloom__blob--blue {
+          width: 42vw;
+          height: 42vw;
+          max-width: 620px;
+          max-height: 620px;
+          top: -10%;
+          left: -8%;
+          background: radial-gradient(circle, #bfe0fc 0%, rgba(191, 224, 252, 0) 70%);
+          animation: bloom-drift-1 22s ease-in-out infinite;
+        }
+
+        .hero-bloom__blob--teal {
+          width: 34vw;
+          height: 34vw;
+          max-width: 520px;
+          max-height: 520px;
+          bottom: -8%;
+          right: -6%;
+          background: radial-gradient(circle, #cdeee2 0%, rgba(205, 238, 226, 0) 70%);
+          animation: bloom-drift-2 26s ease-in-out infinite;
+        }
+
+        .hero-bloom__blob--rose {
+          width: 26vw;
+          height: 26vw;
+          max-width: 400px;
+          max-height: 400px;
+          top: 35%;
+          right: 12%;
+          background: radial-gradient(circle, #f7d9e4 0%, rgba(247, 217, 228, 0) 70%);
+          animation: bloom-drift-3 20s ease-in-out infinite;
+        }
+
+        @keyframes bloom-drift-1 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          50% { transform: translate(4%, 5%) scale(1.08); }
+        }
+
+        @keyframes bloom-drift-2 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          50% { transform: translate(-5%, -4%) scale(1.1); }
+        }
+
+        @keyframes bloom-drift-3 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          50% { transform: translate(-3%, 4%) scale(1.05); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .hero-bloom__blob {
+            animation: none !important;
+          }
         }
       `}</style>
     </>

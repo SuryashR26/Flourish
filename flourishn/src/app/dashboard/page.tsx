@@ -30,7 +30,7 @@ const dashboardStyles = `
     display: flex !important;
     gap: 12px !important;
     padding: 12px 0 !important;
-    border-bottom: 1px solid #2f3542 !important;
+    border-bottom: 1px solid #e2e5ea !important;
     position: relative !important;
   }
   .activity-item:last-child {
@@ -97,7 +97,7 @@ const dashboardStyles = `
   }
   .activity-time {
     font-size: 11px !important;
-    color: #888 !important;
+    color: #6b7280 !important;
   }
   .view-all-activity {
     color: #1f98f4 !important;
@@ -126,7 +126,7 @@ function SkillsRow({ skills = [] }: { skills: string[] }) {
             {skills.map((skill, i) => (
                 <span
                     key={i}
-                    className="!bg-[#1f2937] !text-[#1f98f4] !px-2 !py-1 !rounded !text-[12px] !font-medium !border !border-[#1f98f4]/20"
+                    className="!bg-[#eef0f3] !text-[#1f98f4] !px-2 !py-1 !rounded !text-[12px] !font-medium !border !border-[#1f98f4]/20"
                 >
                     {skill}
                 </span>
@@ -344,9 +344,9 @@ export default function DashboardPage() {
             <style dangerouslySetInnerHTML={{ __html: dashboardStyles }} />
             <Navbar showSearchBar={true} showSeparator={true} />
             {/* New Dashboard Sidebar */}
-            <div className="!w-[320px] !bg-black !border-r !border-[#2f3542] !p-6 fixed top-[80px] left-0 z-40 flex flex-col overflow-y-auto" style={{ height: 'calc(100vh - 80px)' }}>
+            <div className="!w-[320px] !bg-white !border-r !border-[#e2e5ea] !p-6 fixed top-[80px] left-0 z-40 flex flex-col overflow-y-auto" style={{ height: 'calc(100vh - 80px)' }}>
                 {/* Post Project Button */}
-                <button className="!w-full !bg-black !text-[#1f98f4] !border !border-[#1f98f4] !rounded-xl !py-4 !px-4 !text-base !font-semibold !cursor-pointer !transition-all !duration-200 !mb-8 !flex !items-center !justify-center !gap-2 hover:!bg-[#1f98f4] hover:!text-white">
+                <button className="!w-full !bg-white !text-[#1f98f4] !border !border-[#1f98f4] !rounded-xl !py-4 !px-4 !text-base !font-semibold !cursor-pointer !transition-all !duration-200 !mb-8 !flex !items-center !justify-center !gap-2 hover:!bg-[#1f98f4] hover:!text-white">
                     <span className="!text-xl !font-bold">+</span>
                     Post New Project
                 </button>
@@ -412,7 +412,7 @@ export default function DashboardPage() {
 
                 {/* Interests Section */}
                 <div className="!mb-8">
-                    <h3 className="!text-lg !font-semibold !mb-4 !text-white !flex !items-center !gap-2">Your Interests</h3>
+                    <h3 className="!text-lg !font-semibold !mb-4 !text-gray-900 !flex !items-center !gap-2">Your Interests</h3>
                     <div className="!flex !flex-wrap !gap-2 !mb-4">
                         {user?.personal_preferences?.length ? (
                             user.personal_preferences.map((interest, index) => (
@@ -430,7 +430,7 @@ export default function DashboardPage() {
 
                     <button
                         onClick={() => window.location.href = '/settings'}
-                        className="!text-[#888] !text-xs !no-underline !py-2 !block !border-t !border-[#2f3542] !mt-3 !pt-3 hover:!text-[#1f98f4] !bg-transparent !border-none !cursor-pointer !w-full !text-left"
+                        className="!text-[#6b7280] !text-xs !no-underline !py-2 !block !border-t !border-[#e2e5ea] !mt-3 !pt-3 hover:!text-[#1f98f4] !bg-transparent !border-none !cursor-pointer !w-full !text-left"
                     >
                         ✏️ Edit interests
                     </button>
@@ -452,7 +452,7 @@ export default function DashboardPage() {
                 {/* Recommended Projects */}
                 <div className="!mb-10">
                     <div className="!flex !items-center !justify-between !mb-5">
-                        <h2 className="!text-2xl !font-semibold !text-white">Recommended for You</h2>
+                        <h2 className="!text-2xl !font-semibold !text-gray-900">Recommended for You</h2>
                         <button
                             onClick={() => {
                                 localStorage.setItem(
@@ -478,7 +478,7 @@ export default function DashboardPage() {
                             return (
                                 <div
                                     key={project.id || idx}
-                                    className="bg-[#1a1a1a] border border-[#333] rounded-xl overflow-hidden cursor-pointer transition-all duration-300 relative flex flex-col hover:border-[#555] hover:-translate-y-0.5 hover:shadow-2xl min-h-[380px]"
+                                    className="bg-[#1a1a1a] border border-[#e2e5ea] rounded-xl overflow-hidden cursor-pointer transition-all duration-300 relative flex flex-col hover:border-[#d7dbe1] hover:-translate-y-0.5 hover:shadow-2xl min-h-[380px]"
                                 >
                                     {/* Project Image or Category Gradient Background */}
                                     {project.photourl ? (
@@ -509,7 +509,7 @@ export default function DashboardPage() {
                                     <div className="!p-5 flex flex-col flex-1">
                                         {/* Card Header */}
                                         <div className="flex justify-between items-start !gap-3 !mb-3">
-                                            <h3 className="text-lg font-semibold text-white leading-tight flex-1">
+                                            <h3 className="text-lg font-semibold text-gray-900 leading-tight flex-1">
                                                 {project.title}
                                             </h3>
                                             <span
@@ -525,7 +525,7 @@ export default function DashboardPage() {
                                         </div>
                                         {/* In Person/Remote tag and location */}
                                         <div className="flex items-center !gap-2 !mb-3">
-                                            <span className={`!py-1 !px-2 !rounded !text-[13px] !font-medium ${isRemote ? "bg-[#1d4ed8] text-[#dbeafe]" : "bg-[#2a2a2a] text-[#e5e5e5]"}`}>{locationBadgeText}</span>
+                                            <span className={`!py-1 !px-2 !rounded !text-[13px] !font-medium ${isRemote ? "bg-[#1d4ed8] text-[#dbeafe]" : "bg-[#eef0f3] text-[#e5e5e5]"}`}>{locationBadgeText}</span>
                                             {!isRemote && (
                                                 <span className="!text-[13px] !text-gray-400">
                                                     {project.location}
@@ -534,7 +534,7 @@ export default function DashboardPage() {
                                         </div>
                                         {/* Description */}
                                         <div className="!mb-4 flex-1">
-                                            <p className="!text-gray-300 !text-sm leading-snug line-clamp-3">
+                                            <p className="!text-gray-600 !text-sm leading-snug line-clamp-3">
                                                 {project.content}
                                             </p>
                                         </div>
@@ -545,7 +545,7 @@ export default function DashboardPage() {
                                         {/* Footer */}
                                         <div className="flex justify-between items-center !gap-3 !mt-auto">
                                             <div className="flex items-center !gap-2">
-                                                <div className="w-7 h-7 !rounded-full bg-indigo-900 flex items-center justify-center !text-indigo-200 !text-xs !font-semibold flex-shrink-0">
+                                                <div className="w-7 h-7 !rounded-full bg-indigo-100 flex items-center justify-center !text-indigo-700 !text-xs !font-semibold flex-shrink-0">
                                                     <img
                                                         src={project.user_image || '/images/defaultProfile.jpg'}
                                                         alt={project.user_name || 'User'}
@@ -556,7 +556,7 @@ export default function DashboardPage() {
                                                         }}
                                                     />
                                                 </div>
-                                                <span className="!text-[#888] !text-sm !font-medium">
+                                                <span className="!text-[#6b7280] !text-sm !font-medium">
                                                     {project.user_name || "Unknown Author"}
                                                 </span>
                                             </div>
@@ -574,7 +574,7 @@ export default function DashboardPage() {
                 {/* Your Projects */}
                 <div className="!mb-10">
                     <div className="!flex !items-center !justify-between !mb-5">
-                        <h2 className="!text-2xl !font-semibold !text-white">Your Projects</h2>
+                        <h2 className="!text-2xl !font-semibold !text-gray-900">Your Projects</h2>
                         <button
                             onClick={() => setShowAllYour((v) => !v)}
                             className="!text-[#1f98f4] !no-underline !text-sm !font-medium !py-2 !px-4 !border !border-[#1f98f4] !rounded-lg !transition-all !duration-200 hover:!bg-[#1f98f4] hover:!text-white"
@@ -593,7 +593,7 @@ export default function DashboardPage() {
                             return (
                                 <div
                                     key={project.id || idx}
-                                    className="bg-[#1a1a1a] border border-[#333] rounded-xl overflow-hidden cursor-pointer transition-all duration-300 relative flex flex-col hover:border-[#555] hover:-translate-y-0.5 hover:shadow-2xl min-h-[380px]"
+                                    className="bg-[#1a1a1a] border border-[#e2e5ea] rounded-xl overflow-hidden cursor-pointer transition-all duration-300 relative flex flex-col hover:border-[#d7dbe1] hover:-translate-y-0.5 hover:shadow-2xl min-h-[380px]"
                                 >
                                     {/* Project Image or Category Gradient Background */}
                                     <div
@@ -615,7 +615,7 @@ export default function DashboardPage() {
                                     {/* Card Content */}
                                     <div className="!p-5 flex flex-col flex-1">
                                         <div className="flex justify-between items-start !gap-3 !mb-3">
-                                            <h3 className="text-lg font-semibold text-white leading-tight flex-1">
+                                            <h3 className="text-lg font-semibold text-gray-900 leading-tight flex-1">
                                                 {project.title}
                                             </h3>
                                             <span
@@ -630,7 +630,7 @@ export default function DashboardPage() {
                                             </span>
                                         </div>
                                         <div className="flex items-center !gap-2 !mb-3">
-                                            <span className={`!py-1 !px-2 !rounded !text-[13px] !font-medium ${isRemote ? "bg-[#1d4ed8] text-[#dbeafe]" : "bg-[#2a2a2a] text-[#e5e5e5]"}`}>
+                                            <span className={`!py-1 !px-2 !rounded !text-[13px] !font-medium ${isRemote ? "bg-[#1d4ed8] text-[#dbeafe]" : "bg-[#eef0f3] text-[#e5e5e5]"}`}>
                                                 {locationBadgeText}
                                             </span>
                                             {!project.location_preference && (
@@ -640,7 +640,7 @@ export default function DashboardPage() {
                                             )}
                                         </div>
                                         <div className="!mb-4 flex-1">
-                                            <p className="!text-gray-300 !text-sm leading-snug line-clamp-3">
+                                            <p className="!text-gray-600 !text-sm leading-snug line-clamp-3">
                                                 {project.content}
                                             </p>
                                         </div>
@@ -649,7 +649,7 @@ export default function DashboardPage() {
                                         </div>
                                         <div className="flex justify-between items-center !gap-3 !mt-auto">
                                             <div className="flex items-center !gap-2">
-                                                <div className="w-7 h-7 !rounded-full bg-indigo-900 flex items-center justify-center !text-indigo-200 !text-xs !font-semibold flex-shrink-0">
+                                                <div className="w-7 h-7 !rounded-full bg-indigo-100 flex items-center justify-center !text-indigo-700 !text-xs !font-semibold flex-shrink-0">
                                                     <img
                                                         src={user?.profileurl || '/images/defaultProfile.jpg'}
                                                         alt={project.user_name || 'User'}
@@ -660,7 +660,7 @@ export default function DashboardPage() {
                                                         }}
                                                     />
                                                 </div>
-                                                <span className="!text-[#888] !text-sm !font-medium">
+                                                <span className="!text-[#6b7280] !text-sm !font-medium">
                                                     {project.user_name || "Unknown Author"}
                                                 </span>
                                             </div>
@@ -683,7 +683,7 @@ export default function DashboardPage() {
                 {/* Bookmarked Projects */}
                 <div className="!mb-10">
                     <div className="!flex !items-center !justify-between !mb-5">
-                        <h2 className="!text-2xl !font-semibold !text-white">Bookmarked Projects</h2>
+                        <h2 className="!text-2xl !font-semibold !text-gray-900">Bookmarked Projects</h2>
                         <button
                             onClick={() => setShowAllBookmarked((v) => !v)}
                             className="!text-[#1f98f4] !no-underline !text-sm !font-medium !py-2 !px-4 !border !border-[#1f98f4] !rounded-lg !transition-all !duration-200 hover:!bg-[#1f98f4] hover:!text-white"
@@ -705,7 +705,7 @@ export default function DashboardPage() {
                                 return (
                                     <div
                                         key={project.id || idx}
-                                        className="bg-[#1a1a1a] border border-[#333] rounded-xl overflow-hidden cursor-pointer transition-all duration-300 relative flex flex-col hover:border-[#555] hover:-translate-y-0.5 hover:shadow-2xl min-h-[380px]"
+                                        className="bg-[#1a1a1a] border border-[#e2e5ea] rounded-xl overflow-hidden cursor-pointer transition-all duration-300 relative flex flex-col hover:border-[#d7dbe1] hover:-translate-y-0.5 hover:shadow-2xl min-h-[380px]"
                                     >
                                         {/* Project Image or Category Gradient Background */}
                                         <div
@@ -727,7 +727,7 @@ export default function DashboardPage() {
                                         {/* Card Content */}
                                         <div className="!p-5 flex flex-col flex-1">
                                             <div className="flex justify-between items-start !gap-3 !mb-3">
-                                                <h3 className="text-lg font-semibold text-white leading-tight flex-1">
+                                                <h3 className="text-lg font-semibold text-gray-900 leading-tight flex-1">
                                                     {project.title}
                                                 </h3>
                                                 <span
@@ -742,7 +742,7 @@ export default function DashboardPage() {
                                                 </span>
                                             </div>
                                             <div className="flex items-center !gap-2 !mb-3">
-                                                <span className={`!py-1 !px-2 !rounded !text-[13px] !font-medium ${isRemote === 'remote' ? "bg-[#1d4ed8] text-[#dbeafe]" : "bg-[#2a2a2a] text-[#e5e5e5]"}`}>
+                                                <span className={`!py-1 !px-2 !rounded !text-[13px] !font-medium ${isRemote === 'remote' ? "bg-[#1d4ed8] text-[#dbeafe]" : "bg-[#eef0f3] text-[#e5e5e5]"}`}>
                                                     {locationBadgeText}
                                                 </span>
                                                 {!project.location_preference && (
@@ -752,7 +752,7 @@ export default function DashboardPage() {
                                                 )}
                                             </div>
                                             <div className="!mb-4 flex-1">
-                                                <p className="!text-gray-300 !text-sm leading-snug line-clamp-3">
+                                                <p className="!text-gray-600 !text-sm leading-snug line-clamp-3">
                                                     {project.content}
                                                 </p>
                                             </div>
@@ -761,7 +761,7 @@ export default function DashboardPage() {
                                             </div>
                                             <div className="flex justify-between items-center !gap-3 !mt-auto">
                                                 <div className="flex items-center !gap-2">
-                                                    <div className="w-7 h-7 !rounded-full bg-indigo-900 flex items-center justify-center !text-indigo-200 !text-xs !font-semibold flex-shrink-0">
+                                                    <div className="w-7 h-7 !rounded-full bg-indigo-100 flex items-center justify-center !text-indigo-700 !text-xs !font-semibold flex-shrink-0">
                                                         <img
                                                             src={project.user_image || '/images/defaultProfile.jpg'}
                                                             alt={project.user_name || 'User'}
@@ -772,7 +772,7 @@ export default function DashboardPage() {
                                                             }}
                                                         />
                                                     </div>
-                                                    <span className="!text-[#888] !text-sm !font-medium">
+                                                    <span className="!text-[#6b7280] !text-sm !font-medium">
                                                         {project.user_name || "Unknown Author"}
                                                     </span>
                                                 </div>
@@ -796,32 +796,32 @@ export default function DashboardPage() {
                 {/* Stats and Quick Note Cards */}
                 <div className="!grid !grid-cols-1 md:!grid-cols-2 !gap-6 !mb-8">
                     {/* Stats Card */}
-                    <div className="!bg-[#1a1a1a] !border !border-[#333] !rounded-xl !p-6">
-                        <h3 className="!text-lg !font-semibold !mb-4 !text-white">Your Stats</h3>
+                    <div className="!bg-[#1a1a1a] !border !border-[#e2e5ea] !rounded-xl !p-6">
+                        <h3 className="!text-lg !font-semibold !mb-4 !text-gray-900">Your Stats</h3>
                         <div className="!grid !grid-cols-2 !gap-4">
-                            <div className="!bg-[#0f0f0f] !border !border-[#2f3542] !rounded-lg !p-4 !text-center">
+                            <div className="!bg-[#f4f5f7] !border !border-[#e2e5ea] !rounded-lg !p-4 !text-center">
                                 <div className="!text-2xl !font-bold !text-[#1f98f4] !mb-1">4</div>
-                                <div className="!text-xs !text-[#888]">Active Projects</div>
+                                <div className="!text-xs !text-[#6b7280]">Active Projects</div>
                             </div>
-                            <div className="!bg-[#0f0f0f] !border !border-[#2f3542] !rounded-lg !p-4 !text-center">
+                            <div className="!bg-[#f4f5f7] !border !border-[#e2e5ea] !rounded-lg !p-4 !text-center">
                                 <div className="!text-2xl !font-bold !text-[#1f98f4] !mb-1">12</div>
-                                <div className="!text-xs !text-[#888]">Total Views</div>
+                                <div className="!text-xs !text-[#6b7280]">Total Views</div>
                             </div>
-                            <div className="!bg-[#0f0f0f] !border !border-[#2f3542] !rounded-lg !p-4 !text-center">
+                            <div className="!bg-[#f4f5f7] !border !border-[#e2e5ea] !rounded-lg !p-4 !text-center">
                                 <div className="!text-2xl !font-bold !text-[#1f98f4] !mb-1">7</div>
-                                <div className="!text-xs !text-[#888]">Completed</div>
+                                <div className="!text-xs !text-[#6b7280]">Completed</div>
                             </div>
-                            <div className="!bg-[#0f0f0f] !border !border-[#2f3542] !rounded-lg !p-4 !text-center">
+                            <div className="!bg-[#f4f5f7] !border !border-[#e2e5ea] !rounded-lg !p-4 !text-center">
                                 <div className="!text-2xl !font-bold !text-[#1f98f4] !mb-1">3</div>
-                                <div className="!text-xs !text-[#888]">Bookmarked</div>
+                                <div className="!text-xs !text-[#6b7280]">Bookmarked</div>
                             </div>
                         </div>
                     </div>
                     {/* Quick Note Card */}
-                    {/* <div className="!bg-[#1a1a1a] !border !border-[#333] !rounded-xl !p-6">
-                        <h3 className="!text-lg !font-semibold !mb-4 !text-white">Quick Note</h3>
+                    {/* <div className="!bg-[#1a1a1a] !border !border-[#e2e5ea] !rounded-xl !p-6">
+                        <h3 className="!text-lg !font-semibold !mb-4 !text-gray-900">Quick Note</h3>
                         <textarea
-                            className="!w-full !h-32 !bg-[#0f0f0f] !border !border-[#2f3542] !rounded-lg !p-3 !text-white !text-sm !resize-none focus:!outline-none focus:!border-[#1f98f4] !transition-colors"
+                            className="!w-full !h-32 !bg-[#f4f5f7] !border !border-[#e2e5ea] !rounded-lg !p-3 !text-gray-900 !text-sm !resize-none focus:!outline-none focus:!border-[#1f98f4] !transition-colors"
                             placeholder="Jot down a quick note..."
                         />
                         <div className="!flex !justify-end !mt-3">

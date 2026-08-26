@@ -1,6 +1,8 @@
 /* Scope all formCard styles */
 .form-card {
-    background: #000000;
+    background: #ffffff;
+    border: 1px solid #e2e5ea;
+    box-shadow: 0 1px 3px rgba(20, 23, 28, 0.04);
     border-radius: 16px;
     overflow: hidden;
     transition: transform 0.3s ease;
@@ -14,7 +16,7 @@
 }
 
 .form-card__title {
-    color: #ffffff;
+    color: #14171c;
     font-size: 2rem;
     margin-bottom: 1.5rem;
     text-align: center;
@@ -32,11 +34,11 @@
 .form-card select {
     width: 100%;
     padding: 10px 12px;
-    border: 1px solid #2f3542;
+    border: 1px solid #e2e5ea;
     /* Changed from 2px to 1px */
     border-radius: 8px;
-    background-color: #0B0809;
-    color: #fff;
+    background-color: #f4f5f7;
+    color: #14171c;
     font-size: 1rem;
     font-weight: 400;
     transition: border-color 0.3s ease;
@@ -63,8 +65,8 @@
     padding: 0.75rem 1.5rem;
     border: none;
     border-radius: 8px;
-    background-color: #fff;
-    color: black;
+    background-color: #1f98f4;
+    color: #ffffff;
     font-size: 1.2rem;
     cursor: pointer;
     transition: background-color 0.3s ease;
@@ -72,11 +74,11 @@
 }
 
 .form-card button:hover {
-    background-color: #cdcccd;
+    background-color: #1a7bc7;
 }
 
 .form-card label {
-    color: #ffffff;
+    color: #14171c;
     font-size: 1rem;
     margin-bottom: 0.5rem;
     display: block;
@@ -132,7 +134,7 @@
     h2 {
         font-size: 3rem !important;
         line-height: 1.25 !important;
-        color: #ffffff !important;
+        color: #14171c !important;
         margin-bottom: 1rem !important;
         font-weight: 600 !important;
         text-align: left !important;
@@ -141,7 +143,7 @@
     p {
         font-size: 1.125rem !important;
         line-height: 1.75 !important;
-        color: #9ca3af !important;
+        color: #5b6472 !important;
         text-align: left !important;
     }
 }
@@ -151,7 +153,7 @@
     .homepage-title {
         font-size: 3rem !important;
         line-height: 1.2 !important;
-        color: #fff !important;
+        color: #14171c !important;
         margin-bottom: 1.5rem !important;
         text-align: left !important;
     }
@@ -159,7 +161,7 @@
     .homepage-text {
         font-size: 1.125rem !important;
         line-height: 1.75 !important;
-        color: #9ca3af !important;
+        color: #5b6472 !important;
         text-align: left !important;
     }
 
@@ -185,7 +187,7 @@ div[id^="text-block-"] {
 div[id^="text-block-"]>h2 {
     font-size: 3rem !important;
     line-height: 1.2 !important;
-    color: #fff !important;
+    color: #14171c !important;
     margin-bottom: 1rem !important;
     text-align: left !important;
     font-weight: 600 !important;
@@ -195,7 +197,7 @@ div[id^="text-block-"]>h2 {
 div[id^="text-block-"]>p {
     font-size: 1.125rem !important;
     line-height: 1.75 !important;
-    color: #9ca3af !important;
+    color: #5b6472 !important;
     text-align: left !important;
     margin: 0.5rem 0 1rem 0 !important;
 }
@@ -256,14 +258,14 @@ div[id^="text-block-"]>p {
   left: 50%;
   width: 1px;
   height: 100vh;
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(20, 23, 28, 0.08);
   z-index: 1000;
   pointer-events: none;
 }
 
 .form-card input::placeholder,
 .form-card textarea::placeholder {
-  color: #b0b8c1;
+  color: #9aa3af;
   font-weight: 400;
   opacity: 1;
 }

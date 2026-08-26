@@ -4,11 +4,13 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from 'next/navigation'
-import { FaLightbulb, FaEye, FaEyeSlash, FaGoogle, FaGraduationCap } from "react-icons/fa"
+// import { FaLightbulb } from "react-icons/fa"
+import { FaEye, FaEyeSlash, FaGoogle, FaGraduationCap } from "react-icons/fa"
 import FormCard from "@/components/cards/formCards"
 import "@/styles/login.css"
 import { useUser } from "@/context/UserContext"
 import LoadingScreen from "@/components/ui/LoadingScreen"
+import FlourishLogo from "@/components/ui/FlourishLogo"
 
 interface LoginValues {
     username: string
@@ -131,7 +133,8 @@ export default function LoginPage() {
                 {/* Site Logo */}
                 <Link href="/" className="login-site-logo">
                     Flourish
-                    <FaLightbulb />
+                    {/* <FaLightbulb /> */}
+                    <FlourishLogo />
                 </Link>
 
                 {/* Top Right Buttons */}

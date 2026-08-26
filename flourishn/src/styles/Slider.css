@@ -10,7 +10,7 @@ input[type="range"] {
     outline: none;
     border-radius: 9999px;
     height: 8px;
-    background: #2f3542; /* Unfilled track */
+    background: #e2e5ea; /* Unfilled track */
     background-image: linear-gradient(#ffffff, #ffffff); /* Filled track */
     background-size: 50% 100%; /* Default, will be updated by JS */
     background-repeat: no-repeat;

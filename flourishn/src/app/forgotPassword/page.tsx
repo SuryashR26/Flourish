@@ -3,9 +3,10 @@
 import type React from "react"
 import { useState } from "react"
 import Link from "next/link"
-import { FaLightbulb } from "react-icons/fa"
+// import { FaLightbulb } from "react-icons/fa"
 import FormCard from "@/components/cards/formCards"
 import { resetPass } from "@/api/apiClient"
+import FlourishLogo from "@/components/ui/FlourishLogo"
 
 interface EmailValues {
     email: string
@@ -81,13 +82,14 @@ export default function ForgetPassword() {
             {/* Site Logo */}
             <Link href="/" className="login-site-logo">
                 Flourish
-                <FaLightbulb />
+                {/* <FaLightbulb /> */}
+                <FlourishLogo />
             </Link>
 
             {/* Forgot Password Content */}
             <div className="login-content">
                 <FormCard title="Reset your Password" onSubmit={handleSubmit} style={{ width: '500px' }} showSubmitButton={false}>
-                    <p className="text-white text-sm leading-normal my-1 text-center reset-password-text">
+                    <p className="text-gray-900 text-sm leading-normal my-1 text-center reset-password-text">
                         Enter your email address and we`&apos;`ll send you a link to reset your password.
                     </p>
                     <div className="login-form-group">
@@ -111,11 +113,11 @@ export default function ForgetPassword() {
                         className="fixed inset-0 z-50 flex items-center justify-center min-w-[300px] bg-black/40 backdrop-blur-sm"
                         style={{ pointerEvents: 'auto' }}
                     >
-                        <div className="relative bg-black text-white text-md p-6 min-w-[300px] min-h-[150px] max-w-2xl rounded-lg shadow-xl text-center mt-10">
+                        <div className="relative bg-white text-gray-900 text-md p-6 min-w-[300px] min-h-[150px] max-w-2xl rounded-lg shadow-xl text-center mt-10">
                             <div className="absolute left-0 top-0 w-full flex justify-end">
                                 <button
                                     onClick={() => setErrorMessage(false)}
-                                    className="text-white text-2xl font-bold hover:text-gray-400 focus:outline-none p-2"
+                                    className="text-gray-900 text-2xl font-bold hover:text-gray-500 focus:outline-none p-2"
                                     aria-label="Close"
                                     style={{ zIndex: 10 }}
                                 >

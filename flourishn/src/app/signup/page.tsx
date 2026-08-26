@@ -4,9 +4,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import "@/styles/login.css";
-import { FaEye, FaEyeSlash, FaLightbulb, FaGoogle, FaGraduationCap, FaEnvelope, FaExclamationCircle } from 'react-icons/fa';
+// import { FaLightbulb } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaGoogle, FaGraduationCap, FaEnvelope, FaExclamationCircle } from 'react-icons/fa';
 import FormCard from "@/components/cards/formCards";
 import { useUser } from "@/context/UserContext";
+import FlourishLogo from "@/components/ui/FlourishLogo";
 
 // import { sign } from 'crypto';
 interface SignUpForm {
@@ -347,7 +349,8 @@ export default function SignUp() {
                 {/* Site Logo */}
                 <Link href="/" className="login-site-logo">
                     Flourish
-                    <FaLightbulb />
+                    {/* <FaLightbulb /> */}
+                    <FlourishLogo />
                 </Link>
 
                 {/* Top Right Buttons */}
@@ -370,7 +373,7 @@ export default function SignUp() {
                                 <button type="button" className="social-login-btn google-btn">
                                     <FaGoogle className="google-icon" /> Sign up with Google
                                 </button>
-                                <button type="button" className="social-login-btn sso-btn" style={{ background: "#181c23", color: "#fff", border: "1.5px solid #222" }}>
+                                <button type="button" className="social-login-btn sso-btn" style={{ background: "#eef0f3", color: "#14171c", border: "1.5px solid #e5e7eb" }}>
                                     <FaGraduationCap className="sso-icon" /> Sign up with School SSO
                                 </button>
                                 {/* Separator */}
@@ -397,13 +400,13 @@ export default function SignUp() {
                             <div style={{ marginTop: '-1rem' }}>
                                 <p className="verification-text" style={{
                                     textAlign: 'center',
-                                    color: '#b0b8c1',
+                                    color: '#9aa3af',
                                     marginBottom: '1.2rem',
                                     fontSize: '1.05rem',
                                     fontWeight: 400,
                                     opacity: 1
                                 }}>
-                                    If you have an account, we have sent a code to <b style={{ color: '#fff', fontWeight: 500 }}>{signUpValues.email}</b>. Enter it below.
+                                    If you have an account, we have sent a code to <b style={{ color: '#14171c', fontWeight: 500 }}>{signUpValues.email}</b>. Enter it below.
                                 </p>
                                 <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '1.2rem' }}>
                                     {verificationCode.map((digit, idx) => (
@@ -421,10 +424,10 @@ export default function SignUp() {
                                             onKeyDown={e => handleVerificationKeyDown(e, idx)}
                                             style={{
                                                 textAlign: 'center',
-                                                border: `2px solid ${focusedIndex === idx ? '#fff' : errors.verificationCode ? '#ff3860' : '#888'} `,
+                                                border: `2px solid ${focusedIndex === idx ? '#1f98f4' : errors.verificationCode ? '#ff3860' : '#6b7280'} `,
                                                 borderRadius: '8px',
-                                                background: '#0B0809',
-                                                color: '#fff',
+                                                background: '#f4f5f7',
+                                                color: '#14171c',
                                                 outline: 'none',
                                                 transition: 'border-color 0.2s',
                                                 fontWeight: 500,
@@ -440,7 +443,7 @@ export default function SignUp() {
                                         <span style={{ verticalAlign: 'middle' }}>{errors.verificationCode}</span>
                                     </div>
                                 )}
-                                <div style={{ textAlign: 'center', marginBottom: '0.5rem', color: '#b0b8c1' }}>
+                                <div style={{ textAlign: 'center', marginBottom: '0.5rem', color: '#9aa3af' }}>
                                     {timer > 0 ? (
                                         <span>Resend code in {timer}s</span>
                                     ) : (
@@ -525,8 +528,8 @@ export default function SignUp() {
                                     type="button"
                                     style={{
                                         background: "#fff",
-                                        color: "#0B0809",
-                                        border: "1px solid #2f3542",
+                                        color: "#f4f5f7",
+                                        border: "1px solid #e2e5ea",
                                         borderRadius: "8px",
                                         fontWeight: 500,
                                         transition: "none"

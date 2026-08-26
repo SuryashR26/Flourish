@@ -16,7 +16,7 @@
 }
 
 .navbar--with-separator {
-    border-bottom: 1px solid #2f3542;
+    border-bottom: 1px solid #e2e5ea;
 }
 
 .navbar-container {
@@ -60,13 +60,14 @@
 .nav-separator {
     height: 25px;
     width: 3px;
-    background-color: #2f3542;
+    background-color: #e2e5ea;
     margin: 0;
     border-radius: 3px;
 }
 
 .navbar--scrolled {
-    background-color: rgba(0, 0, 0, 0.3) !important;
+    background-color: rgba(255, 255, 255, 0.8) !important;
+    box-shadow: 0 1px 0 rgba(20, 23, 28, 0.06);
     -webkit-backdrop-filter: blur(10px) !important; /* For Safari */
     backdrop-filter: blur(10px) !important;
     transition: all 0.3s ease-in-out;
@@ -87,7 +88,7 @@
     left: 20px;
     font-size: 2.22rem;
     cursor: pointer;
-    color: #ffffff !important;
+    color: #14171c !important;
     background-color: transparent !important;
     z-index: 1000;
     text-decoration: none !important;
@@ -124,7 +125,7 @@
 }
 
 .nav-links {
-    color: #fff;
+    color: #14171c;
     display: flex;
     align-items: center;
     text-decoration: none;
@@ -133,16 +134,16 @@
 }
 
 .nav-links:hover {
-    color: grey;
+    color: #1f98f4;
     transition: all 0.2s ease-out;
 }
 
 .fa-bars {
-    color: #fff;
+    color: #14171c;
 }
 
 .nav-links-mobile {
-    color: #fff;
+    color: #14171c;
     display: flex;
     align-items: center;
     text-decoration: none;
@@ -152,20 +153,20 @@
 }
 
 .nav-links-mobile:hover {
-    color: grey;
+    color: #1f98f4;
     transition: all 0.2s ease-out;
 }
 
 .menu-icon {
     display: none;
-    color: white;
+    color: #14171c;
     left: 30px;
 }
 
 .sign-up-btn-navbar {
-    background: #ffffff;
-    color: #000000;
-    border: 1px solid #2f3542;
+    background: #1f98f4;
+    color: #ffffff;
+    border: 1px solid #1f98f4;
     border-radius: 8px;
     padding: 8px 16px;
     font-size: 1.05rem;
@@ -177,7 +178,7 @@
 }
 
 .sign-up-btn-navbar:hover {
-    background: #cdcccd;
+    background: #1a7bc7;
 }
 
 .navbar-search-container {
@@ -190,10 +191,10 @@
 .navbar-search-input {
     width: 450px;
     height: 40px;
-    background-color: #0B0809;
-    border: 1px solid #2f3542;
+    background-color: #f4f5f7;
+    border: 1px solid #e2e5ea;
     border-radius: 8px;
-    color: white;
+    color: #14171c;
     padding-left: 40px;
     font-size: 1rem;
     font-weight: 400;
@@ -207,7 +208,7 @@
 .navbar-search-icon {
     position: absolute;
     left: 15px;
-    color: #888;
+    color: #6b7280;
 }
 
 @media screen and (max-width: 960px) {
@@ -243,7 +244,8 @@
         position: fixed;
         top: 0;
         left: 0;
-        background-color: rgba(0, 0, 0, 0.7);
+        background-color: rgba(255, 255, 255, 0.92);
+        box-shadow: 1px 0 0 rgba(20, 23, 28, 0.06);
         backdrop-filter: blur(25px);
         -webkit-backdrop-filter: blur(25px);
         z-index: 10002;
@@ -260,7 +262,7 @@
         top: 0;
         height: 100vh;
         width: 30vw;
-        background-color: rgba(0, 0, 0, 0.7);
+        background-color: rgba(255, 255, 255, 0.92);
         backdrop-filter: blur(25px);
         -webkit-backdrop-filter: blur(25px);
         display: flex;
@@ -318,17 +320,17 @@
         text-decoration: none;
         font-size: 1.2rem;
         background-color: transparent;
-        color: #fff;
+        color: #14171c;
         padding: 8px 15px;
-        border: 1px solid #fff;
+        border: 1px solid #14171c;
         transition: all 0.5s ease-out;
         height: auto;
     }
 
     .nav-links-mobile:hover {
-        background-color: #fff;
-        color: #000;
-        border: 1px solid #fff;
+        background-color: #1f98f4;
+        color: #fff;
+        border: 1px solid #1f98f4;
         transition: all 0.3s ease-out;
     }
 

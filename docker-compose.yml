@@ -7,19 +7,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080"
-    environment:
-      - DB_HOST=database-flourish.c5q2m0wu6m1n.us-east-2.rds.amazonaws.com
-      - DB_PORT=5432
-      - DB_NAME=postgres
-      - DB_USER=suryash
-      - DB_PASSWORD=9<BHmLUksX5UH_Eajxj]:tiqOlvR
-      - DB_SSL=true
-      - PORT=8080
-      - SESSION_SECRET=eb0ae77d53ca78beb3fabeeba2d35afa797b7bca8a5026b3887184afb72cb33bc70e51d12e77f59cf925308706f6172166b59686acd7c807ab39049f4a992ebf
-      - AWS_ACCESS_KEY_ID=AKIAST6S7NXFXXQEPM3G
-      - AWS_SECRET_ACCESS_KEY=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
-      - AWS_REGION=us-east-2
-      - AWS_S3_BUCKET=user-images-flourish
+    env_file:
+      - ./backend/.env
     networks:
       - flourish-network
 

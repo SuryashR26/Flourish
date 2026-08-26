@@ -4,7 +4,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 // import Button from "@/components/ui/button";
-import { FaLightbulb, FaBars, FaTimes, FaSearch, FaCog } from "react-icons/fa";
+// import { FaLightbulb } from "react-icons/fa";
+import { FaBars, FaTimes, FaSearch, FaCog } from "react-icons/fa";
+import FlourishLogo from "@/components/ui/FlourishLogo";
 import "@/styles/navbar.css";
 import "@/styles/settings.css";
 import { useUser } from '@/context/UserContext';
@@ -107,7 +109,8 @@ const Navbar: React.FC<NavbarProps> = ({ showSearchBar = false, showSeparator = 
         <div className="navbar-container">
           <div className="navbar-column-left">
             <Link href="/" className="navbar-logo" onClick={closeMobileMenu}>
-              Flourish <FaLightbulb />
+              Flourish {/* <FaLightbulb /> */}
+              <FlourishLogo />
             </Link>
           </div>
 
@@ -143,11 +146,11 @@ const Navbar: React.FC<NavbarProps> = ({ showSearchBar = false, showSeparator = 
                   </Link>
                 </li>
               )}
-              <li className="nav-item">
+              {/* <li className="nav-item">
                 <Link href="/search" className="nav-links" onClick={closeMobileMenu}>
                   Browse
                 </Link>
-              </li>
+              </li> */}
               <li className="nav-item">
                 <Link href="/post" className="nav-links" onClick={closeMobileMenu}>
                   Post
@@ -164,7 +167,7 @@ const Navbar: React.FC<NavbarProps> = ({ showSearchBar = false, showSeparator = 
                 </Link>
               </li>
               <div className="nav-separator"></div>
-              {isInitialized && !isLoggedIn &&
+              {/* {isInitialized && !isLoggedIn &&
                 <li className="nav-item">
                   <Link
                     href="/login"
@@ -174,7 +177,7 @@ const Navbar: React.FC<NavbarProps> = ({ showSearchBar = false, showSeparator = 
                     Login
                   </Link>
                 </li>
-              }
+              } */}
               {/* Always show Messages button if user is/might be logged in */}
               {(!isInitialized || isLoggedIn) &&
                 <li className='nav-item'>
@@ -187,13 +190,13 @@ const Navbar: React.FC<NavbarProps> = ({ showSearchBar = false, showSeparator = 
                   </Link>
                 </li>
               }
-              {isInitialized && !isLoggedIn &&
+              {/* {isInitialized && !isLoggedIn &&
                 <li className="nav-item">
                   <Link href="/signup" className="sign-up-btn-navbar">
                     Sign Up
                   </Link>
                 </li>
-              }
+              } */}
               {/* Show profile picture placeholder or actual profile during initialization */}
               {(!isInitialized || isLoggedIn) &&
                 <li className="">
@@ -214,16 +217,16 @@ const Navbar: React.FC<NavbarProps> = ({ showSearchBar = false, showSeparator = 
 
                     {/* Dropdown menu - only show when initialized */}
                     {isInitialized && open && (
-                      <div className="absolute right-0 mt-2 w-48 bg-black rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 z-10">
+                      <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 z-10">
                         <div className="py-1 ">
-                          <button className="block px-4 py-2 !mt-3 !mb-2 text-sm text-white hover:bg-gray-800 w-full text-left" onClick={() => {
+                          <button className="block px-4 py-2 !mt-3 !mb-2 text-sm text-gray-900 hover:bg-gray-100 w-full text-left" onClick={() => {
                             router.push('/dashboard');
                             setOpen(false);
                           }}>
                             Dashboard
                           </button>
 
-                          <button className="block px-4 py-2 text-sm text-white hover:bg-gray-800 w-full text-left flex items-center gap-2" onClick={() => {
+                          <button className="block px-4 py-2 text-sm text-gray-900 hover:bg-gray-100 w-full text-left flex items-center gap-2" onClick={() => {
                             setSettingsOpen(true);
                             setOpen(false);
                           }}>
@@ -231,7 +234,7 @@ const Navbar: React.FC<NavbarProps> = ({ showSearchBar = false, showSeparator = 
                             Settings
                           </button>
 
-                          <button className="block px-4 py-2 text-sm text-red-600 hover:bg-gray-800 w-full text-left" onClick={() => logout()}>
+                          <button className="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 w-full text-left" onClick={() => logout()}>
                             Log out
                           </button>
                         </div>

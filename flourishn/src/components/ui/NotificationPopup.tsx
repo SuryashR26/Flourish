@@ -66,7 +66,7 @@ const NotificationPopup: React.FC<NotificationPopupProps> = ({
         <div
             className={`popup ${type} ${isVisible ? 'show' : ''}`}
             style={{
-                background: '#0B0809',
+                background: '#f4f5f7',
                 border: `1px solid ${type === 'success' ? '#1f98f4' : '#ff3860'}`,
                 borderRadius: '8px',
                 padding: '16px 20px',
@@ -89,7 +89,7 @@ const NotificationPopup: React.FC<NotificationPopupProps> = ({
                     background: 'none',
                     border: 'none',
                     fontSize: '14px',
-                    color: '#888',
+                    color: '#6b7280',
                     cursor: 'pointer',
                     width: '20px',
                     height: '20px',
@@ -103,7 +103,7 @@ const NotificationPopup: React.FC<NotificationPopupProps> = ({
                     e.currentTarget.style.color = '#1f98f4'
                 }}
                 onMouseLeave={(e) => {
-                    e.currentTarget.style.color = '#888'
+                    e.currentTarget.style.color = '#6b7280'
                 }}
             >
                 ×
@@ -123,7 +123,7 @@ const NotificationPopup: React.FC<NotificationPopupProps> = ({
                         style={{
                             fontWeight: 500,
                             fontSize: '1rem',
-                            color: '#ffffff',
+                            color: '#14171c',
                             margin: '0 0 4px 0',
                         }}
                     >
@@ -132,7 +132,7 @@ const NotificationPopup: React.FC<NotificationPopupProps> = ({
                     <div
                         className="popup-message"
                         style={{
-                            color: '#b0b8c1',
+                            color: '#9aa3af',
                             fontSize: '0.9rem',
                             fontWeight: 400,
                             lineHeight: 1.4,
@@ -146,7 +146,7 @@ const NotificationPopup: React.FC<NotificationPopupProps> = ({
             <div
                 className="progress-container"
                 style={{
-                    background: 'rgba(255, 255, 255, 0.1)',
+                    background: 'rgba(20, 23, 28, 0.08)',
                     height: '2px',
                     borderRadius: '1px',
                     overflow: 'hidden',

@@ -1,5 +1,9 @@
+require('dotenv').config();
 const nodemailer = require('nodemailer');
-const pool = require('../sql/dB');
+const crypto = require('crypto');
+// Contact Us only sends an email — it never needed the database. Left here,
+// commented out, in case inquiries need to be logged to a table again later.
+// const pool = require('../sql/dB');
 
 const htmlTemplate = `
   <h2> Inquiry ID: {{inquiryId}}</h2>
@@ -15,8 +19,8 @@ const transporter = nodemailer.createTransport({
     port: 465,
     secure: true,
     auth: {
-        user: 'FlourishIdeaBoard@gmail.com',
-        pass: 'itzd ikju gkpr mudb',
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_APP_PASSWORD,
     },
     family: 4 // force IPv4
 });
@@ -34,25 +38,30 @@ const contactUs = async (req, res) => {
         }
 
         const emailLower = email.toLowerCase();
-        const result = await pool.query(
-            'INSERT INTO inquiries (first_name, last_name, email, message) VALUES ($1, $2, $3, $4)',
-            [first_name, last_name, emailLower, message]
-        );
-        const Id = await pool.query(
-            'SELECT id FROM inquiries WHERE email = $1 ORDER BY created_at DESC LIMIT 1',
-            [emailLower]
-        )
-        const time = await pool.query(
-            'SELECT created_at FROM inquiries WHERE email = $1 ORDER BY created_at DESC LIMIT 1',
-            [emailLower]
-        )
 
-        const inquiryId = Id.rows[0].id;
-        const timestamp = time.rows[0].created_at;
+        // Previously logged to a `inquiries` table in Postgres/RDS and read the
+        // id/timestamp back — commented out, not deleted, in case that comes back.
+        // const result = await pool.query(
+        //     'INSERT INTO inquiries (first_name, last_name, email, message) VALUES ($1, $2, $3, $4)',
+        //     [first_name, last_name, emailLower, message]
+        // );
+        // const Id = await pool.query(
+        //     'SELECT id FROM inquiries WHERE email = $1 ORDER BY created_at DESC LIMIT 1',
+        //     [emailLower]
+        // )
+        // const time = await pool.query(
+        //     'SELECT created_at FROM inquiries WHERE email = $1 ORDER BY created_at DESC LIMIT 1',
+        //     [emailLower]
+        // )
+        // const inquiryId = Id.rows[0].id;
+        // const timestamp = time.rows[0].created_at;
+
+        const inquiryId = crypto.randomUUID();
+        const timestamp = new Date().toISOString();
 
         const mailOptions = {
-            from: '"Flourish" <FlourishIdeaBoard@gmail.com>',
-            to: 'Suryashr26@gmail.com',
+            from: `"Flourish" <${process.env.GMAIL_USER}>`,
+            to: process.env.GMAIL_USER,
             subject: `Inquiry ID: ${inquiryId}`,
             replyTo: emailLower,
             html: htmlTemplate
@@ -74,12 +83,14 @@ const contactUs = async (req, res) => {
     } catch (error) {
         console.error('Error in contactUs:', error);
 
-        if (error.code === '23505') {
-            return res.status(409).json({
-                success: false,
-                message: 'Values do not meet the constraints of our system. Please try again later',
-            });
-        }
+        // This was a Postgres unique-constraint error code, only relevant to the
+        // now-removed DB insert above — kept in case that comes back.
+        // if (error.code === '23505') {
+        //     return res.status(409).json({
+        //         success: false,
+        //         message: 'Values do not meet the constraints of our system. Please try again later',
+        //     });
+        // }
         return res.status(500).json({
             success: false,
             message: 'Internal server error. Please try again later.',

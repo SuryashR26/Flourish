@@ -1,7 +1,9 @@
 'use client'
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { useState, useEffect } from 'react';
 import { getPresignedUrl } from '@/api/apiClient';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { FaPlus, FaTimes, FaArrowRight, FaArrowLeft, FaCheck } from 'react-icons/fa';
 import { useUser } from '@/context/UserContext';
 import { setCookie } from '@/utils/cookies';
@@ -55,30 +57,30 @@ export default function ProfileUploader() {
     const customSelectStyles: StylesConfig<OptionType, true> = {
         control: (provided: CSSObjectWithLabel, state: ControlProps<OptionType, true>) => ({
             ...provided,
-            backgroundColor: '#1f2937',
-            border: state.isFocused ? '2px solid #0EA5E9' : '1px solid #374151',
+            backgroundColor: '#eef0f3',
+            border: state.isFocused ? '2px solid #1f98f4' : '1px solid #d7dbe1',
             borderRadius: 8,
-            color: 'white',
+            color: '#14171c',
             fontWeight: 400,
             minHeight: 48,
             boxShadow: 'none',
             flexWrap: 'wrap',
             '&:hover': {
-                border: state.isFocused ? '2px solid #0EA5E9' : '1px solid #4b5563',
+                border: state.isFocused ? '2px solid #1f98f4' : '1px solid #4b5563',
             },
         }),
         option: (provided: CSSObjectWithLabel, state: OptionProps<OptionType, true>) => ({
             ...provided,
-            backgroundColor: state.isFocused ? '#374151' : '#1f2937',
-            color: 'white',
+            backgroundColor: state.isFocused ? '#d7dbe1' : '#eef0f3',
+            color: '#14171c',
             fontWeight: 400,
             cursor: 'pointer',
-            '&:hover': { backgroundColor: '#374151' },
+            '&:hover': { backgroundColor: '#d7dbe1' },
         }),
-        input: (provided: CSSObjectWithLabel) => ({ ...provided, color: 'white', fontWeight: 400 }),
-        multiValue: (provided: CSSObjectWithLabel) => ({ ...provided, backgroundColor: '#0EA5E9', color: 'white', borderRadius: 16, minHeight: 28, height: 28, display: 'flex', alignItems: 'center', fontSize: 14, paddingLeft: 8, paddingRight: 4, marginTop: 2, marginBottom: 2 }),
+        input: (provided: CSSObjectWithLabel) => ({ ...provided, color: '#14171c', fontWeight: 400 }),
+        multiValue: (provided: CSSObjectWithLabel) => ({ ...provided, backgroundColor: '#1f98f4', color: 'white', borderRadius: 16, minHeight: 28, height: 28, display: 'flex', alignItems: 'center', fontSize: 14, paddingLeft: 8, paddingRight: 4, marginTop: 2, marginBottom: 2 }),
         multiValueLabel: (provided: CSSObjectWithLabel) => ({ ...provided, color: 'white', fontWeight: 400, fontSize: 13, paddingRight: 4, display: 'flex', alignItems: 'center' }),
-        multiValueRemove: (provided: CSSObjectWithLabel) => ({ ...provided, color: 'white', fontSize: 14, display: 'flex', alignItems: 'center', paddingLeft: 4, paddingRight: 4, ':hover': { backgroundColor: 'rgba(255,255,255,0.2)', color: 'white', borderRadius: '50%' } }),
+        multiValueRemove: (provided: CSSObjectWithLabel) => ({ ...provided, color: 'white', fontSize: 14, display: 'flex', alignItems: 'center', paddingLeft: 4, paddingRight: 4, ':hover': { backgroundColor: 'rgba(0,0,0,0.2)', color: 'white', borderRadius: '50%' } }),
         placeholder: (provided: CSSObjectWithLabel) => ({ ...provided, color: '#9ca3af', fontWeight: 400 }),
     };
 
@@ -339,12 +341,12 @@ export default function ProfileUploader() {
             />
 
 
-            <div className="relative w-full max-w-2xl bg-black rounded-2xl shadow-2xl overflow-hidden border border-gray-800">
+            <div className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200">
                 {/* Header */}
-                <div className="relative px-8 pt-8 pb-6 bg-black">
+                <div className="relative px-8 pt-8 pb-6 bg-white">
                     {/*<button
                         onClick={handleClose}
-                        className="absolute top-6 right-6 w-8 h-8 rounded-full bg-gray-800/50 hover:bg-gray-700 flex items-center justify-center text-gray-400 hover:text-white transition-all duration-200"
+                        className="absolute top-6 right-6 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 hover:text-gray-900 transition-all duration-200"
                         aria-label="Close modal"
                     >
                         <FaTimes className="text-sm" />
@@ -353,13 +355,13 @@ export default function ProfileUploader() {
                     {/* Step Indicator */}
                     <div className="flex items-center justify-center !mb-3 !mt-3">
                         <div className="flex items-center space-x-4">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 ${currentStep >= 1 ? 'bg-[#0EA5E9] text-white' : 'bg-gray-700 text-gray-400'
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 ${currentStep >= 1 ? 'bg-[#1f98f4] text-white' : 'bg-gray-200 text-gray-500'
                                 }`}>
                                 {currentStep > 1 ? <FaCheck className="text-xs" /> : '1'}
                             </div>
-                            <div className={`w-12 h-0.5 transition-all duration-300 ${currentStep >= 2 ? 'bg-[#0EA5E9]' : 'bg-gray-700'
+                            <div className={`w-12 h-0.5 transition-all duration-300 ${currentStep >= 2 ? 'bg-[#1f98f4]' : 'bg-gray-200'
                                 }`} />
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 ${currentStep >= 2 ? 'bg-[#0EA5E9] text-white' : 'bg-gray-700 text-gray-400'
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 ${currentStep >= 2 ? 'bg-[#1f98f4] text-white' : 'bg-gray-200 text-gray-500'
                                 }`}>
                                 2
                             </div>
@@ -367,7 +369,7 @@ export default function ProfileUploader() {
                     </div>
 
                     <div className="text-center">
-                        <h1 className="text-2xl font-bold text-white mb-2">Complete Your Profile</h1>
+                        <h1 className="text-2xl font-bold text-gray-900 mb-2">Complete Your Profile</h1>
                         <p className="text-gray-400">
                             {currentStep === 1 ? 'Personal Information' : 'Skills & Photo'}
                         </p>
@@ -391,7 +393,7 @@ export default function ProfileUploader() {
                                     onChange={handleChange}
                                     maxLength={100}
                                     placeholder="Your Display Name"
-                                    className="w-full !px-4 !py-3 bg-gray-800 border border-gray-700 rounded-lg !text-white !placeholder-gray focus:outline-none focus:ring-2 focus:ring-[#0EA5E9] focus:border-transparent transition-all duration-200"
+                                    className="w-full !px-4 !py-3 bg-white border border-gray-300 rounded-lg !text-gray-900 !placeholder-gray focus:outline-none focus:ring-2 focus:ring-[#1f98f4] focus:border-transparent transition-all duration-200"
                                 />
                             </div>
 
@@ -405,7 +407,7 @@ export default function ProfileUploader() {
                                     name="birthday"
                                     value={signUpValues.birthday}
                                     onChange={handleChange}
-                                    className={`w-full !px-4 !py-3 bg-gray-800 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#0EA5E9] focus:border-transparent transition-all duration-200 ${errors.birthday ? 'border-red-500' : 'border-gray-700'
+                                    className={`w-full !px-4 !py-3 bg-white border rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#1f98f4] focus:border-transparent transition-all duration-200 ${errors.birthday ? 'border-red-500' : 'border-gray-300'
                                         }`}
                                 />
                                 {errors.birthday && (
@@ -425,7 +427,7 @@ export default function ProfileUploader() {
                                     value={signUpValues.phoneNumber}
                                     onChange={handleChange}
                                     placeholder="123-456-7890"
-                                    className={`w-full !px-4 !py-3 bg-gray-800 border rounded-lg text-white !placeholder-gray focus:outline-none focus:ring-2 focus:ring-[#0EA5E9] focus:border-transparent transition-all duration-200 ${errors.phoneNumber ? 'border-red-500' : 'border-gray-700'
+                                    className={`w-full !px-4 !py-3 bg-white border rounded-lg text-gray-900 !placeholder-gray focus:outline-none focus:ring-2 focus:ring-[#1f98f4] focus:border-transparent transition-all duration-200 ${errors.phoneNumber ? 'border-red-500' : 'border-gray-300'
                                         }`}
                                 />
                                 {errors.phoneNumber && (
@@ -453,7 +455,7 @@ export default function ProfileUploader() {
                                         />
                                         <label
                                             htmlFor="fileInput"
-                                            className="flex items-center justify-center !w-36 !h-36 bg-gray-800 rounded-full border-2 border-dashed border-gray-600 hover:border-[#0EA5E9] hover:bg-gray-700 cursor-pointer transition-all duration-200 group"
+                                            className="flex items-center justify-center !w-36 !h-36 bg-gray-50 rounded-full border-2 border-dashed border-gray-300 hover:border-[#1f98f4] hover:bg-gray-100 cursor-pointer transition-all duration-200 group"
                                             title="Upload profile photo"
                                         >
                                             {file ? (
@@ -463,7 +465,7 @@ export default function ProfileUploader() {
                                                     className="w-full h-full rounded-full object-cover"
                                                 />
                                             ) : (
-                                                <FaPlus className="text-gray-400 text-xl group-hover:text-[#0EA5E9] transition-colors" />
+                                                <FaPlus className="text-gray-400 text-xl group-hover:text-[#1f98f4] transition-colors" />
                                             )}
                                         </label>
                                     </div>
@@ -498,7 +500,7 @@ export default function ProfileUploader() {
                                     placeholder="Search and add your interests & skills"
                                     closeMenuOnSelect={false}
                                     isClearable
-                                    className={`rounded-md border ${errors.interest ? 'border-red-500' : 'border-gray-700'}`}
+                                    className={`rounded-md border ${errors.interest ? 'border-red-500' : 'border-gray-300'}`}
                                     styles={customSelectStyles}
                                     components={{ MultiValueRemove: CustomMultiValueRemove }}
                                     noOptionsMessage={() => "No matches found - try different keywords"}
@@ -515,14 +517,14 @@ export default function ProfileUploader() {
                 </div>
 
                 {/* Footer */}
-                <div className="px-8 py-6 bg-gray-800/50 border-t border-gray-800">
+                <div className="px-8 py-6 bg-gray-50 border-t border-gray-200">
                     <div className="flex justify-between items-center">
                         {currentStep === 1 ? (
                             <>
                                 <div></div>
                                 <button
                                     onClick={handleNext}
-                                    className="flex items-center space-x-2 bg-[#0EA5E9] hover:bg-[#0284C7] text-white font-medium !px-6 !py-3 rounded-lg transition-all duration-200"
+                                    className="flex items-center space-x-2 bg-[#1f98f4] hover:bg-[#1a7bc7] text-white font-medium !px-6 !py-3 rounded-lg transition-all duration-200"
                                 >
                                     <span>Next</span>
                                     <FaArrowRight className="text-sm" />
@@ -532,14 +534,14 @@ export default function ProfileUploader() {
                             <>
                                 <button
                                     onClick={handlePrevious}
-                                    className="flex items-center space-x-2 text-gray-400 hover:text-white font-medium !px-4 !py-3 rounded-lg transition-all duration-200"
+                                    className="flex items-center space-x-2 text-gray-500 hover:text-gray-900 font-medium !px-4 !py-3 rounded-lg transition-all duration-200"
                                 >
                                     <FaArrowLeft className="text-sm" />
                                     <span>Back</span>
                                 </button>
                                 <button
                                     onClick={onSubmit}
-                                    className="flex !items-center !space-x-2 bg-green-600 hover:bg-green-700 text-white font-medium !px-6 !py-3 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+                                    className="flex !items-center !space-x-2 bg-green-600 hover:bg-green-700 text-white font-medium !px-6 !py-3 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-white"
                                 >
                                     <FaCheck className="text-sm" />
                                     <span>Save Profile</span>

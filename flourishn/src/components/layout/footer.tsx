@@ -3,7 +3,9 @@
 import React from "react";
 import Link from "next/link";
 import "@/styles/footer.css";
-import { FaFacebookF, FaInstagram, FaLightbulb } from "react-icons/fa";
+import { FaFacebookF, FaInstagram } from "react-icons/fa";
+// import { FaLightbulb } from "react-icons/fa";
+import FlourishLogo from "@/components/ui/FlourishLogo";
 
 const Footer = () => {
   return (
@@ -11,14 +13,15 @@ const Footer = () => {
       <div className="footer-container">
         <div className="footer-logo">
           <h1>
-            Flourish <FaLightbulb />
+            Flourish {/* <FaLightbulb /> */}
+            <FlourishLogo />
           </h1>
           <div className="social-icons">
             <Link href="/"><FaFacebookF className="facebook" /></Link>
             <Link href="/about"><FaInstagram className="instagram" /></Link>
           </div>
           <p>
-            The Idea Board is a platform where you can share your ideas and
+            Flourish is a platform where you can share your ideas and
             get feedback from others. Join us today and start sharing your
             ideas!
           </p>
@@ -38,8 +41,8 @@ const Footer = () => {
             <ul>
               <li><Link href="/">Home</Link></li>
               <li><Link href="/post">Post</Link></li>
-              <li><Link href="/search">Search</Link></li>
-              <li><Link href="/login">Login</Link></li>
+              {/* <li><Link href="/search">Search</Link></li> */}
+              {/* <li><Link href="/login">Login</Link></li> */}
             </ul>
           </div>
           <div className="footer-extra">
@@ -47,8 +50,9 @@ const Footer = () => {
             <ul>
               <li><Link href="/">Home</Link></li>
               <li><Link href="/post">Post</Link></li>
-              <li><Link href="/search">Search</Link></li>
-              <li><Link href="/login">Login</Link></li>
+              {/* <li><Link href="/search">Search</Link></li> */}
+              {/* <li><Link href="/login">Login</Link></li> */}
+              <li><Link href="/contactUs">Message us</Link></li>
             </ul>
           </div>
         </div>

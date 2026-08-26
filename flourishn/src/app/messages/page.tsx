@@ -671,8 +671,8 @@ export default function MessagesPage() {
 
                 .conversations-list {
                     width: 380px;
-                    background-color: #000000;
-                    border-right: 1px solid rgba(255,255,255,0.1);
+                    background-color: #14171c;
+                    border-right: 1px solid rgba(0,0,0,0.1);
                     overflow-y: auto;
                     display: flex;
                     flex-direction: column;
@@ -680,14 +680,14 @@ export default function MessagesPage() {
 
                 .conversations-header {
                     padding: 20px 18px 17px;
-                    border-bottom: 1px solid rgba(255,255,255,0.1);
+                    border-bottom: 1px solid rgba(0,0,0,0.1);
                 }
 
                 .conversations-header h2 {
                     font-size: 1.8rem;
                     margin-bottom: 0.85rem;
                     font-weight: 500;
-                    color: #ffffff;
+                    color: #14171c;
                 }
 
                 .search-input-wrapper {
@@ -698,10 +698,10 @@ export default function MessagesPage() {
                     width: 100%;
                     height: 46px;
                     padding: 0 48px 0 16px;
-                    background-color: #0B0809;
-                    border: 1px solid #2f3542;
+                    background-color: #f4f5f7;
+                    border: 1px solid #e2e5ea;
                     border-radius: 8px;
-                    color: #ffffff;
+                    color: #14171c;
                     font-size: 1.0rem;
                     font-weight: 400;
                     transition: border-color 0.2s ease;
@@ -714,7 +714,7 @@ export default function MessagesPage() {
                     transform: translateY(-50%);
                     background: none;
                     border: none;
-                    color: #888;
+                    color: #6b7280;
                     cursor: pointer;
                     padding: 6px;
                     border-radius: 4px;
@@ -730,7 +730,7 @@ export default function MessagesPage() {
                 }
 
                 .search-conversations::placeholder {
-                    color: #b0b8c1;
+                    color: #9aa3af;
                     opacity: 1;
                 }
 
@@ -742,9 +742,9 @@ export default function MessagesPage() {
                 .new-conversation-btn {
                     margin: 16px 18px;
                     height: 46px;
-                    background: #0B0809;
-                    color: #ffffff;
-                    border: 1px solid #2f3542;
+                    background: #f4f5f7;
+                    color: #14171c;
+                    border: 1px solid #e2e5ea;
                     border-radius: 8px;
                     font-size: 1.0rem;
                     font-weight: 500;
@@ -767,7 +767,7 @@ export default function MessagesPage() {
 
                 .conversation-item {
                     padding: 16px 18px;
-                    border-bottom: 1px solid rgba(255,255,255,0.05);
+                    border-bottom: 1px solid rgba(0,0,0,0.05);
                     cursor: pointer;
                     transition: background-color 0.2s;
                     display: flex;
@@ -777,11 +777,11 @@ export default function MessagesPage() {
                 }
 
                 .conversation-item:hover {
-                    background-color: rgba(255,255,255,0.03);
+                    background-color: rgba(0,0,0,0.03);
                 }
 
                 .conversation-item.active {
-                    background-color: #0B0809;
+                    background-color: #f4f5f7;
                 }
 
                 .conversation-item.active::before {
@@ -805,7 +805,7 @@ export default function MessagesPage() {
                     justify-content: center;
                     font-weight: 500;
                     font-size: 1.0rem;
-                    color: #ffffff;
+                    color: #14171c;
                 }
 
                 .conversation-info {
@@ -817,12 +817,12 @@ export default function MessagesPage() {
                     font-weight: 500;
                     font-size: 1.0rem;
                     margin-bottom: 3px;
-                    color: #ffffff;
+                    color: #14171c;
                 }
 
                 .conversation-preview {
                     font-size: 0.85rem;
-                    color: #b0b8c1;
+                    color: #9aa3af;
                     white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
@@ -838,7 +838,7 @@ export default function MessagesPage() {
 
                 .conversation-time {
                     font-size: 0.8rem;
-                    color: #888;
+                    color: #6b7280;
                 }
 
                 .unread-circle {
@@ -853,16 +853,16 @@ export default function MessagesPage() {
                     flex: 1;
                     display: flex;
                     flex-direction: column;
-                    background-color: #000000;
+                    background-color: #14171c;
                 }
 
                 .chat-header {
                     padding: 14px 16px;
-                    border-bottom: 1px solid rgba(255,255,255,0.1);
+                    border-bottom: 1px solid rgba(0,0,0,0.1);
                     display: flex;
                     align-items: center;
                     gap: 12px;
-                    background-color: #000000;
+                    background-color: #14171c;
                 }
 
                 .chat-header .conversation-avatar {
@@ -874,7 +874,7 @@ export default function MessagesPage() {
                     font-size: 1.1rem;
                     font-weight: 500;
                     margin-bottom: 1px;
-                    color: #ffffff;
+                    color: #14171c;
                 }
 
                 .online-status {
@@ -890,7 +890,7 @@ export default function MessagesPage() {
                     display: flex;
                     flex-direction: column;
                     gap: 10px;
-                    background-color: #000000;
+                    background-color: #14171c;
                 }
 
                 .chat-messages::-webkit-scrollbar {
@@ -898,16 +898,16 @@ export default function MessagesPage() {
                 }
 
                 .chat-messages::-webkit-scrollbar-track {
-                    background: rgba(255,255,255,0.02);
+                    background: rgba(0,0,0,0.02);
                 }
 
                 .chat-messages::-webkit-scrollbar-thumb {
-                    background: rgba(255,255,255,0.1);
+                    background: rgba(0,0,0,0.1);
                     border-radius: 3px;
                 }
 
                 .chat-messages::-webkit-scrollbar-thumb:hover {
-                    background: rgba(255,255,255,0.15);
+                    background: rgba(0,0,0,0.15);
                 }
 
                 .message-group {
@@ -932,11 +932,11 @@ export default function MessagesPage() {
                     justify-content: center;
                     font-size: 0.7rem;
                     font-weight: 500;
-                    color: #ffffff;
+                    color: #14171c;
                 }
 
                 .message-group.sent .message-avatar {
-                    background-color: #2f3542;
+                    background-color: #e2e5ea;
                 }
 
                 .message-content {
@@ -954,12 +954,12 @@ export default function MessagesPage() {
                 .message-bubble {
                     padding: 10px 14px;
                     border-radius: 16px;
-                    background-color: #1a1a1a;
+                    background-color: #eef0f3;
                     border: none;
                     word-wrap: break-word;
                     font-size: 0.95rem;
                     line-height: 1.4;
-                    color: #ffffff;
+                    color: #14171c;
                     margin-bottom: 3px;
                     display: inline-block;
                     max-width: 100%;
@@ -978,7 +978,7 @@ export default function MessagesPage() {
 
                 .message-time {
                     font-size: 0.7rem;
-                    color: #888;
+                    color: #6b7280;
                     padding: 0 4px;
                 }
 
@@ -988,8 +988,8 @@ export default function MessagesPage() {
 
                 .message-input-container {
                     padding: 12px 16px;
-                    border-top: 1px solid rgba(255,255,255,0.1);
-                    background-color: #000000;
+                    border-top: 1px solid rgba(0,0,0,0.1);
+                    background-color: #14171c;
                 }
 
                 .message-input-wrapper {
@@ -1007,10 +1007,10 @@ export default function MessagesPage() {
                     width: 100%;
                     min-height: 44px;
                     padding: 12px 44px 12px 16px;
-                    background-color: #0B0809;
-                    border: 1px solid #2f3542;
+                    background-color: #f4f5f7;
+                    border: 1px solid #e2e5ea;
                     border-radius: 8px;
-                    color: #ffffff;
+                    color: #14171c;
                     font-size: 0.95rem;
                     font-weight: 400;
                     outline: none;
@@ -1025,7 +1025,7 @@ export default function MessagesPage() {
                 }
 
                 .message-input::placeholder {
-                    color: #b0b8c1;
+                    color: #9aa3af;
                     opacity: 1;
                 }
 
@@ -1036,7 +1036,7 @@ export default function MessagesPage() {
                     transform: translateY(-50%);
                     background: none;
                     border: none;
-                    color: #888;
+                    color: #6b7280;
                     cursor: pointer;
                     padding: 6px;
                     border-radius: 4px;
@@ -1053,7 +1053,7 @@ export default function MessagesPage() {
                     height: 44px;
                     width: 44px;
                     background: #ffffff;
-                    border: 1px solid #2f3542;
+                    border: 1px solid #e2e5ea;
                     color: #000000;
                     border-radius: 8px;
                     cursor: pointer;
@@ -1070,10 +1070,10 @@ export default function MessagesPage() {
                 }
 
                 .send-btn:disabled {
-                    background: #0B0809;
-                    color: #2f3542;
+                    background: #f4f5f7;
+                    color: #e2e5ea;
                     cursor: not-allowed;
-                    border-color: #2f3542;
+                    border-color: #e2e5ea;
                 }
 
                 .empty-state {
@@ -1082,7 +1082,7 @@ export default function MessagesPage() {
                     flex-direction: column;
                     align-items: center;
                     justify-content: center;
-                    color: #888;
+                    color: #6b7280;
                     text-align: center;
                     padding: 40px;
                 }
@@ -1091,25 +1091,25 @@ export default function MessagesPage() {
                     width: 80px;
                     height: 80px;
                     border-radius: 50%;
-                    background-color: #0B0809;
-                    border: 1px solid #2f3542;
+                    background-color: #f4f5f7;
+                    border: 1px solid #e2e5ea;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     margin-bottom: 24px;
-                    color: #888;
+                    color: #6b7280;
                 }
 
                 .empty-state h3 {
                     font-size: 1.5rem;
                     font-weight: 500;
-                    color: #ffffff;
+                    color: #14171c;
                     margin-bottom: 8px;
                 }
 
                 .empty-state p {
                     font-size: 1rem;
-                    color: #b0b8c1;
+                    color: #9aa3af;
                     max-width: 400px;
                 }
 
@@ -1128,8 +1128,8 @@ export default function MessagesPage() {
                 }
 
                 .modal-content {
-                    background-color: #000000;
-                    border: 1px solid #2f3542;
+                    background-color: #14171c;
+                    border: 1px solid #e2e5ea;
                     border-radius: 12px;
                     width: 500px;
                     max-width: 90vw;
@@ -1141,7 +1141,7 @@ export default function MessagesPage() {
 
                 .modal-header {
                     padding: 24px;
-                    border-bottom: 1px solid rgba(255,255,255,0.1);
+                    border-bottom: 1px solid rgba(0,0,0,0.1);
                     display: flex;
                     align-items: center;
                     justify-content: space-between;
@@ -1150,14 +1150,14 @@ export default function MessagesPage() {
                 .modal-header h3 {
                     font-size: 1.4rem;
                     font-weight: 500;
-                    color: #ffffff;
+                    color: #14171c;
                     margin: 0;
                 }
 
                 .close-btn {
                     background: none;
                     border: none;
-                    color: #888;
+                    color: #6b7280;
                     cursor: pointer;
                     padding: 8px;
                     border-radius: 4px;
@@ -1165,7 +1165,7 @@ export default function MessagesPage() {
                 }
 
                 .close-btn:hover {
-                    color: #ffffff;
+                    color: #14171c;
                     background-color: rgba(255, 255, 255, 0.1);
                 }
 
@@ -1179,10 +1179,10 @@ export default function MessagesPage() {
                     width: 100%;
                     height: 54px;
                     padding: 0 20px;
-                    background-color: #0B0809;
-                    border: 1px solid #2f3542;
+                    background-color: #f4f5f7;
+                    border: 1px solid #e2e5ea;
                     border-radius: 8px;
-                    color: #ffffff;
+                    color: #14171c;
                     font-size: 1.15rem;
                     font-weight: 400;
                     margin-bottom: 20px;
@@ -1190,7 +1190,7 @@ export default function MessagesPage() {
                 }
 
                 .user-search-input::placeholder {
-                    color: #b0b8c1;
+                    color: #9aa3af;
                     opacity: 1;
                 }
 
@@ -1207,7 +1207,7 @@ export default function MessagesPage() {
                 .empty-state {
                     text-align: center;
                     padding: 40px 20px;
-                    color: #888;
+                    color: #6b7280;
                     font-size: 1rem;
                 }
 
@@ -1223,7 +1223,7 @@ export default function MessagesPage() {
                 }
 
                 .user-item:hover {
-                    background-color: rgba(255,255,255,0.03);
+                    background-color: rgba(0,0,0,0.03);
                 }
 
                 .user-avatar {
@@ -1237,7 +1237,7 @@ export default function MessagesPage() {
                     justify-content: center;
                     font-weight: 500;
                     font-size: 1rem;
-                    color: #ffffff;
+                    color: #14171c;
                 }
 
                 .user-info {
@@ -1247,13 +1247,13 @@ export default function MessagesPage() {
                 .user-name {
                     font-weight: 500;
                     font-size: 1.1rem;
-                    color: #ffffff;
+                    color: #14171c;
                     margin-bottom: 2px;
                 }
 
                 .user-email {
                     font-size: 0.9rem;
-                    color: #b0b8c1;
+                    color: #9aa3af;
                 }
 
 
@@ -1271,16 +1271,16 @@ export default function MessagesPage() {
                 }
 
                 .users-list::-webkit-scrollbar-track {
-                    background: rgba(255,255,255,0.02);
+                    background: rgba(0,0,0,0.02);
                 }
 
                 .users-list::-webkit-scrollbar-thumb {
-                    background: rgba(255,255,255,0.1);
+                    background: rgba(0,0,0,0.1);
                     border-radius: 3px;
                 }
 
                 .users-list::-webkit-scrollbar-thumb:hover {
-                    background: rgba(255,255,255,0.15);
+                    background: rgba(0,0,0,0.15);
                 }
             `}</style>
         </>

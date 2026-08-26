@@ -4,7 +4,8 @@ const { signup } = require('./auth/signup');
 const { login } = require('./auth/login');
 const { contactUs } = require('./inquiries/contactUs');
 const { resetPass } = require('./inquiries/resetPass');
-const { updateProfile } = require('./profileChanges/updateProfile');
+// AWS S3 is no longer used anywhere in the app — disabled, not deleted.
+// const { updateProfile } = require('./profileChanges/updateProfile');
 const { updateSettings, getSettings } = require('./profileChanges/settings');
 const { updatePassword } = require('./profileChanges/updatePassword');
 const { skillsDirectory } = require('./directories/skillsDirectories')
@@ -20,7 +21,9 @@ const additionalInfo = require('./profileChanges/additionalinfo')
 const cron = require('node-cron');
 const bookmarkPost = require('./post/bookmark');
 const storeViewProject = require('./post/storeView');
-const { createPost, cleanupFailedPost } = require('./post/post');
+// Old DB+S3-backed post creation flow — superseded by /ideaSubmission (Google Sheets), disabled not deleted.
+// const { createPost, cleanupFailedPost } = require('./post/post');
+const { submitIdea } = require('./post/ideaSubmission');
 const { sendMessage, getConversations, getMessages, markAsRead, getCurrentUser, searchUsers } = require('./messages/messages');
 const session = require('express-session');
 const { checkAlreadyLoggedIn } = require('./auth/checkSession')
@@ -99,9 +102,12 @@ app.post('/forgotPassword', resetPass);
 
 app.get('/check-session', checkAlreadyLoggedIn)
 
-app.post('/posts', createPost);
+// app.post('/posts', createPost);
 
-app.post('/posts/cleanup', cleanupFailedPost);
+// app.post('/posts/cleanup', cleanupFailedPost);
+
+// No auth required — anyone can submit an idea, it's recorded to a Google Sheet for the team to review.
+app.post('/ideaSubmission', submitIdea);
 
 // Message routes
 app.post('/messages', sendMessage);
@@ -117,7 +123,7 @@ app.get('/user/current', getCurrentUser);
 // User search for new conversations
 app.get('/users/search', searchUsers);
 
-app.post('/updateProfile', updateProfile);
+// app.post('/updateProfile', updateProfile);
 
 // Settings routes
 app.get('/settings', getSettings);

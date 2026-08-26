@@ -113,6 +113,33 @@ export function search(query: string, searchFilter: SearchFilter, interests: str
 }
 
 
+interface IdeaSubmissionData {
+    title: string
+    content: string
+    email: string
+    phone: string
+    location_preference: string
+    location: string
+    difficulty: string
+    status: string
+    time_commitment: string
+    project_category: string
+    role_count: number
+    role_description: string[]
+    project_tags: string[]
+    skill_tags: string[]
+}
+
+export async function submitIdea(data: IdeaSubmissionData) {
+    const res = await fetch(`${API_BASE_URL}/ideaSubmission`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+    });
+
+    return await res.json();
+}
+
 export async function createPostWithImage(postData: PostValues, filename?: string, filetype?: string) {
     const requestData = {
         ...postData,

@@ -33,7 +33,7 @@ export default function ScrollTextAnimation() {
        span.style.opacity = '0'
        span.style.transform = 'translateY(40px)'
        span.style.position = 'relative'
-       span.style.color = 'white' // Ensure white color
+       span.style.color = '#14171c' // Ensure dark text color
        text.appendChild(span)
        
        // Add space after word (except last word)
@@ -133,19 +133,19 @@ export default function ScrollTextAnimation() {
 
   return (
     <>
-      {/* Instructions */}
-      <div className="fixed top-5 left-1/2 transform -translate-x-1/2 text-center opacity-70 text-sm z-50 bg-black/50 px-5 py-2.5 rounded">
+      {/* Instructions — commented out, dev-only scroll hint */}
+      {/* <div className="fixed top-5 left-1/2 transform -translate-x-1/2 text-center opacity-70 text-sm z-50 bg-white/80 text-gray-900 shadow-sm px-5 py-2.5 rounded">
         ↓ Scroll down slowly to see the stagger animation ↓
-      </div>
+      </div> */}
 
-      {/* Debug Progress */}
-      <div className="fixed bottom-5 left-5 text-sm opacity-70 z-50 bg-black/80 px-2.5 py-2.5 rounded">
+      {/* Debug Progress — commented out, dev-only */}
+      {/* <div className="fixed bottom-5 left-5 text-sm opacity-70 z-50 bg-white/80 text-gray-900 shadow-sm px-2.5 py-2.5 rounded">
         Progress: <span ref={progressRef}>0%</span>
-      </div>
+      </div> */}
 
              {/* Spacer - Further reduced height */}
        <div className="h-[10vh] flex items-center justify-center text-2xl opacity-30">
-         <p>Keep scrolling...</p>
+         {/* <p>Keep scrolling...</p> */}
        </div>
 
        {/* Animation Section - Shorter height for faster completion */}
@@ -156,7 +156,7 @@ export default function ScrollTextAnimation() {
         <div className="text-center p-8" style={{ position: 'sticky', top: '40vh', zIndex: 10 }}>
           <div 
             ref={textRef}
-            className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight"
+            className="text-4xl md:text-6xl lg:text-7xl font-bold text-gray-900 leading-tight"
           >
             We want every idea to Flourish
           </div>
@@ -164,7 +164,7 @@ export default function ScrollTextAnimation() {
                    {/* Animated line under "every" */}
          <div 
            ref={lineRef}
-           className="absolute h-1 bg-white rounded-full"
+           className="absolute h-1 bg-gray-900 rounded-full"
            style={{
              width: "120px", // Will be overridden by JS
              left: "0px", // Will be overridden by JS
@@ -177,7 +177,7 @@ export default function ScrollTextAnimation() {
 
              {/* Bottom Spacer - Further reduced height */}
        <div className="h-[10vh] flex items-center justify-center text-2xl opacity-30">
-         <p>Scroll back up to reverse</p>
+         {/* <p>Scroll back up to reverse</p> */}
        </div>
     </>
   )

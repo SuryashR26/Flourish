@@ -1,0 +1,45 @@
+// Paste this into the Apps Script editor of the Google Sheet you want
+// idea submissions to land in (Extensions > Apps Script), then deploy it
+// as a Web App (Deploy > New deployment > type: Web app,
+// Execute as: Me, Who has access: Anyone). Copy the resulting URL
+// (ends in /exec) and give it to the backend as GOOGLE_SHEETS_WEBHOOK_URL.
+//
+// This file is not used by the Node app directly — it's Apps Script code
+// that lives inside Google's editor, kept here just for reference.
+
+function doPost(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var data = JSON.parse(e.postData.contents);
+
+  var headers = [
+    "Timestamp", "Title", "Content", "Email", "Phone",
+    "Location Preference", "Location", "Difficulty", "Status",
+    "Time Commitment", "Project Category", "Role Count",
+    "Role Descriptions", "Project Tags", "Skill Tags"
+  ];
+
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(headers);
+  }
+
+  sheet.appendRow([
+    new Date(),
+    data.title || "",
+    data.content || "",
+    data.email || "",
+    data.phone || "",
+    data.location_preference || "",
+    data.location || "",
+    data.difficulty || "",
+    data.status || "",
+    data.time_commitment || "",
+    data.project_category || "",
+    data.role_count || "",
+    (data.role_description || []).join(" | "),
+    (data.project_tags || []).join(", "),
+    (data.skill_tags || []).join(", ")
+  ]);
+
+  return ContentService.createTextOutput(JSON.stringify({ success: true }))
+    .setMimeType(ContentService.MimeType.JSON);
+}

@@ -43,42 +43,42 @@ const SKILL_DIRECTORY = [
 const customSelectStyles: StylesConfig<OptionType, true> = {
     control: (provided: CSSObjectWithLabel, state: ControlProps<OptionType, true>): CSSObjectWithLabel => ({
         ...provided,
-        backgroundColor: '#0B0809',
-        border: state.isFocused ? '1px solid #1f98f4' : '1px solid #2f3542',
+        backgroundColor: '#f4f5f7',
+        border: state.isFocused ? '1px solid #1f98f4' : '1px solid #e2e5ea',
         borderRadius: 8,
-        color: 'white',
+        color: '#14171c',
         fontWeight: 400,
         minHeight: 48,
         boxShadow: 'none',
         flexWrap: 'wrap',
         '&:hover': {
-            border: state.isFocused ? '1px solid #1f98f4' : '1px solid #2f3542',
+            border: state.isFocused ? '1px solid #1f98f4' : '1px solid #e2e5ea',
         },
     }),
     menu: (provided: CSSObjectWithLabel): CSSObjectWithLabel => ({
         ...provided,
-        backgroundColor: '#0B0809',
-        color: 'white',
-        border: '1px solid #2f3542',
+        backgroundColor: '#f4f5f7',
+        color: '#14171c',
+        border: '1px solid #e2e5ea',
         borderRadius: 8,
         zIndex: 20,
     }),
     option: (provided: CSSObjectWithLabel, state: OptionProps<OptionType, true>): CSSObjectWithLabel => ({
         ...provided,
-        backgroundColor: state.isFocused ? '#181c23' : '#0B0809',
-        color: 'white',
+        backgroundColor: state.isFocused ? '#eef0f3' : '#f4f5f7',
+        color: '#14171c',
         fontWeight: 400,
         cursor: 'pointer',
     }),
     input: (provided: CSSObjectWithLabel): CSSObjectWithLabel => ({
         ...provided,
-        color: 'white',
+        color: '#14171c',
         fontWeight: 400,
     }),
     multiValue: (provided: CSSObjectWithLabel): CSSObjectWithLabel => ({
         ...provided,
-        backgroundColor: '#181c23',
-        color: 'white',
+        backgroundColor: '#eef0f3',
+        color: '#14171c',
         borderRadius: 8,
         minHeight: 32,
         height: 32,
@@ -92,7 +92,7 @@ const customSelectStyles: StylesConfig<OptionType, true> = {
     }),
     multiValueLabel: (provided: CSSObjectWithLabel): CSSObjectWithLabel => ({
         ...provided,
-        color: 'white',
+        color: '#14171c',
         fontWeight: 400,
         fontSize: 14,
         paddingRight: 5,
@@ -101,18 +101,18 @@ const customSelectStyles: StylesConfig<OptionType, true> = {
     }),
     multiValueRemove: (provided: CSSObjectWithLabel): CSSObjectWithLabel => ({
         ...provided,
-        color: 'white',
+        color: '#14171c',
         fontSize: 18,
         display: 'flex',
         alignItems: 'center',
         ':hover': {
-            backgroundColor: '#2f3542',
-            color: 'white',
+            backgroundColor: '#e2e5ea',
+            color: '#14171c',
         },
     }),
     placeholder: (provided: CSSObjectWithLabel): CSSObjectWithLabel => ({
         ...provided,
-        color: '#b0b8c1',
+        color: '#9aa3af',
         fontWeight: 400,
     }),
 };
@@ -212,7 +212,7 @@ function SkillsRow({ skills = [] }: { skills: string[] }) {
                     key={i}
                     className={`skill-tag !py-1 !px-2 !rounded !text-[13px] !font-medium ${i < 2
                         ? 'bg-[#1d4ed8] text-[#dbeafe]'
-                        : 'bg-[#2a2a2a] text-[#e5e5e5]'
+                        : 'bg-[#eef0f3] text-[#e5e5e5]'
                         }`}
                 >
                     {skill}
@@ -463,14 +463,14 @@ function Page() {
             {isMobile && (
                 <button
                     onClick={() => setMobileFiltersOpen(true)}
-                    className="fixed top-[100px] left-4 z-50 bg-black text-white p-3 rounded-lg shadow-lg flex items-center gap-2"
+                    className="fixed top-[100px] left-4 z-50 bg-white text-gray-900 p-3 rounded-lg shadow-lg flex items-center gap-2"
                 >
                     <FilterIcon className="w-5 h-5 !text-[#1f98f4]" />
                     <span className="text-xl font-medium">Filters</span>
                 </button>
             )}
             <div className={`
-                filters-sidebar !w-[300px] !bg-black !border-r !border-[#2f3542] !p-5 h-screen z-10 flex flex-col
+                filters-sidebar !w-[300px] !bg-white !border-r !border-[#e2e5ea] !p-5 h-screen z-10 flex flex-col
                 ${isMobile
                     ? `fixed top-0 left-0 transform transition-transform duration-300 ${mobileFiltersOpen ? 'translate-x-0' : '-translate-x-full'}`
                     : 'fixed top-[80px] left-0'
@@ -479,7 +479,7 @@ function Page() {
                 {isMobile && (
                     <button
                         onClick={() => setMobileFiltersOpen(false)}
-                        className="absolute top-4 right-4 text-gray-400 hover:text-white"
+                        className="absolute top-4 right-4 text-gray-400 hover:text-gray-900"
                     >
                         <X size={24} />
                     </button>
@@ -487,21 +487,21 @@ function Page() {
 
                 <div className="flex-1 flex flex-col overflow-y-auto">
                     {/* Filters Header */}
-                    <div className="filters-header flex items-center !gap-2 !mb-6 !pb-4 !border-b !border-[#2f3542]">
+                    <div className="filters-header flex items-center !gap-2 !mb-6 !pb-4 !border-b !border-[#e2e5ea]">
                         <FilterIcon className="!w-5 !h-5 !text-[#1f98f4]" />
-                        <h2 className="filters-title !text-[20px] !font-semibold !text-white">Filters</h2>
+                        <h2 className="filters-title !text-[20px] !font-semibold !text-gray-900">Filters</h2>
                     </div>
 
                     {/* Location Filter */}
                     <div className="filter-section !mb-6">
                         <div className="filter-header flex items-center justify-between cursor-pointer !mb-3 !py-2" onClick={() => setLocationDropdownOpen(open => !open)}>
-                            <span className="filter-label !text-[16px] !font-medium !text-white">Location</span>
-                            <ChevronDownIcon className={`chevron !w-4 !h-4 !text-[#888] transition-transform ${locationDropdownOpen ? 'open !rotate-180' : ''}`} />
+                            <span className="filter-label !text-[16px] !font-medium !text-gray-900">Location</span>
+                            <ChevronDownIcon className={`chevron !w-4 !h-4 !text-[#6b7280] transition-transform ${locationDropdownOpen ? 'open !rotate-180' : ''}`} />
                         </div>
                         <div className={`filter-content !pl-2 ${locationDropdownOpen ? '' : 'hidden'}`}>
                             <div className="location-options flex flex-col !gap-3 !mb-4">
                                 <label className="checkbox-option flex items-center !gap-2 cursor-pointer !py-1">
-                                    <input type="checkbox" className="custom-checkbox !w-[18px] !h-[18px] !border-2 !border-[#2f3542] !rounded !bg-transparent" checked={searchFilter.LocationS.remote} onChange={() => {
+                                    <input type="checkbox" className="custom-checkbox !w-[18px] !h-[18px] !border-2 !border-[#e2e5ea] !rounded !bg-transparent" checked={searchFilter.LocationS.remote} onChange={() => {
                                         setUsePreferences(true)
                                         setSearchFilter(prev => ({
                                             ...prev,
@@ -514,7 +514,7 @@ function Page() {
                                     <span className="option-label !text-[14px] !text-[#ccc] select-none">Remote</span>
                                 </label>
                                 <label className="checkbox-option flex items-center !gap-2 cursor-pointer !py-1">
-                                    <input type="checkbox" className="custom-checkbox !w-[18px] !h-[18px] !border-2 !border-[#2f3542] !rounded !bg-transparent" checked={searchFilter.LocationS.inPerson} onChange={() => {
+                                    <input type="checkbox" className="custom-checkbox !w-[18px] !h-[18px] !border-2 !border-[#e2e5ea] !rounded !bg-transparent" checked={searchFilter.LocationS.inPerson} onChange={() => {
                                         setUsePreferences(true)
                                         setSearchFilter(prev => ({
                                             ...prev,
@@ -527,10 +527,10 @@ function Page() {
                                     <span className="option-label !text-[14px] !text-[#ccc] select-none">In Person</span>
                                 </label>
                             </div>
-                            <input type="text" className="location-input !w-full !py-2.5 !px-3 !bg-[#0B0809] !border !border-[#2f3542] !rounded-lg !text-white !text-[14px] !mb-3 placeholder:!text-[#666]" placeholder="Enter location (e.g., Stanford, CA)" value={searchFilter.LocationL} onChange={e => setSearchFilter(prev => ({ ...prev, LocationL: e.target.value }))} />
+                            <input type="text" className="location-input !w-full !py-2.5 !px-3 !bg-[#f4f5f7] !border !border-[#e2e5ea] !rounded-lg !text-gray-900 !text-[14px] !mb-3 placeholder:!text-[#666]" placeholder="Enter location (e.g., Stanford, CA)" value={searchFilter.LocationL} onChange={e => setSearchFilter(prev => ({ ...prev, LocationL: e.target.value }))} />
                             {/* Radius Slider directly under location input */}
                             <div className="radius-container !my-4">
-                                <label className="radius-label !text-[12px] !text-[#888] !mb-2 block">Search radius</label>
+                                <label className="radius-label !text-[12px] !text-[#6b7280] !mb-2 block">Search radius</label>
                                 <input
                                     type="range"
                                     min={1}
@@ -543,7 +543,7 @@ function Page() {
                                             radius: Number(e.target.value),
                                         }))
                                     }}
-                                    className="!w-full !h-1 !bg-[#2f3542] !rounded !mb-2 focus:!outline-none focus:!border-[#1f98f4] accent-[#1f98f4]"
+                                    className="!w-full !h-1 !bg-[#e2e5ea] !rounded !mb-2 focus:!outline-none focus:!border-[#1f98f4] accent-[#1f98f4]"
                                 />
                                 <div className="radius-value !text-[12px] !text-[#1f98f4] text-center">{searchFilter.radius} miles</div>
                             </div>
@@ -553,8 +553,8 @@ function Page() {
                     {/* Skills Filter */}
                     <div className="filter-section !mb-6">
                         <div className="filter-header flex items-center justify-between cursor-pointer !mb-3 !py-2" onClick={() => setSkillTagsDrop(open => !open)}>
-                            <span className="filter-label !text-[16px] !font-medium !text-white">Required Skills</span>
-                            <ChevronDownIcon className={`chevron !w-4 !h-4 !text-[#888] transition-transform ${skillTagsDrop ? 'open !rotate-180' : ''}`} />
+                            <span className="filter-label !text-[16px] !font-medium !text-gray-900">Required Skills</span>
+                            <ChevronDownIcon className={`chevron !w-4 !h-4 !text-[#6b7280] transition-transform ${skillTagsDrop ? 'open !rotate-180' : ''}`} />
                         </div>
                         <div className={`filter-content !pl-2 ${skillTagsDrop ? '' : 'hidden'}`}>
                             <div className="tags-container relative">
@@ -576,15 +576,15 @@ function Page() {
                                     styles={customSelectStyles}
                                     components={{ MultiValueRemove: CustomMultiValueRemove }}
                                     noOptionsMessage={() => null}
-                                    className="tags-input !w-full !py-2.5 !px-3 !bg-[#0B0809] !border !border-[#2f3542] !rounded-lg !text-white !text-[14px] !mb-2 cursor-pointer"
+                                    className="tags-input !w-full !py-2.5 !px-3 !bg-[#f4f5f7] !border !border-[#e2e5ea] !rounded-lg !text-gray-900 !text-[14px] !mb-2 cursor-pointer"
                                 />
 
                                 <div className="selected-tags flex flex-wrap !gap-1 !mt-2 !mb-2">
                                     {searchFilter.skills.map((skill, i) => (
-                                        <span key={i} className="tag-chip !bg-[#181c23] !text-white !px-2 !py-1 !rounded !text-[12px] flex items-center !gap-1">
+                                        <span key={i} className="tag-chip !bg-[#eef0f3] !text-gray-900 !px-2 !py-1 !rounded !text-[12px] flex items-center !gap-1">
                                             {skill}
                                             <span
-                                                className="tag-remove !text-[#888] !text-[14px] cursor-pointer hover:!text-white"
+                                                className="tag-remove !text-[#6b7280] !text-[14px] cursor-pointer hover:!text-gray-900"
                                                 onClick={() => {
                                                     const skillsArr = [...searchFilter.skills];
                                                     skillsArr.splice(i, 1);
@@ -607,8 +607,8 @@ function Page() {
                     {/* Project Category Filter */}
                     <div className="filter-section !mb-6">
                         <div className="filter-header flex items-center justify-between cursor-pointer !mb-3 !py-2" onClick={() => setCategoryOpen(open => !open)}>
-                            <span className="filter-label !text-[16px] !font-medium !text-white">Project Category</span>
-                            <ChevronDownIcon className={`chevron !w-4 !h-4 !text-[#888] transition-transform ${categoryOpen ? 'open !rotate-180' : ''}`} />
+                            <span className="filter-label !text-[16px] !font-medium !text-gray-900">Project Category</span>
+                            <ChevronDownIcon className={`chevron !w-4 !h-4 !text-[#6b7280] transition-transform ${categoryOpen ? 'open !rotate-180' : ''}`} />
                         </div>
                         <div className={`filter-content !pl-2 ${categoryOpen ? '' : 'hidden'}`}>
                             <div className="difficulty-options flex flex-col !gap-2">
@@ -616,7 +616,7 @@ function Page() {
                                     <label key={tag} className="checkbox-option flex items-center !gap-2 cursor-pointer !py-1">
                                         <input
                                             type="checkbox"
-                                            className="custom-checkbox !w-[18px] !h-[18px] !border-2 !border-[#2f3542] !rounded !bg-transparent"
+                                            className="custom-checkbox !w-[18px] !h-[18px] !border-2 !border-[#e2e5ea] !rounded !bg-transparent"
                                             checked={searchFilter.tags.includes(tag)}
                                             onChange={() => {
                                                 setUsePreferences(true);
@@ -638,8 +638,8 @@ function Page() {
                     {/* Difficulty Level Filter */}
                     <div className="filter-section !mb-6">
                         <div className="filter-header flex items-center justify-between cursor-pointer !mb-3 !py-2" onClick={() => setDifficultyOpen(open => !open)}>
-                            <span className="filter-label !text-[16px] !font-medium !text-white">Difficulty Level</span>
-                            <ChevronDownIcon className={`chevron !w-4 !h-4 !text-[#888] transition-transform ${difficultyOpen ? 'open !rotate-180' : ''}`} />
+                            <span className="filter-label !text-[16px] !font-medium !text-gray-900">Difficulty Level</span>
+                            <ChevronDownIcon className={`chevron !w-4 !h-4 !text-[#6b7280] transition-transform ${difficultyOpen ? 'open !rotate-180' : ''}`} />
                         </div>
                         <div className={`filter-content !pl-2 ${difficultyOpen ? '' : 'hidden'}`}>
                             <div className="difficulty-options flex flex-col !gap-2">
@@ -649,7 +649,7 @@ function Page() {
                                         <label key={level} className="checkbox-option flex items-center !gap-2 cursor-pointer !py-1">
                                             <input
                                                 type="checkbox"
-                                                className="custom-checkbox !w-[18px] !h-[18px] !border-2 !border-[#2f3542] !rounded !bg-transparent"
+                                                className="custom-checkbox !w-[18px] !h-[18px] !border-2 !border-[#e2e5ea] !rounded !bg-transparent"
                                                 checked={searchFilter.difficulty.includes(level)}
                                                 onChange={() => {
                                                     setUsePreferences(true)
@@ -678,8 +678,8 @@ function Page() {
                     {/* Time Commitment Filter */}
                     <div className="filter-section !mb-18">
                         <div className="filter-header flex items-center justify-between cursor-pointer !mb-3 !py-2" onClick={() => setTimeOpen(open => !open)}>
-                            <span className="filter-label !text-[16px] !font-medium !text-white">Time Commitment</span>
-                            <ChevronDownIcon className={`chevron !w-4 !h-4 !text-[#888] transition-transform ${timeOpen ? 'open !rotate-180' : ''}`} />
+                            <span className="filter-label !text-[16px] !font-medium !text-gray-900">Time Commitment</span>
+                            <ChevronDownIcon className={`chevron !w-4 !h-4 !text-[#6b7280] transition-transform ${timeOpen ? 'open !rotate-180' : ''}`} />
                         </div>
                         <div className={`filter-content !pl-2 ${timeOpen ? '' : 'hidden'}`}>
                             <div className="time-options flex flex-col !gap-2">
@@ -687,7 +687,7 @@ function Page() {
                                     <label key={range} className="checkbox-option flex items-center !gap-2 cursor-pointer !py-1">
                                         <input
                                             type="checkbox"
-                                            className="custom-checkbox !w-[18px] !h-[18px] !border-2 !border-[#2f3542] !rounded !bg-transparent"
+                                            className="custom-checkbox !w-[18px] !h-[18px] !border-2 !border-[#e2e5ea] !rounded !bg-transparent"
                                             checked={searchFilter.time.includes(range)}
                                             onChange={() => {
                                                 setUsePreferences(true)
@@ -714,12 +714,12 @@ function Page() {
                 </div>
                 <div
                     className={`
-                        filter-actions flex !gap-2 !pt-4 !border-t !border-[#2f3542] w-full bg-black
+                        filter-actions flex !gap-2 !pt-4 !border-t !border-[#e2e5ea] w-full bg-white
                         ${isMobile ? '' : 'sticky bottom-0'}
                     `}
                     style={!isMobile ? { zIndex: 10001, background: "#000" } : {}}
                 >
-                    <button className="btn btn-clear flex-1 !bg-transparent !text-[#888] !border !border-[#2f3542] !px-4 !py-2 !rounded-lg !text-[14px] !font-medium hover:!bg-[#2f3542] hover:!text-white"
+                    <button className="btn btn-clear flex-1 !bg-transparent !text-[#6b7280] !border !border-[#e2e5ea] !px-4 !py-2 !rounded-lg !text-[14px] !font-medium hover:!bg-[#e2e5ea] hover:!text-gray-900"
                         onClick={() => {
                             setSearchFilter(initialSearchFilter);
                             setPreferences(initialPreferences);
@@ -755,30 +755,30 @@ function Page() {
                     <div className="relative flex flex-row gap-2">
                         <button
                             onClick={() => handleShuffleClick()}
-                            className="flex items-center gap-2 !text-white !bg-[#181c23] !border !border-[#2f3542] !px-2 !py-1 !rounded-md hover:!bg-[#272727] !transition-colors"
+                            className="flex items-center gap-2 !text-gray-900 !bg-[#eef0f3] !border !border-[#e2e5ea] !px-2 !py-1 !rounded-md hover:!bg-[#eef0f3] !transition-colors"
                         >
                             Shuffle
                         </button>
                         <button
                             onClick={() => setSortDropdownOpen(prev => !prev)}
-                            className="flex items-center gap-2 !text-white !bg-[#181c23] !border !border-[#2f3542] !px-2 !py-1 !rounded-md hover:!bg-[#272727] !transition-colors"
+                            className="flex items-center gap-2 !text-gray-900 !bg-[#eef0f3] !border !border-[#e2e5ea] !px-2 !py-1 !rounded-md hover:!bg-[#eef0f3] !transition-colors"
                         >
                             Sort by {searchFilter.sortBy} <ChevronDownIcon size={16} />
                         </button>
 
                         {sortDropdownOpen && (
-                            <div className="absolute right-0 mt-2 w-48 !bg-[#181c23] !border !border-[#2f3542] !rounded-md !shadow-lg z-50">
-                                <a href="#" className="block !px-4 !py-2 !text-sm !text-white hover:!bg-[#272727]" onClick={() => {
+                            <div className="absolute right-0 mt-2 w-48 !bg-[#eef0f3] !border !border-[#e2e5ea] !rounded-md !shadow-lg z-50">
+                                <a href="#" className="block !px-4 !py-2 !text-sm !text-gray-900 hover:!bg-[#eef0f3]" onClick={() => {
                                     setSearchFilter(prev => ({ ...prev, sortBy: 'relevance' }));
                                     setSortDropdownOpen(prev => !prev);
                                 }}
                                 >Relevance</a>
-                                <a href="#" className="block !px-4 !py-2 !text-sm !text-white hover:!bg-[#272727]" onClick={() => {
+                                <a href="#" className="block !px-4 !py-2 !text-sm !text-gray-900 hover:!bg-[#eef0f3]" onClick={() => {
                                     setSearchFilter(prev => ({ ...prev, sortBy: 'newest' }));
                                     setSortDropdownOpen(prev => !prev);
                                 }}
                                 >Newest</a>
-                                <a href="#" className="block !px-4 !py-2 !text-sm !text-white hover:!bg-[#272727]" onClick={() => {
+                                <a href="#" className="block !px-4 !py-2 !text-sm !text-gray-900 hover:!bg-[#eef0f3]" onClick={() => {
                                     setSearchFilter(prev => ({ ...prev, sortBy: 'oldest' }));
                                     setSortDropdownOpen(prev => !prev);
                                 }}
@@ -800,14 +800,14 @@ function Page() {
                     {paginatedProjects.map((project, idx) => {
                         const category = project.project_category
                         /*const categoryClass = category === 'Tech'
-                            ? 'bg-blue-900/10 text-blue-400 border border-blue-400/20'
+                            ? 'bg-blue-100/10 text-blue-400 border border-blue-400/20'
                             : category === 'Creative'
                                 ? 'bg-pink-600/10 text-pink-300 border border-pink-300/20'
-                                : 'bg-green-900/10 text-green-400 border border-green-400/20';
+                                : 'bg-green-100/10 text-green-400 border border-green-400/20';
                             */
                         const isRemote = project.location_preference;
 
-                        // const locationBadgeClass = isRemote ? 'bg-indigo-900 text-indigo-200' : 'bg-green-900 text-green-300';
+                        // const locationBadgeClass = isRemote ? 'bg-indigo-100 text-indigo-700' : 'bg-green-100 text-green-800';
                         const locationBadgeText = isRemote === 'remote' ? 'Remote' : 'In Person';
                         // const locationText = isRemote ? 'Open to remote collaboration' : project.location;
                         const timePosted = project.created_at ? timeAgo(new Date(project.created_at)) : 'recently';
@@ -815,7 +815,7 @@ function Page() {
                         return (
                             <div
                                 key={project.id || idx}
-                                className="bg-[#1a1a1a] border border-[#333] rounded-xl overflow-hidden cursor-pointer transition-all duration-300 relative flex flex-col hover:border-[#555] hover:-translate-y-0.5 hover:shadow-2xl min-h-[380px]"
+                                className="bg-[#1a1a1a] border border-[#e2e5ea] rounded-xl overflow-hidden cursor-pointer transition-all duration-300 relative flex flex-col hover:border-[#d7dbe1] hover:-translate-y-0.5 hover:shadow-2xl min-h-[380px]"
                                 onClick={() => setSelectedProject(project)}
                             >
                                 {/* Urgent indicator */}
@@ -854,7 +854,7 @@ function Page() {
                                 <div className="!p-5 flex flex-col flex-1">
                                     {/* Card Header */}
                                     <div className="flex justify-between items-start !gap-3 !mb-3 !mt-2">
-                                        <h3 className="text-lg font-semibold text-white leading-tight flex-1">
+                                        <h3 className="text-lg font-semibold text-gray-900 leading-tight flex-1">
                                             {project.title}
                                         </h3>
                                         <span
@@ -871,7 +871,7 @@ function Page() {
 
                                     {/* In Person/Remote tag and location */}
                                     <div className="flex items-center !gap-2 !mb-3">
-                                        <span className={`!py-1 !px-2 !rounded !text-[13px] !font-medium ${isRemote === 'remote' ? 'bg-[#1d4ed8] text-[#dbeafe]' : 'bg-[#2a2a2a] text-[#e5e5e5]'}`}>
+                                        <span className={`!py-1 !px-2 !rounded !text-[13px] !font-medium ${isRemote === 'remote' ? 'bg-[#1d4ed8] text-[#dbeafe]' : 'bg-[#eef0f3] text-[#e5e5e5]'}`}>
                                             {locationBadgeText}
                                         </span>
                                         {!isRemote && (
@@ -883,7 +883,7 @@ function Page() {
 
                                     {/* Description - Remove flex-1 and reduce margin */}
                                     <div className="!mb-3">
-                                        <p className="!text-gray-300 !text-sm leading-snug line-clamp-3">
+                                        <p className="!text-gray-600 !text-sm leading-snug line-clamp-3">
                                             {project.content}
                                         </p>
                                     </div>
@@ -896,7 +896,7 @@ function Page() {
                                     {/* Footer - This will stick to bottom */}
                                     <div className="flex justify-between items-center !gap-3 !mt-auto">
                                         <div className="flex items-center !gap-2">
-                                            <div className="w-7 h-7 rounded-full bg-indigo-900 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                            <div className="w-7 h-7 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
                                                 <img
                                                     src={project.user_image || '/images/defaultProfile.jpg'}
                                                     alt={project.user_name || 'User'}
@@ -907,7 +907,7 @@ function Page() {
                                                     }}
                                                 />
                                             </div>
-                                            <span className="!text-[#888] !text-sm !font-medium">
+                                            <span className="!text-[#6b7280] !text-sm !font-medium">
                                                 {project.user_name || 'Unknown Author'}
                                             </span>
                                         </div>
@@ -928,22 +928,22 @@ function Page() {
                         style={{ background: "rgba(0,0,0,0.8)" }}
                         onClick={e => { if (e.target === e.currentTarget) setSelectedProject(null); }}
                     >
-                        <div className="!bg-[#181c23] !border !border-[#333] !rounded-2xl !w-full !max-w-2xl !max-h-[90vh] !overflow-y-auto !relative !shadow-2xl">
-                            <div className="!p-8 !pb-6 !border-b !border-[#2f3542] !relative">
+                        <div className="!bg-[#eef0f3] !border !border-[#e2e5ea] !rounded-2xl !w-full !max-w-2xl !max-h-[90vh] !overflow-y-auto !relative !shadow-2xl">
+                            <div className="!p-8 !pb-6 !border-b !border-[#e2e5ea] !relative">
                                 <button
                                     onClick={() => setSelectedProject(null)}
-                                    className="!absolute !top-5 !right-5 !text-[#888] hover:!text-white !text-2xl !p-2 !rounded-lg hover:!bg-[#2f3542] !transition-colors"
+                                    className="!absolute !top-5 !right-5 !text-[#6b7280] hover:!text-gray-900 !text-2xl !p-2 !rounded-lg hover:!bg-[#e2e5ea] !transition-colors"
                                     aria-label="Close"
                                 >
                                     <X size={24} />
                                 </button>
 
-                                <h1 className="!text-3xl !font-bold !text-white !mb-4 !pr-12 !leading-tight">
+                                <h1 className="!text-3xl !font-bold !text-gray-900 !mb-4 !pr-12 !leading-tight">
                                     {selectedProject.title || 'Untitled Project'}
                                 </h1>
 
                                 <div className="flex items-center !gap-3 !mb-4">
-                                    <div className="w-7 h-7 rounded-full bg-indigo-900 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                    <div className="w-7 h-7 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
                                         <img
                                             src={selectedProject.user_image || '/images/defaultProfile.jpg'}
                                             alt={selectedProject.user_name || 'User'}
@@ -956,10 +956,10 @@ function Page() {
 
                                     </div>
                                     <div className="flex flex-col">
-                                        <div className="!text-white !font-medium">
+                                        <div className="!text-gray-900 !font-medium">
                                             {selectedProject.user_name || 'Unknown Author'}
                                         </div>
-                                        { /* <div className="!text-[#888] !text-sm">
+                                        { /* <div className="!text-[#6b7280] !text-sm">
                                             {selectedProject.author?.title || 'Student'}
                                         </div> */}
                                     </div>
@@ -967,14 +967,14 @@ function Page() {
 
                                 <div className="flex !gap-2 flex-wrap">
                                     {selectedProject.status && (
-                                        <span className={`!px-3 !py-1 !text-sm !font-medium !rounded-full ${selectedProject.status === 'active' ? '!bg-green-900 !text-green-300' :
-                                            selectedProject.status === 'completed' ? '!bg-blue-900 !text-blue-300' :
-                                                '!bg-yellow-900 !text-yellow-300'
+                                        <span className={`!px-3 !py-1 !text-sm !font-medium !rounded-full ${selectedProject.status === 'active' ? '!bg-green-100 !text-green-800' :
+                                            selectedProject.status === 'completed' ? '!bg-blue-100 !text-blue-800' :
+                                                '!bg-yellow-100 !text-yellow-800'
                                             }`}>
                                             {selectedProject.status}
                                         </span>
                                     )}
-                                    <span className={`!px-3 !py-1 !text-sm !font-medium !rounded-full ${selectedProject.location_preference === 'remote' ? '!bg-indigo-900 !text-indigo-200' : '!bg-green-900 !text-green-300'
+                                    <span className={`!px-3 !py-1 !text-sm !font-medium !rounded-full ${selectedProject.location_preference === 'remote' ? '!bg-indigo-100 !text-indigo-700' : '!bg-green-100 !text-green-800'
                                         }`}>
                                         {selectedProject.location_preference === 'remote' ? 'Remote' : 'In Person'}
                                     </span>
@@ -988,7 +988,7 @@ function Page() {
 
                             <div className="!p-8">
                                 {/* Project Details Grid */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 !gap-6 !mb-8 !p-5 !bg-white/[0.02] !border !border-[#2f3542] !rounded-xl">
+                                <div className="grid grid-cols-1 md:grid-cols-2 !gap-6 !mb-8 !p-5 !bg-white/[0.02] !border !border-[#e2e5ea] !rounded-xl">
                                     <div className="flex items-center !gap-3">
                                         <svg className="!w-5 !h-5 !text-[#1f98f4] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                             <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -1032,7 +1032,7 @@ function Page() {
 
                                 {/* Project Description */}
                                 <div className="!mb-8">
-                                    <h3 className="!text-lg !font-semibold !text-white !mb-3 flex items-center !gap-2">
+                                    <h3 className="!text-lg !font-semibold !text-gray-900 !mb-3 flex items-center !gap-2">
                                         <div className="!w-1 !h-5 !bg-[#1f98f4] !rounded"></div>
                                         Project Description
                                     </h3>
@@ -1044,7 +1044,7 @@ function Page() {
                                 {/* Required Skills */}
                                 {selectedProject.skill_tags && selectedProject.skill_tags.length > 0 && (
                                     <div className="!mb-8">
-                                        <h3 className="!text-lg !font-semibold !text-white !mb-3 flex items-center !gap-2">
+                                        <h3 className="!text-lg !font-semibold !text-gray-900 !mb-3 flex items-center !gap-2">
                                             <div className="!w-1 !h-5 !bg-[#1f98f4] !rounded"></div>
                                             Required Skills
                                         </h3>
@@ -1052,7 +1052,7 @@ function Page() {
                                             {selectedProject.skill_tags.map((skill, i) => (
                                                 <span
                                                     key={i}
-                                                    className="!bg-[#1f2937] !text-[#1f98f4] !px-3 !py-2 !rounded-lg !text-sm !font-medium !border !border-[#1f98f4]/20"
+                                                    className="!bg-[#eef0f3] !text-[#1f98f4] !px-3 !py-2 !rounded-lg !text-sm !font-medium !border !border-[#1f98f4]/20"
                                                 >
                                                     {skill}
                                                 </span>
@@ -1064,7 +1064,7 @@ function Page() {
                                 {/* Project Tags */}
                                 {selectedProject.project_tags && selectedProject.project_tags.length > 0 && (
                                     <div className="!mb-8">
-                                        <h3 className="!text-lg !font-semibold !text-white !mb-3 flex items-center !gap-2">
+                                        <h3 className="!text-lg !font-semibold !text-gray-900 !mb-3 flex items-center !gap-2">
                                             <div className="!w-1 !h-5 !bg-[#1f98f4] !rounded"></div>
                                             Project Tags
                                         </h3>
@@ -1072,7 +1072,7 @@ function Page() {
                                             {selectedProject.project_tags.map((tag, i) => (
                                                 <span
                                                     key={i}
-                                                    className="!bg-[#0B0809] !text-gray-300 !px-3 !py-2 !rounded-lg !text-sm !border !border-[#2f3542]"
+                                                    className="!bg-[#f4f5f7] !text-gray-600 !px-3 !py-2 !rounded-lg !text-sm !border !border-[#e2e5ea]"
                                                 >
                                                     {tag}
                                                 </span>
@@ -1082,7 +1082,7 @@ function Page() {
                                 )}
 
                                 {/* Action Buttons */}
-                                <div className="flex flex-col sm:flex-row !gap-3 !pt-6 !border-t !border-[#2f3542]">
+                                <div className="flex flex-col sm:flex-row !gap-3 !pt-6 !border-t !border-[#e2e5ea]">
                                     <button
                                         className="flex-1 !bg-[#1f98f4] !text-white !px-6 !py-3 !rounded-xl !font-medium hover:!bg-[#1a7bc8] !transition-all !duration-200 hover:!-translate-y-0.5"
                                         onClick={async () => {
@@ -1123,24 +1123,24 @@ function Page() {
                         style={{ background: "rgba(0,0,0,0.8)" }}
                         onClick={e => { if (e.target === e.currentTarget) setSelectedProject(null); }}
                     >
-                        <div className="!bg-[#181c23] !border !border-[#333] !rounded-2xl !w-full !max-w-2xl !max-h-[90vh] !overflow-hidden !relative !shadow-2xl">
+                        <div className="!bg-[#eef0f3] !border !border-[#e2e5ea] !rounded-2xl !w-full !max-w-2xl !max-h-[90vh] !overflow-hidden !relative !shadow-2xl">
                             {/* Blurred Content */}
                             <div className="blur-sm">
-                                <div className="!p-8 !pb-6 !border-b !border-[#2f3542] !relative">
+                                <div className="!p-8 !pb-6 !border-b !border-[#e2e5ea] !relative">
                                     <button
                                         onClick={() => setSelectedProject(null)}
-                                        className="!absolute !top-5 !right-5 !text-[#888] hover:!text-white !text-2xl !p-2 !rounded-lg hover:!bg-[#2f3542] !transition-colors"
+                                        className="!absolute !top-5 !right-5 !text-[#6b7280] hover:!text-gray-900 !text-2xl !p-2 !rounded-lg hover:!bg-[#e2e5ea] !transition-colors"
                                         aria-label="Close"
                                     >
                                         <X size={24} />
                                     </button>
 
-                                    <h1 className="!text-3xl !font-bold !text-white !mb-4 !pr-12 !leading-tight">
+                                    <h1 className="!text-3xl !font-bold !text-gray-900 !mb-4 !pr-12 !leading-tight">
                                         {selectedProject.title || 'Untitled Project'}
                                     </h1>
 
                                     <div className="flex items-center !gap-3 !mb-4">
-                                        <div className="w-7 h-7 rounded-full bg-indigo-900 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                        <div className="w-7 h-7 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
                                             <img
                                                 src={selectedProject.user_image || '/images/defaultProfile.jpg'}
                                                 alt={selectedProject.user_name || 'User'}
@@ -1152,7 +1152,7 @@ function Page() {
                                             />
                                         </div>
                                         <div className="flex flex-col">
-                                            <div className="!text-white !font-medium">
+                                            <div className="!text-gray-900 !font-medium">
                                                 {selectedProject.user_name || 'Unknown Author'}
                                             </div>
                                         </div>
@@ -1160,14 +1160,14 @@ function Page() {
 
                                     <div className="flex !gap-2 flex-wrap">
                                         {selectedProject.status && (
-                                            <span className={`!px-3 !py-1 !text-sm !font-medium !rounded-full ${selectedProject.status === 'active' ? '!bg-green-900 !text-green-300' :
-                                                selectedProject.status === 'completed' ? '!bg-blue-900 !text-blue-300' :
-                                                    '!bg-yellow-900 !text-yellow-300'
+                                            <span className={`!px-3 !py-1 !text-sm !font-medium !rounded-full ${selectedProject.status === 'active' ? '!bg-green-100 !text-green-800' :
+                                                selectedProject.status === 'completed' ? '!bg-blue-100 !text-blue-800' :
+                                                    '!bg-yellow-100 !text-yellow-800'
                                                 }`}>
                                                 {selectedProject.status}
                                             </span>
                                         )}
-                                        <span className={`!px-3 !py-1 !text-sm !font-medium !rounded-full ${selectedProject.location_preference === 'remote' ? '!bg-indigo-900 !text-indigo-200' : '!bg-green-900 !text-green-300'
+                                        <span className={`!px-3 !py-1 !text-sm !font-medium !rounded-full ${selectedProject.location_preference === 'remote' ? '!bg-indigo-100 !text-indigo-700' : '!bg-green-100 !text-green-800'
                                             }`}>
                                             {selectedProject.location_preference === 'remote' ? 'Remote' : 'In Person'}
                                         </span>
@@ -1176,7 +1176,7 @@ function Page() {
 
                                 <div className="!p-8">
                                     {/* Project Details Grid */}
-                                    <div className="grid grid-cols-1 md:grid-cols-2 !gap-6 !mb-8 !p-5 !bg-white/[0.02] !border !border-[#2f3542] !rounded-xl">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 !gap-6 !mb-8 !p-5 !bg-white/[0.02] !border !border-[#e2e5ea] !rounded-xl">
                                         <div className="flex items-center !gap-3">
                                             <svg className="!w-5 !h-5 !text-[#1f98f4] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                                 <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -1209,7 +1209,7 @@ function Page() {
 
                                     {/* Project Description */}
                                     <div className="!mb-8">
-                                        <h3 className="!text-lg !font-semibold !text-white !mb-3 flex items-center !gap-2">
+                                        <h3 className="!text-lg !font-semibold !text-gray-900 !mb-3 flex items-center !gap-2">
                                             <div className="!w-1 !h-5 !bg-[#1f98f4] !rounded"></div>
                                             Project Description
                                         </h3>
@@ -1221,7 +1221,7 @@ function Page() {
                                     {/* Required Skills */}
                                     {selectedProject.skill_tags && selectedProject.skill_tags.length > 0 && (
                                         <div className="!mb-8">
-                                            <h3 className="!text-lg !font-semibold !text-white !mb-3 flex items-center !gap-2">
+                                            <h3 className="!text-lg !font-semibold !text-gray-900 !mb-3 flex items-center !gap-2">
                                                 <div className="!w-1 !h-5 !bg-[#1f98f4] !rounded"></div>
                                                 Required Skills
                                             </h3>
@@ -1229,7 +1229,7 @@ function Page() {
                                                 {selectedProject.skill_tags.map((skill, i) => (
                                                     <span
                                                         key={i}
-                                                        className="!bg-[#1f2937] !text-[#1f98f4] !px-3 !py-2 !rounded-lg !text-sm !font-medium !border !border-[#1f98f4]/20"
+                                                        className="!bg-[#eef0f3] !text-[#1f98f4] !px-3 !py-2 !rounded-lg !text-sm !font-medium !border !border-[#1f98f4]/20"
                                                     >
                                                         {skill}
                                                     </span>
@@ -1241,7 +1241,7 @@ function Page() {
                                     {/* Project Tags */}
                                     {selectedProject.project_tags && selectedProject.project_tags.length > 0 && (
                                         <div className="!mb-8">
-                                            <h3 className="!text-lg !font-semibold !text-white !mb-3 flex items-center !gap-2">
+                                            <h3 className="!text-lg !font-semibold !text-gray-900 !mb-3 flex items-center !gap-2">
                                                 <div className="!w-1 !h-5 !bg-[#1f98f4] !rounded"></div>
                                                 Project Tags
                                             </h3>
@@ -1249,7 +1249,7 @@ function Page() {
                                                 {selectedProject.project_tags.map((tag, i) => (
                                                     <span
                                                         key={i}
-                                                        className="!bg-[#0B0809] !text-gray-300 !px-3 !py-2 !rounded-lg !text-sm !border !border-[#2f3542]"
+                                                        className="!bg-[#f4f5f7] !text-gray-600 !px-3 !py-2 !rounded-lg !text-sm !border !border-[#e2e5ea]"
                                                     >
                                                         {tag}
                                                     </span>
@@ -1259,7 +1259,7 @@ function Page() {
                                     )}
 
                                     {/* Action Buttons */}
-                                    <div className="flex flex-col sm:flex-row !gap-3 !pt-6 !border-t !border-[#2f3542]">
+                                    <div className="flex flex-col sm:flex-row !gap-3 !pt-6 !border-t !border-[#e2e5ea]">
                                         <button
                                             className="flex-1 !bg-[#1f98f4] !text-white !px-6 !py-3 !rounded-xl !font-medium hover:!bg-[#1a7bc8] !transition-all !duration-200 hover:!-translate-y-0.5"
                                             onClick={async () => {
@@ -1306,15 +1306,15 @@ function Page() {
                                     <div className="mb-8">
                                         <div className="mx-auto w-20 h-20 rounded-full flex items-center justify-center  shadow-xl">
                                             <div className="!mt-30 !ml-30">
-                                                <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg className="w-10 h-10 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                                 </svg>
                                             </div>
                                         </div>
-                                        <h3 className="text-3xl font-bold text-white !text-center mb-4 tracking-tight">
+                                        <h3 className="text-3xl font-bold text-gray-900 !text-center mb-4 tracking-tight">
                                             Login Required
                                         </h3>
-                                        <p className="text-gray-300 text-lg !text-center !ml-10 leading-relaxed max-w-md mx-auto !mb-6 !mt-6">
+                                        <p className="text-gray-600 text-lg !text-center !ml-10 leading-relaxed max-w-md mx-auto !mb-6 !mt-6">
                                             Please log in or sign up with us for free to view the rest of the content and connect with amazing collaborators!
                                         </p>
                                     </div>
@@ -1345,7 +1345,7 @@ function Page() {
                     </div>
                 )}
             </div>
-            <div className=" bottom-0 !mb-3 left-0 w-full z-50 flex justify-center py-4 text-white">
+            <div className=" bottom-0 !mb-3 left-0 w-full z-50 flex justify-center py-4 text-gray-900">
                 <Pagination
                     pageCount={pageCount}
                     currentPage={currentPage}
@@ -1354,7 +1354,7 @@ function Page() {
                         window.scrollTo({ top: 0, behavior: 'smooth' }); // scrolls window to top smoothly
                     }}
 
-                    className="bg-black-100 text-white"
+                    className="bg-gray-100 text-gray-900"
                 />
             </div>
         </div>

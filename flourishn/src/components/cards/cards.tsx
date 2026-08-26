@@ -2,9 +2,10 @@
 
 import React, { useEffect, useRef, useState } from "react"
 import Image from "next/image"
+import Link from "next/link"
 import { gsap } from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
-import StatsSection from '../ui/StatsSection'
+// import StatsSection from '../ui/StatsSection'
 import FaqSection from '../ui/FaqSection'
 import IdeasNeedTeamsSection from '../ui/IdeasNeedTeamsSection'
 import ScrollTextAnimation from '../ui/ScrollTextAnimation'
@@ -14,6 +15,7 @@ interface CardData {
     text: string
     link: string
     image: string
+    href?: string
 }
 
 const FLIP_HEIGHT = 270
@@ -31,29 +33,44 @@ export default function ResponsiveCards() {
 
     const cardData: CardData[] = [
         {
-            title: "Everything you need,\nright where you code",
-            text: "Thanks to an ecosystem of third-party extensions, Copilot Chat lets you check logs, toggle features, and deploy apps, without ever leaving your editor.",
-            link: "Explore extensions",
-            image: "/images/dashboard.png",
-        },
-        {
             title: "Turn your ideas into reality",
             text: "Whether you're a developer, designer, or innovator, our platform gives you the space to showcase your projects and connect with like-minded creators.",
-            link: "View projects",
-            image: "/images/post.png",
+            link: "Send us an idea",
+            image: "/images/post-page-preview.png",
+            href: "/post",
         },
         {
-            title: "Discover ideas worth building",
-            text: "Explore a growing collection of projects from creators across disciplines. Use smart filters and personalized recommendations to find ideas that spark your interest — and start collaborating right away.",
-            link: "Search for projects",
-            image: "/images/searchbar.png",
+            title: "Every idea gets a real look",
+            text: "Once you submit, it goes straight to our team, not a queue or an algorithm. We read the details, the ask, and how we can help before anything moves forward.",
+            link: "Meet the team",
+            image: "/images/idea-review.png",
+            href: "/about",
         },
         {
-            title: "Grow your skills while you build",
-            text: "hand-picked resources to help you learn the skills you need to contribute to the projects you care about — from coding to design to project management. Whether you're just starting out or leveling up, we've got you covered.",
-            link: "Build your skills",
-            image: "/images/learn.png",
-        }
+            title: "We'll connect for feedback and funding",
+            text: "If your idea is a fit, we'll reach out directly with feedback, and when it makes sense, help connect you with potential funding to take the next step.",
+            link: "Contact us",
+            image: "/images/connect-funding.png",
+            href: "/contactUs",
+        },
+        // {
+        //     title: "Everything you need,\nright where you code",
+        //     text: "Thanks to an ecosystem of third-party extensions, Copilot Chat lets you check logs, toggle features, and deploy apps, without ever leaving your editor.",
+        //     link: "Explore extensions",
+        //     image: "/images/dashboard.png",
+        // },
+        // {
+        //     title: "Discover ideas worth building",
+        //     text: "Explore a growing collection of projects from creators across disciplines. Use smart filters and personalized recommendations to find ideas that spark your interest — and start collaborating right away.",
+        //     link: "Search for projects",
+        //     image: "/images/searchbar.png",
+        // },
+        // {
+        //     title: "Grow your skills while you build",
+        //     text: "hand-picked resources to help you learn the skills you need to contribute to the projects you care about — from coding to design to project management. Whether you're just starting out or leveling up, we've got you covered.",
+        //     link: "Build your skills",
+        //     image: "/images/learn.png",
+        // }
     ]
 
     useEffect(() => {
@@ -114,14 +131,14 @@ export default function ResponsiveCards() {
             <IdeasNeedTeamsSection />
 
             {/* Dashboard Image Section */}
-            <div className="w-full flex justify-center items-center py-10 px-5 bg-black relative z-20">
+            <div className="w-full flex justify-center items-center py-10 px-5 bg-white relative z-20">
                 <div className="w-full max-w-6xl mx-auto flex justify-center relative">
                     <Image
-                        src="/images/dashboard2.png"
+                        src="/images/dashboard-preview.png"
                         alt="IdeaBoard Dashboard"
                         width={1000}
                         height={600}
-                        className="dashboard-image w-full lg:w-[90%] max-w-4xl h-auto rounded-2xl shadow-2xl object-contain border-3 border-[#2f3542]"
+                        className="dashboard-image w-full lg:w-[90%] max-w-4xl h-auto rounded-2xl shadow-2xl object-contain border-3 border-[#e2e5ea]"
                     />
                 </div>
             </div>
@@ -130,29 +147,29 @@ export default function ResponsiveCards() {
 
             {/* Desktop: Flipping Cards | Mobile: Stacked Cards */}
             <div className="h-10 lg:h-20"></div>
-            <div className="relative w-full bg-black" ref={cardsSectionRef}>
+            <div className="relative w-full bg-white" ref={cardsSectionRef}>
                 {/* Mobile Layout: Stacked cards */}
                 <div className="block lg:hidden">
                     <div className="container mx-auto px-4 sm:px-8">
-                        <div className="space-y-16 py-10">
+                        <div className="space-y-28 py-10">
                             {cardData.map((card, index) => (
-                                <div key={index} className="mobile-card-block">
-                                    <div className="text-block mb-8">
-                                        <h2 className="text-3xl sm:text-4xl leading-tight text-white whitespace-pre-line mb-4">
+                                <div key={index} className="mobile-card-block flex flex-col items-center gap-14 sm:gap-16">
+                                    <div className="text-block text-center w-full">
+                                        <h2 className="text-3xl sm:text-4xl leading-tight text-gray-900 whitespace-pre-line mb-4">
                                             {card.title}
                                         </h2>
-                                        <p className="text-base sm:text-lg leading-relaxed text-gray-400 mb-4">
+                                        <p className="text-base sm:text-lg leading-relaxed text-gray-600 mb-4">
                                             {card.text}
                                         </p>
-                                        <a
-                                            href="#"
-                                            className="text-blue-400 no-underline text-base sm:text-lg inline-flex items-center hover:text-blue-300 transition-colors duration-200 group"
+                                        <Link
+                                            href={card.href || "#"}
+                                            className="text-blue-400 no-underline text-base sm:text-lg inline-flex items-center justify-center hover:text-blue-300 transition-colors duration-200 group"
                                         >
                                             {card.link}
                                             <span className="ml-2 transition-transform duration-200 group-hover:translate-x-1">→</span>
-                                        </a>
+                                        </Link>
                                     </div>
-                                    <div className="card-image-container">
+                                    <div className="card-image-container w-full flex justify-center">
                                         <div className="relative w-full aspect-[4/3] max-w-md mx-auto">
                                             <Image
                                                 src={card.image}
@@ -178,7 +195,7 @@ export default function ResponsiveCards() {
                                     <div
                                         key={index}
                                         ref={el => { textBlocksRef.current[index] = el; }}
-                                        className="text-block min-h-[80vh] flex flex-col justify-center bg-black relative z-10 text-right w-full max-w-[500px]"
+                                        className="text-block min-h-[80vh] flex flex-col justify-center bg-white relative z-10 text-right w-full max-w-[500px]"
                                         id={`text-block-${index}`}
                                     >
                                         <h2 className="text-4xl xl:text-5xl leading-tight text-white whitespace-pre-line mb-6 text-right">
@@ -187,13 +204,13 @@ export default function ResponsiveCards() {
                                         <p className="text-lg xl:text-xl leading-relaxed text-gray-400 mb-6 max-w-[500px] text-right">
                                             {card.text}
                                         </p>
-                                        <a
-                                            href="#"
+                                        <Link
+                                            href={card.href || "#"}
                                             className="text-blue-400 no-underline text-lg xl:text-xl inline-flex items-center hover:text-blue-300 transition-colors duration-200 group justify-start"
                                         >
                                             {card.link}
                                             <span className="ml-2 transition-transform duration-200 group-hover:translate-x-1">→</span>
-                                        </a>
+                                        </Link>
                                     </div>
                                 ))}
                             </div>
@@ -260,10 +277,10 @@ export default function ResponsiveCards() {
             <div className="h-32 lg:h-48"></div>
 
             {/* Spacer above Chatbot Section */}
-            <div className="h-16 lg:h-32"></div>
+            {/* <div className="h-16 lg:h-32"></div> */}
 
             {/* Chatbot Section */}
-            <div className="w-full flex justify-center items-center pb-10 px-5 bg-black relative z-20">
+            {/* <div className="w-full flex justify-center items-center pb-10 px-5 bg-black relative z-20">
                 <div className="w-full max-w-6xl mx-auto flex flex-col justify-center items-center relative">
                     <h2 className="text-3xl sm:text-4xl md:text-5xl leading-snug font-semibold text-white text-center mb-8 lg:mb-16 px-4">
                         Meet Flo — your personal idea partner
@@ -280,12 +297,12 @@ export default function ResponsiveCards() {
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> */}
 
-            <div className="h-16 lg:h-64"></div>
+            {/* <div className="h-16 lg:h-64"></div>
             <StatsSection />
-            <div className="h-16 lg:h-64"></div>
-            
+            <div className="h-16 lg:h-64"></div> */}
+
             <FaqSection />
             <div className="h-8 lg:h-32"></div>
 
@@ -298,17 +315,22 @@ export default function ResponsiveCards() {
                     backface-visibility: hidden;
                 }
                 
-                /* Ensure text blocks are properly right-aligned */
-                .text-block {
-                    text-align: right !important;
+                /* Ensure text blocks are properly right-aligned on desktop only */
+                /* This was previously unscoped and was forcing the mobile stacked
+                   cards (which also use the .text-block class) to be right-aligned
+                   too, breaking their left-to-right reading layout. */
+                @media (min-width: 1024px) {
+                    .text-block {
+                        text-align: right !important;
+                    }
+
+                    .text-block h2,
+                    .text-block p,
+                    .text-block a {
+                        text-align: right !important;
+                    }
                 }
-                
-                .text-block h2,
-                .text-block p,
-                .text-block a {
-                    text-align: right !important;
-                }
-                
+
                 /* Responsive image container behavior */
                 .cards-section {
                     --text-scale: 1;
@@ -322,33 +344,33 @@ export default function ResponsiveCards() {
                         --image-scale: 0.85;
                         --image-top-offset: 12rem;
                     }
-                    
+
                     .cards-section .grid {
-                        gap: 2.5rem !important;
+                        gap: 3.5rem !important;
                     }
                 }
-                
+
                 @media (max-width: 1200px) {
                     .cards-section {
                         --text-scale: 0.95;
                         --image-scale: 0.75;
                         --image-top-offset: 14rem;
                     }
-                    
+
                     .cards-section .grid {
-                        gap: 2rem !important;
+                        gap: 3rem !important;
                     }
                 }
-                
+
                 @media (max-width: 1100px) {
                     .cards-section {
                         --text-scale: 0.9;
                         --image-scale: 0.65;
                         --image-top-offset: 16rem;
                     }
-                    
+
                     .cards-section .grid {
-                        gap: 1.5rem !important;
+                        gap: 3rem !important;
                     }
                 }
                 
@@ -408,19 +430,25 @@ export default function ResponsiveCards() {
                         }
                     }
                     
-                    .text-block {
-                        opacity: 0;
-                        animation: text-fade-in linear forwards;
-                        animation-timeline: view();
-                        animation-range: entry 300px;
+                    /* Desktop-only: the mobile stacked cards use this same .text-block
+                       class, and already get their own reveal animation from
+                       .mobile-card-block below — giving it a second, independently
+                       scroll-linked fade here caused the two to fight and flicker. */
+                    @media (min-width: 1024px) {
+                        .text-block {
+                            opacity: 0;
+                            animation: text-fade-in linear forwards;
+                            animation-timeline: view();
+                            animation-range: entry 300px;
+                        }
                     }
-                    
+
                     @keyframes text-fade-in {
                         to {
                             opacity: 1;
                         }
                     }
-                    
+
                     /* Mobile card animations */
                     @media (max-width: 1023px) {
                         .mobile-card-block {
@@ -430,7 +458,7 @@ export default function ResponsiveCards() {
                             animation-timeline: view();
                             animation-range: entry 10% cover 30%;
                         }
-                        
+
                         @keyframes mobile-fade-in {
                             to {
                                 opacity: 1;
