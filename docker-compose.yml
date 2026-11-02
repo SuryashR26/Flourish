@@ -24,6 +24,8 @@ services:
       - "3000"
     environment:
       - NEXT_PUBLIC_API_URL=https://api.flourishideas.com
+    env_file:
+      - ./flourishn/.env.local
     networks:
       - flourish-network
 

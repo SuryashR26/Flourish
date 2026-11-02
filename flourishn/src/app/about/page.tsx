@@ -20,7 +20,7 @@ function page() {
             </div>
 
             {/* Vision Section */}
-            <div className="relative bg-white mb-10 md:mb-20 lg:mb-30 -mt-10 md:-mt-20 lg:-mt-30">
+            <div className="relative bg-white mb-10 md:mb-20 lg:mb-30 -mt-2 md:-mt-4 lg:-mt-6">
                 <div className="flex flex-col items-center justify-center min-h-screen px-6 sm:px-8 md:px-12 lg:px-32">
                     <div style={{ position: "relative", width: "100%", height: 0 }}>
                         <ScrollLine />
@@ -28,14 +28,14 @@ function page() {
                     <h2 className="text-2xl !mb-16 md:text-3xl lg:text-4xl text-center max-w-2xl text-gray-900 leading-relaxed mb-[5vh] md:mb-[7vh] lg:mb-[10vh]">
                         Our Vision
                     </h2>
-                    <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between w-full lg:w-4/5 gap-8 lg:gap-12">
-                        <div className="flex-1 w-full max-w-4xl mx-auto text-center lg:text-left vision-text flex flex-col gap-12 md:gap-16 lg:gap-20 mt-32">
+                    <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between w-full gap-8 lg:gap-12">
+                        <div className="lg:flex-[1.3] w-full max-w-4xl mx-auto text-center lg:text-left vision-text flex flex-col gap-4 md:gap-5 lg:gap-6">
                             <h2 className="text-4xl md:text-4xl font-semibold text-gray-900">We Want Every Idea to Flourish</h2>
                             <p className="text-base md:text-lg lg:text-xl text-gray-900 leading-relaxed font-light">
                                 We envision a world where ideas flourish freely, where the right tools and a supportive community help you turn any idea, big or small, into reality.
                             </p>
                         </div>
-                        <div className="w-full sm:w-[400px] md:w-[500px] lg:w-[600px] h-[200px] sm:h-[250px] md:h-[300px] lg:h-[400px] relative mt-8 lg:mt-0">
+                        <div className="w-full sm:w-[400px] md:w-[500px] lg:w-[600px] lg:shrink-0 h-[200px] sm:h-[250px] md:h-[300px] lg:h-[400px] relative mt-8 lg:mt-0">
                             <Image
                                 src="/images/vision-flourish.png"
                                 alt="Vision Image"
