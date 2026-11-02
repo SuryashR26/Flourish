@@ -35,7 +35,7 @@ const coreValues = [
     },
     {
         title: "Curiosity",
-        text: "We believe in fostering creativity and innovation. Asking \"what if\" is how every idea on Flourish gets its start.",
+        text: "We believe in fostering creativity and innovation. Asking \"what if\" is how every idea on Flourish Board gets its start.",
         icon: CuriosityIcon,
         image: "/images/value-curiosity.png",
     },

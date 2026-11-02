@@ -13,7 +13,7 @@ const Footer = () => {
       <div className="footer-container">
         <div className="footer-logo">
           <h1>
-            Flourish {/* <FaLightbulb /> */}
+            Flourish Board {/* <FaLightbulb /> */}
             <FlourishLogo />
           </h1>
           <div className="social-icons">
@@ -21,7 +21,7 @@ const Footer = () => {
             <Link href="/about"><FaInstagram className="instagram" /></Link>
           </div>
           <p>
-            Flourish is a platform where you can share your ideas and
+            Flourish Board is a platform where you can share your ideas and
             get feedback from others. Join us today and start sharing your
             ideas!
           </p>
@@ -59,7 +59,7 @@ const Footer = () => {
       </div>
       <hr className="footer-line" />
       <div className="footer-copy">
-        <h3>© 2025 Flourish. All rights reserved.</h3>
+        <h3>© 2025 Flourish Board. All rights reserved.</h3>
       </div>
     </footer>
   );

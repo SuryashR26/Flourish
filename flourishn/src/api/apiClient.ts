@@ -34,10 +34,28 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
         )
 }*/
 
+// Previously called the Express backend's /contactUs route, which depended on
+// that backend being deployed and reachable. The backend is no longer live,
+// so this now hits a Next.js API route (src/app/api/contactUs) that sends the
+// email directly — no separate server required. Left here, commented out, in
+// case the backend route needs to be the source of truth again later.
+// export function contactUs(first_name: string, last_name: string, email: string, message: string) {
+//     return fetch(`${API_BASE_URL}/contactUs`, {
+//         method: 'POST',
+//         credentials: 'include',
+//         headers: {
+//             'Content-Type': 'application/json',
+//         },
+//         body: JSON.stringify({ first_name, last_name, email, message }),
+//     })
+//         .then(async response => {
+//             return response.json();
+//         })
+// }
+
 export function contactUs(first_name: string, last_name: string, email: string, message: string) {
-    return fetch(`${API_BASE_URL}/contactUs`, {
+    return fetch(`/api/contactUs`, {
         method: 'POST',
-        credentials: 'include',
         headers: {
             'Content-Type': 'application/json',
         },
@@ -130,8 +148,22 @@ interface IdeaSubmissionData {
     skill_tags: string[]
 }
 
+// Previously called the Express backend's /ideaSubmission route (which posted
+// to a Google Sheets webhook and emailed a notification), but that backend is
+// no longer live. Left here, commented out, in case the backend route needs
+// to be the source of truth again later.
+// export async function submitIdea(data: IdeaSubmissionData) {
+//     const res = await fetch(`${API_BASE_URL}/ideaSubmission`, {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify(data),
+//     });
+//
+//     return await res.json();
+// }
+
 export async function submitIdea(data: IdeaSubmissionData) {
-    const res = await fetch(`${API_BASE_URL}/ideaSubmission`, {
+    const res = await fetch(`/api/ideaSubmission`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),

@@ -124,12 +124,18 @@
   }
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: "Figtree", sans-serif;
-  font-weight: 500;
+/* Wrapped in @layer base so this reset loses to Tailwind utility classes
+   (e.g. mx-auto, px-6) instead of silently overriding them — unlayered CSS
+   always beats layered CSS regardless of specificity, which was breaking
+   centering/spacing utilities sitewide. */
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: "Figtree", sans-serif;
+    font-weight: 500;
+  }
 }
 
 ::placeholder {

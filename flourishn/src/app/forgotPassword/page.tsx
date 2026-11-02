@@ -81,7 +81,7 @@ export default function ForgetPassword() {
         <div className="login-container">
             {/* Site Logo */}
             <Link href="/" className="login-site-logo">
-                Flourish
+                Flourish Board
                 {/* <FaLightbulb /> */}
                 <FlourishLogo />
             </Link>

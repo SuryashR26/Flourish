@@ -54,7 +54,8 @@ export default function IdeasNeedTeamsSection() {
                     <span className="ideas-word transition-colors duration-300 text-[#d7dbe1]">easy.</span>
                     <br />
                     <span className="ideas-word transition-colors duration-300 text-[#d7dbe1]">At</span>{" "}
-                    <span className="ideas-word transition-colors duration-300 text-[#d7dbe1]">Flourish,</span>{" "}
+                    <span className="ideas-word transition-colors duration-300 text-[#d7dbe1]">Flourish</span>{" "}
+                    <span className="ideas-word transition-colors duration-300 text-[#d7dbe1]">Board,</span>{" "}
                     <span className="ideas-word transition-colors duration-300 text-[#d7dbe1]">projects</span>{" "}
                     <span className="ideas-word transition-colors duration-300 text-[#d7dbe1]">find</span>{" "}
                     <span className="ideas-word transition-colors duration-300 text-[#d7dbe1]">their</span>{" "}

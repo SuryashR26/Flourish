@@ -6,7 +6,8 @@ import Link from "next/link"
 import { gsap } from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 // import StatsSection from '../ui/StatsSection'
-import FaqSection from '../ui/FaqSection'
+// FaqSection now rendered directly in page.tsx, see note near its old call site below
+// import FaqSection from '../ui/FaqSection'
 import IdeasNeedTeamsSection from '../ui/IdeasNeedTeamsSection'
 import ScrollTextAnimation from '../ui/ScrollTextAnimation'
 
@@ -303,8 +304,11 @@ export default function ResponsiveCards() {
             <StatsSection />
             <div className="h-16 lg:h-64"></div> */}
 
-            <FaqSection />
-            <div className="h-8 lg:h-32"></div>
+            {/* FaqSection moved out to page.tsx so the LifeOrbit spotlight section
+                can sit between this component and the FAQ, instead of at the very
+                bottom of the home page. */}
+            {/* <FaqSection />
+            <div className="h-8 lg:h-32"></div> */}
 
             <style jsx global>{`
                 .perspective-1000 {

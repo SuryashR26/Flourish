@@ -3,20 +3,20 @@ import React, { useState } from "react";
 
 const faqs = [
   {
-    question: "What is Flourish?",
-    answer: "Flourish is a platform designed to help teams and individuals bring their ideas to life through collaboration and innovation.",
+    question: "What is Flourish Board?",
+    answer: "Flourish Board is a platform designed to help teams and individuals bring their ideas to life through collaboration and innovation.",
   },
   // {
   //   question: "How do I join a team?",
   //   answer: "You can join a team by browsing available projects and sending a request to join, or by accepting an invitation from an existing team member.",
   // },
   // {
-  //   question: "Is Flourish free to use?",
+  //   question: "Is Flourish Board free to use?",
   //   answer: "We offer a free tier with core features. Premium features are available with a subscription plan.",
   // },
   {
-    question: "Can I use Flourish for personal projects?",
-    answer: "Absolutely! Flourish is perfect for both personal and professional projects.",
+    question: "Can I use Flourish Board for personal projects?",
+    answer: "Absolutely! Flourish Board is perfect for both personal and professional projects.",
   },
   // {
   //   question: "How do I reset my password?",

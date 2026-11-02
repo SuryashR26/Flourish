@@ -13,7 +13,7 @@ import { UserProvider } from "@/context/UserContext"
 import NotificationContainer from "@/components/ui/NotificationContainer"
 
 export const metadata: Metadata = {
-  title: 'Flourish',
+  title: 'Flourish Board',
   description: 'Where ideas find their people',
 }
 

@@ -348,7 +348,7 @@ export default function SignUp() {
             <div className="login-container">
                 {/* Site Logo */}
                 <Link href="/" className="login-site-logo">
-                    Flourish
+                    Flourish Board
                     {/* <FaLightbulb /> */}
                     <FlourishLogo />
                 </Link>

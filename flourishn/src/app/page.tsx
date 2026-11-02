@@ -4,6 +4,8 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import Button from "@/components/ui/button"
 import Cards from "@/components/cards/cards"
+import LifeOrbitTeaser from "@/components/ui/LifeOrbitTeaser"
+import FaqSection from "@/components/ui/FaqSection"
 import gsap from "gsap"
 import { SplitText } from "gsap/SplitText"
 import Navbar from "@/components/layout/navbar"
@@ -141,7 +143,7 @@ export default function Home() {
             LET YOUR IDEAS FLOURISH
           </h1>
           <p className="text-gray-600 text-lg md:text-xl text-center max-w-2xl mx-auto !mt-7 !mb-7 px-6 description-text flourish-title opacity-0">
-            Flourish is the collaboration platform for creators. Find your team, build your project, and turn your ideas into reality.
+            Flourish Board is the collaboration platform for creators. Find your team, build your project, and turn your ideas into reality.
           </p>
           <div className="z-20">
             <Link href="/post">
@@ -161,6 +163,14 @@ export default function Home() {
 
       {/* Cards Section */}
       <Cards />
+
+      {/* LifeOrbit Flagship Product Section — sits between the feature cards and
+          the FAQ so it reads as a mid-page spotlight rather than competing with
+          the hero or getting buried at the very bottom. */}
+      <LifeOrbitTeaser />
+
+      {/* FAQ — pulled out of Cards so LifeOrbit can sit above it */}
+      <FaqSection />
 
       <style jsx global>{`
         .description-text div {

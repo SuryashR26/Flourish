@@ -109,7 +109,7 @@ const Navbar: React.FC<NavbarProps> = ({ showSearchBar = false, showSeparator = 
         <div className="navbar-container">
           <div className="navbar-column-left">
             <Link href="/" className="navbar-logo" onClick={closeMobileMenu}>
-              Flourish {/* <FaLightbulb /> */}
+              Flourish Board {/* <FaLightbulb /> */}
               <FlourishLogo />
             </Link>
           </div>
@@ -151,6 +151,11 @@ const Navbar: React.FC<NavbarProps> = ({ showSearchBar = false, showSeparator = 
                   Browse
                 </Link>
               </li> */}
+              <li className="nav-item">
+                <Link href="/lifeorbit" className="nav-links" onClick={closeMobileMenu} style={{ color: '#a8832f', fontWeight: 600 }}>
+                  Products
+                </Link>
+              </li>
               <li className="nav-item">
                 <Link href="/post" className="nav-links" onClick={closeMobileMenu}>
                   Post

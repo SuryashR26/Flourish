@@ -132,7 +132,7 @@ export default function LoginPage() {
             <div className="login-container">
                 {/* Site Logo */}
                 <Link href="/" className="login-site-logo">
-                    Flourish
+                    Flourish Board
                     {/* <FaLightbulb /> */}
                     <FlourishLogo />
                 </Link>
@@ -145,7 +145,7 @@ export default function LoginPage() {
 
                 {/* Login Content */}
                 <div className="login-content">
-                    <FormCard title="Log in to Flourish" onSubmit={handleLogIn} style={{ width: '468px', marginBottom: '9rem' }} showSubmitButton={false}>
+                    <FormCard title="Log in to Flourish Board" onSubmit={handleLogIn} style={{ width: '468px', marginBottom: '9rem' }} showSubmitButton={false}>
                         {/* Social Login Buttons */}
                         <button type="button" className="social-login-btn google-btn">
                             <FaGoogle className="google-icon" /> Continue with Google
